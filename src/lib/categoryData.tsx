@@ -1,0 +1,18 @@
+export const categoryData = [
+  { id: 1, name: "Indoor Plants", image: "/assets/home/category/plants.png", slug: "indoor-plants" },
+  { id: 2, name: "Outdoor Plants", image: "/assets/home/category/plants.png", slug: "outdoor-plants" },
+  { id: 3, name: "Flower Plants", image: "/assets/home/category/plants.png", slug: "flower-plants" },
+  { id: 4, name: "Medicinal Plants", image: "/assets/home/category/plants.png", slug: "medicinal-plants" },
+  { id: 5, name: "Bonsai", image: "/assets/home/category/plants.png", slug: "bonsai" },
+  { id: 6, name: "Seeds", image: "/assets/home/category/plants.png", slug: "seeds" },
+  { id: 7, name: "Pots", image: "/assets/home/category/plants.png", slug: "pots" },
+  { id: 8, name: "Soil & Fertilizer", image: "/assets/home/category/plants.png", slug: "soil-fertilizer" },
+  { id: 9, name: "Cactus", image: "/assets/home/category/plants.png", slug: "cactus" },
+  { id: 10, name: "Succulents", image: "/assets/home/category/plants.png", slug: "succulents" },
+  { id: 11, name: "Herbs", image: "/assets/home/category/plants.png", slug: "herbs" },
+  { id: 12, name: "Fruit Plants", image: "/assets/home/category/plants.png", slug: "fruit-plants" },
+  { id: 13, name: "Palm Plants", image: "/assets/home/category/plants.png", slug: "palm-plants" },
+  { id: 14, name: "Gift Plants", image: "/assets/home/category/plants.png", slug: "gift-plants" },
+  { id: 15, name: "Water Plants", image: "/assets/home/category/plants.png", slug: "water-plants" },
+  { id: 16, name: "Hanging Plants", image: "/assets/home/category/plants.png", slug: "hanging-plants" },
+];
