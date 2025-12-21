@@ -26,7 +26,9 @@ const socialLinks = [
 
 const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "Category", href: "/categories" },
+  { label: "Category", href: "/category" },
+   { label: "All Category", href: "/categories" },
+  { label: "My Account", href: "/myaccount" },
   // { label: "Our Services", href: "" },
   // { label: "Why Us", href: "" },
   // { label: "Contact Us", href: "" },
@@ -34,14 +36,15 @@ const quickLinks = [
 
 
 const quickLinks2 = [
-   { label: "Terms & Condition", href: "/terms_condition" },
-  { label: "Privacy Policy", href: "/privacy_policy" },
-  //  { label: "Invoice Help", href: "" },
-  // { label: "Our CSR", href: "" },
+  
+   { label: "Invoice Help", href: "" },
+  { label: "Our CSR", href: "" },
 ]
 
 
 const quickLinks3 = [
+   { label: "Terms & Condition", href: "/terms_condition" },
+  { label: "Privacy Policy", href: "/privacy_policy" },
  
   { label: "Shiping Policy", href: "/shiping_policy" },
   { label: "Refund Policy", href: "/refund_policy" },
@@ -91,7 +94,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
               between 9:00 AM and 8:00 PM.
             </p>
 
-            <div className="flex w-full md:w-auto border border-white rounded-[40px]">
+            <div className="flex w-full md:w-auto md:border md:border-white rounded-[40px]">
               <form action="" onSubmit={handleSubmit}>
                 <div className="flex w-full md:w-[550px] px-4 md:px-0">
                   {/* Input Field */}
@@ -280,7 +283,7 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
             rel="noopener noreferrer"
             className="hover:text-green-500 transition"
           >
-          SIMULPUKUR, Gangadhar shishu niketan, SIMULPUKUR, Ukrah, Nadia, West Bengal, 741257
+          Simulpukur, Gangadhar shishu niketan, Simulpukur, Ukrah, Nadia, West Bengal, 741257
           </Link>
         </li>
       </ul>

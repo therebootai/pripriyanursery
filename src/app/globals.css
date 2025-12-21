@@ -8,6 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-define-green:#34A853;
+  --color-define-black:#202124;
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);

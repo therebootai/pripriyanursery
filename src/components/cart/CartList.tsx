@@ -26,7 +26,7 @@ export default function CartList() {
     <div>
       <WishlistHeader count={cart.length} />
 
-      <div className="space-y-4">
+      <div className="space-y-4 w-full">
         {cart.length > 0 ? (
           cart.map((item) => (
             <WishlistItem key={item.id} {...item} />

@@ -11,6 +11,10 @@ import {
   Leaf,
 } from "lucide-react";
 
+import { addOrder } from "@/lib/order";
+import { useRouter } from "next/navigation";
+
+
 
 type ProductType = {
   id: number;
@@ -53,6 +57,39 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const [activeImage, setActiveImage] = useState(images[0]);
   const [open, setOpen] = useState(false);
 
+
+
+
+
+  const router = useRouter();
+
+const handleBuyNow = () => {
+  const order = {
+    orderId: `ORD-${Date.now()}`,
+    date: new Date().toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }),
+    status: "Processing",
+    total: product.price,
+    items: [
+      {
+        id: product.id,
+        name: product.name,
+        image: product.image,
+        price: product.price,
+        qty: 1,
+      },
+    ],
+  };
+
+  addOrder(order);
+
+  router.push("/myaccount?tab=orders");
+};
+
+
   return (
     <>
       <Subbanner />
@@ -60,8 +97,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
       <section className="w-full">
         <div className="max-w-[1300px] mx-auto px-4 md:py-10  grid grid-cols-1 lg:grid-cols-[520px_1fr] gap-10">
 
-          {/* ================= LEFT : IMAGE ================= */}
-        {/* ================= LEFT : IMAGE ================= */}
+        
 <div className="lg:sticky lg:top-24 h-fit">
   <div className="flex gap-4">
 
@@ -107,9 +143,13 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         <button className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 rounded-lg font-medium">
           Add to Cart
         </button>
-        <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium">
-          Buy Now
-        </button>
+        <button
+  onClick={handleBuyNow}
+  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium"
+>
+  Buy Now
+</button>
+
       </div>
 
     </div>
@@ -181,16 +221,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               <li>5% cashback on Axis Bank Card</li>
             </ul>
 
-            {/* Buttons */}
-
-            {/* <div className="flex gap-4 mb-8">
-              <button className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 rounded-lg font-medium">
-                Add to Cart
-              </button>
-              <button className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium">
-                Buy Now
-              </button>
-            </div> */}
+            
 
             {/* Trust Icons */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-12">
