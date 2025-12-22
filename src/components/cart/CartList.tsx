@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import WishlistHeader from "@/components/wishlist/WishlistHeader";
-import WishlistItem from "@/components/wishlist/WishlistItem";
+import CartHeader from "./CartHeader";
+import CartItem from "./CartItem";
 
 type CartItem = {
   id: number;
@@ -24,12 +24,14 @@ export default function CartList() {
 
   return (
     <div>
-      <WishlistHeader count={cart.length} />
+     
+
+      <CartHeader count={cart.length} />
 
       <div className="space-y-4 w-full">
         {cart.length > 0 ? (
           cart.map((item) => (
-            <WishlistItem key={item.id} {...item} />
+            <CartItem key={item.id} {...item} />
           ))
         ) : (
           <p className="text-gray-500">Your cart is empty</p>
