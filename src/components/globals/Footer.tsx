@@ -28,7 +28,7 @@ const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Category", href: "/category" },
    { label: "All Category", href: "/categories" },
-  { label: "My Account", href: "/myaccount" },
+  { label: "My Account", href: "/my-account" },
   // { label: "Our Services", href: "" },
   // { label: "Why Us", href: "" },
   // { label: "Contact Us", href: "" },
