@@ -10,7 +10,7 @@ type WishlistItemProps = {
   href: string;
 };
 
-export default function WishlistItem({
+export default function CartItem({
   id,
   name,
   price,
@@ -38,7 +38,7 @@ export default function WishlistItem({
             </h4>
 
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Color: Red, Size: XXL
+              Color: Red, Size: XXL 
             </p>
 
             {price && (
@@ -57,7 +57,7 @@ export default function WishlistItem({
           </div>
 
           {/* Add to Cart */}
-          <button
+          {/* <button
             className="
               mt-3 sm:mt-auto flex items-center justify-center gap-2
               text-white font-semibold
@@ -75,7 +75,7 @@ export default function WishlistItem({
           >
             <ShoppingCart size={14} className="sm:size-[16px]" />
             <span className="whitespace-nowrap">Add to Cart</span>
-          </button>
+          </button> */}
         </div>
       </div>
 

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import OrderTracker from './OrderTracker'
+import OrderTracker from "./OrderTracker";
 
 type OrderItem = {
   id: number;
@@ -11,7 +11,7 @@ type OrderItem = {
   image: string;
   price: number;
   qty: number;
-  href:string;
+  href: string;
 };
 
 type Order = {
@@ -20,13 +20,10 @@ type Order = {
   status: "Delivered" | "Processing" | "Cancelled";
   total: number;
   items: OrderItem[];
-  href:string;
+  href: string;
 };
 
 const statusColor = (status: Order["status"]) => {
-
-
-
   switch (status) {
     case "Delivered":
       return "bg-green-100 text-green-700";
@@ -38,13 +35,9 @@ const statusColor = (status: Order["status"]) => {
 };
 
 export default function MyOrders() {
-
-const [trackerOpen, setTrackerOpen] = useState(false);
-const [trackStatus, setTrackStatus] =
-  useState<Order["status"]>("Processing");
-
-
-
+  const [trackerOpen, setTrackerOpen] = useState(false);
+  const [trackStatus, setTrackStatus] =
+    useState<Order["status"]>("Processing");
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
@@ -56,7 +49,7 @@ const [trackStatus, setTrackStatus] =
 
   if (orders.length === 0) {
     return (
-      <div className="bg-white p-6 rounded-md text-center text-gray-500">
+      <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         You have no orders yet
       </div>
     );
@@ -64,17 +57,17 @@ const [trackStatus, setTrackStatus] =
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-semibold text-gray-800">
+      <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
         My Orders
       </h2>
 
       {orders.map((order) => (
         <div
           key={order.orderId}
-          className="bg-white rounded-md shadow-sm border border-gray-200"
+          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
         >
-          {/* Order Header */}
-          <div className="flex flex-wrap gap-4 justify-between p-4  bg-gray-50">
+          {/* Header */}
+          <div className="flex flex-wrap gap-4 justify-between items-start p-4 sm:p-5 bg-gray-50">
             <div>
               <p className="text-xs text-gray-500">ORDER ID</p>
               <p className="text-sm font-medium">{order.orderId}</p>
@@ -87,11 +80,11 @@ const [trackStatus, setTrackStatus] =
 
             <div>
               <p className="text-xs text-gray-500">TOTAL</p>
-              <p className="text-sm font-medium">₹{order.total}</p>
+              <p className="text-sm font-semibold">₹{order.total}</p>
             </div>
 
             <span
-              className={`h-fit px-3 py-1 text-xs rounded-full font-medium ${statusColor(
+              className={`px-3 py-1 text-xs rounded-full font-medium ${statusColor(
                 order.status
               )}`}
             >
@@ -99,14 +92,14 @@ const [trackStatus, setTrackStatus] =
             </span>
           </div>
 
-          {/* Order Items */}
+          {/* Items */}
           <div className="divide-y">
             {order.items.map((item) => (
               <div
                 key={item.id}
-                className="flex gap-4 p-4 items-center"
+                className="flex flex-col sm:flex-row gap-4 p-4 items-start sm:items-center"
               >
-                <div className="relative h-16 w-16 rounded overflow-hidden bg-gray-100">
+                <div className="relative h-16 w-16 rounded-md overflow-hidden bg-gray-100">
                   <Image
                     src={item.image}
                     alt={item.name}
@@ -124,7 +117,7 @@ const [trackStatus, setTrackStatus] =
                   </p>
                 </div>
 
-                <div className="text-sm font-semibold">
+                <div className="text-sm font-semibold text-gray-800">
                   ₹{item.price}
                 </div>
               </div>
@@ -132,52 +125,46 @@ const [trackStatus, setTrackStatus] =
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end gap-3 p-4 bg-gray-50">
+          <div className="flex flex-wrap gap-2 justify-end p-4 bg-gray-50">
             <Link
-            //    href={`/product/${order.items[0].href}`}
-            href='#'
-
-              className="text-sm px-4 py-2 border rounded hover:bg-gray-100"
+              href="#"
+              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
             >
               View Order
             </Link>
 
-           <Link
-  href="#"
-  onClick={(e) => {
-    e.preventDefault();
-    setTrackStatus(order.status);
-    setTrackerOpen(true);
-  }}
-  className="text-sm px-4 py-2 border rounded hover:bg-gray-100"
->
-  Track Order
-</Link>
-
+            <Link
+              href="#"
+              onClick={(e) => {
+                e.preventDefault();
+                setTrackStatus(order.status);
+                setTrackerOpen(true);
+              }}
+              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
+            >
+              Track Order
+            </Link>
 
             <Link
               href="#"
-              className="text-sm px-4 py-2 border rounded hover:bg-gray-100"
+              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
             >
               Return & Replace
             </Link>
 
-            <button className="text-sm px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
+            <button className="text-xs sm:text-sm px-4 py-2 rounded-full bg-green-600 text-white hover:bg-green-700 transition">
               Buy Again
             </button>
           </div>
         </div>
       ))}
 
-
+      {/* Order Tracker Modal */}
       <OrderTracker
-  open={trackerOpen}
-  status={trackStatus}
-  onClose={() => setTrackerOpen(false)}
-/>
-
+        open={trackerOpen}
+        status={trackStatus}
+        onClose={() => setTrackerOpen(false)}
+      />
     </div>
-
-    
   );
 }
