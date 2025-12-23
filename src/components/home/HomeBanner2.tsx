@@ -20,7 +20,7 @@ export default function Homebanner2() {
   ];
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full py-6">
       {/* Swiper */}
       <Swiper
         modules={[Autoplay, Navigation]}

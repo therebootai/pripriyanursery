@@ -1,31 +1,26 @@
 import CategoryGrid from '@/components/category/CategoryGrid'
 import Subbanner from '@/components/globals/Subbanner'
 import MainTemplates from '@/templates/MainTemplates'
+import { fetchCategories } from '@/lib/api/category'
 
-export default function CategoriesPage() {
+export default async function CategoriesPage() {
+  const categories = await fetchCategories()
+
   return (
-   <>
-   
-   <MainTemplates>
+    <MainTemplates>
+      <Subbanner />
 
-    <Subbanner/>
+      <section className="py-6">
+        <div className="mx-auto max-w-[1300px] px-4">
+         
 
-    <section className="py-6">
-      <div className="mx-auto max-w-[1300px] px-4">
-        <h1 className="mb-10 text-3xl font-bold">
-          All Categories
-        </h1>
-
-      <CategoryGrid 
-  limit={12} 
-  cols={{ mobile: 2, sm: 3, md: 4, lg: 6, xl: 6 }} 
-/>
-
-    
-      </div>
-    </section>
-
-   </MainTemplates>
-   </>
+          <CategoryGrid
+            data={categories}
+            limit={12}
+            cols={{ mobile: 2, sm: 3, md: 5, lg: 6, xl: 6 }}
+          />
+        </div>
+      </section>
+    </MainTemplates>
   )
 }

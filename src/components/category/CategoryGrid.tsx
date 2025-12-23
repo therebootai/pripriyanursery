@@ -1,8 +1,14 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { categoryData } from '@/lib/categoryData'
+
 
 type Props = {
+  data?: {
+    id: string
+    name: string
+    image: string
+    slug: string
+  }[]
   limit?: number
   cols?: {
     mobile?: number
@@ -13,17 +19,18 @@ type Props = {
   }
 }
 
-export default function CategoryGrid({ limit, cols }: Props) {
-  const visible = limit ? categoryData.slice(0, limit) : categoryData
+export default function CategoryGrid({ data = [], limit, cols }: Props) {
+  const visible = limit ? data.slice(0, limit) : data
 
-  // Set default values if not provided
+
+  
   const mobileCols = cols?.mobile ?? 2
   const smCols = cols?.sm ?? 3
   const mdCols = cols?.md ?? 5
   const lgCols = cols?.lg ?? 6
   const xlCols = cols?.xl ?? 6
 
-  // Tailwind dynamic classes
+ 
   const gridClass = `grid gap-4 grid-cols-${mobileCols} sm:grid-cols-${smCols} md:grid-cols-${mdCols} lg:grid-cols-${lgCols} xl:grid-cols-${xlCols}`
 
   return (
@@ -42,7 +49,9 @@ export default function CategoryGrid({ limit, cols }: Props) {
               className="object-cover group-hover:scale-110 transition"
             />
           </div>
-          <p className="mt-3 text-sm font-medium text-gray-800">{cat.name}</p>
+          <p className="mt-4 text-[17px] text-gray-900"
+             style={{fontWeight:"560"}}
+          >{cat.name}</p>
         </Link>
       ))}
     </div>

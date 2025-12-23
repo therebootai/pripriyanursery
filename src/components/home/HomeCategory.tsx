@@ -1,7 +1,10 @@
 import CategoryGrid from '@/components/category/CategoryGrid'
 import Link from 'next/link'
+import { fetchCategories } from '@/lib/api/category'
 
-export default function HomeCategory() {
+export default async function HomeCategory() {
+  const categories = await fetchCategories()
+
   return (
     <section className="py-5">
       <div className="mx-auto max-w-[1300px] px-4">
@@ -21,10 +24,11 @@ export default function HomeCategory() {
         </div>
 
         {/* GRID */}
-      <CategoryGrid
-  limit={12}
-  cols={{ mobile: 2, sm: 3, md: 5, lg: 6, xl: 6 }}
-/>
+        <CategoryGrid
+          data={categories}
+          limit={12}
+          cols={{ mobile: 2, sm: 3, md: 5, lg: 6, xl: 6 }}
+        />
 
       </div>
     </section>

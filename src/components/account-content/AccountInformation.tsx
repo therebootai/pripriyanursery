@@ -33,7 +33,7 @@ function EditableField({ value, placeholder }: EditableFieldProps) {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder}
-            className="flex-1  bg-transparent outline-none text-sm border-b border-gray-300"
+            className="flex-1  bg-transparent outline-none text-sm  border-gray-200"
           />
 
           <div className="flex items-center gap-2">
@@ -68,7 +68,7 @@ export default function AccountInformation() {
       </h2>
 
       {/* Editable Fields */}
-      <div className="space-y-4 max-w-xl">
+      <div className="space-y-4 max-w-xl text-gray-700">
         <EditableField value="Abul Hasan" />
         <EditableField placeholder="Your mobile number" value="123456789" />
         <EditableField placeholder="Your email address" value="abc@gmail.com" />
@@ -80,11 +80,11 @@ export default function AccountInformation() {
           Your Gender
         </p>
 
-        <div className="flex items-center gap-6 text-sm text-gray-600">
+        <div className="flex items-center gap-6 text-sm ">
           {["male", "female", "others"].map((g) => (
             <label
               key={g}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer text-gray-700"
             >
               <input
                 type="radio"
@@ -101,7 +101,7 @@ export default function AccountInformation() {
         </div>
       </div>
 
-      {/* Actions */}
+    
       <div className="mt-8 flex flex-wrap gap-4">
         <button className="px-4 py-2 rounded-md text-sm bg-red-100 text-red-600 hover:bg-red-200">
           Delete Account
@@ -112,7 +112,7 @@ export default function AccountInformation() {
         </button>
       </div>
 
-      {/* Illustration */}
+      
       <div className="hidden md:block absolute right-6 bottom-0 opacity-70 ">
         <Image
                         src="/assets/globals/login.png"

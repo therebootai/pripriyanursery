@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 import Subbanner from "@/components/globals/Subbanner";
+import { ShoppingCart, } from 'lucide-react'
+ import { ShoppingBag } from "lucide-react";
 import {
   Star,
   ShieldCheck,
@@ -86,7 +88,7 @@ const handleBuyNow = () => {
 
   addOrder(order);
 
-  router.push("/myaccount?tab=orders");
+  router.push("/my-account?tab=orders");
 };
 
 
@@ -95,10 +97,10 @@ const handleBuyNow = () => {
       <Subbanner />
 
       <section className="w-full">
-        <div className="max-w-[1300px] mx-auto px-4 md:py-10  grid grid-cols-1 lg:grid-cols-[520px_1fr] gap-10">
+        <div className="max-w-[1300px] mx-auto px-4 md:py-10  grid grid-cols-1 lg:grid-cols-[1fr_1fr] gap-10">
 
         
-<div className="lg:sticky lg:top-24 h-fit">
+ <div className="lg:sticky lg:top-24 h-fit">
   <div className="flex gap-4">
 
     {/* Thumbnails */}
@@ -107,7 +109,7 @@ const handleBuyNow = () => {
         <button
           key={i}
           onClick={() => setActiveImage(img)}
-          className={`border rounded-md p-1 transition ${
+          className={`border rounded p-1 transition ${
             activeImage === img
               ? "border-green-600"
               : "border-gray-200 hover:border-green-600"
@@ -116,37 +118,42 @@ const handleBuyNow = () => {
           <Image
             src={img}
             alt="product thumbnail"
-            width={80}
-            height={80}
+            width={120}
+            height={120}
             className="object-contain"
           />
         </button>
       ))}
     </div>
 
-    {/* IMAGE + BUTTONS WRAPPER */}
-    <div className="flex-1 flex flex-col">
+   
+    <div className="flex flex-col md:w-[480px]">
 
-      {/* Main Image */}
-      <div className="rounded-lg flex justify-center items-center">
+   
+      <div className="rounded flex justify-center items-center border border-gray-200 md:h-[420px] relative overflow-hidden">
         <Image
           src={activeImage}
           alt={product.name}
-          width={420}
-          height={420}
-          className="object-contain"
+          fill
+          className="object-cover"
         />
       </div>
 
-      {/* Buttons (MATCH IMAGE WIDTH) */}
-      <div className="flex gap-4 mt-2 w-full">
-        <button className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 rounded-lg font-medium">
-          Add to Cart
+      
+      <div className="flex gap-4 mt-2">
+       <button className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-2 rounded font-medium flex items-center justify-center gap-2">
+           <ShoppingCart size={16} />
+           <span>Add to Cart</span>
         </button>
-        <button
+
+
+      
+
+<button
   onClick={handleBuyNow}
-  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium"
+  className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium flex items-center justify-center gap-2"
 >
+  <ShoppingBag size={18} />
   Buy Now
 </button>
 
@@ -157,16 +164,16 @@ const handleBuyNow = () => {
 </div>
 
 
-          {/* ================= RIGHT : CONTENT ================= */}
+
           <div className="flex flex-col">
 
             {/* Breadcrumb */}
             <p className="text-sm text-green-600 mb-1">
-              Home › {product.category ?? "Products"} › {product.name}
+              Home › <span className="text-black">{product.category ?? "Products"} ›</span> <span className="text-gray-600"> {product.name}</span>
             </p>
 
             {/* Title */}
-            <h1 className="text-2xl font-semibold mb-2">
+            <h1 className="md:text-[32px]  mb-2 text-define-black" style={{fontWeight:'700'}}>
               {product.name}
             </h1>
 
@@ -175,7 +182,7 @@ const handleBuyNow = () => {
               <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
                 4.9 <Star size={14} fill="white" />
               </span>
-              <span className="text-sm text-gray-600">
+              <span className="text-[16px] text-[#555555]">
                 6,426 Ratings & 477 Reviews
               </span>
             </div>
@@ -224,12 +231,14 @@ const handleBuyNow = () => {
             
 
             {/* Trust Icons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center mb-6">
               <Trust icon={<Headphones />} label="24x7 Support" />
               <Trust icon={<RotateCcw />} label="Easy Return" />
               <Trust icon={<ShieldCheck />} label="100% Original" />
               <Trust icon={<Leaf />} label="Made in India" />
             </div>
+
+            
 
             {/* ================= DESCRIPTION (CONNECTED) ================= */}
             {product.description?.full && (

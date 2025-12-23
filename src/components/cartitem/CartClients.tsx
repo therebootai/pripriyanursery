@@ -106,7 +106,7 @@ export default function CartClient() {
                   </p>
                 </div>
 
-                <div className="flex gap-4 mt-3">
+                <div className="flex gap-4 pt-4 md:pt-0 md:mt-0 md:mb-2 md:ml-[-5px]">
                   <button className="font-medium hover:text-define-green">
                     MOVE TO WISHLIST
                   </button>
@@ -117,6 +117,7 @@ export default function CartClient() {
                     REMOVE
                   </button>
                 </div>
+
               </div>
             </div>
           ))}

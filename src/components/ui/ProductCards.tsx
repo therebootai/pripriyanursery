@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShoppingCart, Heart, Check } from "lucide-react";
+import { ShoppingCart, Heart,  } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { addToCart as addToCartUtil, CartItemType } from "@/utils/cart";
@@ -154,8 +154,11 @@ const addToCart = () => {
           >
             {isInCart ? (
               <>
-                <Check size={14} className="text-green-700" />
-                <span>Added to Cart</span>
+                 <ShoppingCart
+                  size={14}
+                  className="transition-transform duration-300 group-hover:translate-x-1"
+                />
+                <span>Go to Cart</span>
               </>
             ) : (
               <>
