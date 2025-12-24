@@ -51,16 +51,7 @@ export const CustomerProvider = ({
     setCustomer(null);
     localStorage.removeItem("customer");
   };
-
-   useEffect(() => {     
-     const stored = localStorage.getItem("customer");
-     if (stored) {
-       setCustomer(JSON.parse(stored));
-       setLoading(false);
-     } else {
-       refreshCustomer();
-     }
-   }, []);
+ 
   return (
     <CustomerContext.Provider
       value={{

@@ -25,7 +25,7 @@ export default function AccountMenu({ onItemClick }: Props) {
     `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
      ${
        pathname.startsWith(href)
-         ? "bg-green-50 text-define-green font-semibold"
+         ? "bg-green-50 text-defined-green font-semibold"
          : "hover:bg-green-50 text-gray-700"
      }`;
 
@@ -44,7 +44,7 @@ export default function AccountMenu({ onItemClick }: Props) {
           onClick={() =>
             setOpen((prev) => ({ ...prev, account: !prev.account }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Account Settings
           <ChevronDown
@@ -82,7 +82,7 @@ export default function AccountMenu({ onItemClick }: Props) {
           onClick={() =>
             setOpen((prev) => ({ ...prev, orders: !prev.orders }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Your Orders
           <ChevronDown
@@ -138,7 +138,7 @@ export default function AccountMenu({ onItemClick }: Props) {
           onClick={() =>
             setOpen((prev) => ({ ...prev, payments: !prev.payments }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Payments
           <ChevronDown

@@ -1,186 +1,202 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Trash2, Pencil } from "lucide-react";
+import { useCustomer } from "@/context/CustomerContext";
+import toast from "react-hot-toast";
 
-type AddressType = "Home" | "Officez" | "Others";
+type AddressType = "home" | "office" | "others";
+const isValidMobile = (v: string) => /^91\d{10}$/.test(v);
 
-type Address = {
-  id: number;
+const isValidPin = (v: string) => /^\d{6}$/.test(v);
+
+export type Address = {
+  _id?: string;
   name: string;
   mobile: string;
-  altMobile?: string;
-  pincode: string;
+  alternateMobile?: string;
+  pin: string;
   area: string;
   city: string;
   state: string;
-  country: string;
+  country?: string;
   type: AddressType;
 };
 
 const emptyForm: Address = {
-  id: 0,
   name: "",
   mobile: "",
-  altMobile: "",
-  pincode: "",
+  alternateMobile: "",
+  pin: "",
   area: "",
   city: "",
   state: "",
   country: "",
-  type: "Home",
+  type: "home",
 };
 
 export default function ManageAddress() {
-  const [form, setForm] = useState<Address>(emptyForm);
-  const [addresses, setAddresses] = useState<Address[]>([]);
+  const { customer, setCustomer } = useCustomer();
 
-  const handleChange = (key: keyof Address, value: string) => {
-    setForm({ ...form, [key]: value });
+  const [forms, setForms] = useState<Address[]>([]);
+  const addresses = customer?.addresses || [];
+
+
+  const updateAddresses = async (updated: Address[]) => {
+    if (!customer?._id) return;
+
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}`,
+      {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ addresses: updated }),
+      }
+    );
+
+    if (!res.ok) {
+      toast.error("Failed to update addresses");
+      return;
+    }
+
+    const data = await res.json();
+    setCustomer(data.data);
+    localStorage.setItem("customer", JSON.stringify(data.data));
+    toast.success("Address updated");
   };
 
-  const saveAddress = () => {
-    if (!form.name || !form.mobile) return;
 
-    setAddresses([
-      ...addresses,
-      { ...form, id: Date.now() },
-    ]);
-    setForm(emptyForm);
+  const addNewForm = () => {
+    setForms([emptyForm, ...forms]);
   };
 
-  const removeAddress = (id: number) => {
-    setAddresses(addresses.filter((a) => a.id !== id));
+
+ const saveAll = async () => {
+   if (!forms.length) return;
+
+   for (const f of forms) {
+     if (!f.name || !f.mobile || !f.pin || !f.area || !f.city || !f.state) {
+       toast.error("Please fill all required address fields");
+       return;
+     }
+
+     if (!isValidMobile(f.mobile)) {
+       toast.error("Mobile must start with 91 and be 12 digits");
+       return;
+     }
+
+     if (f.alternateMobile && !isValidMobile(f.alternateMobile)) {
+       toast.error("Alternate mobile must start with 91 and be 12 digits");
+       return;
+     }
+
+     if (!isValidPin(f.pin)) {
+       toast.error("Pin code must be 6 digits");
+       return;
+     }
+   }
+
+   await updateAddresses([...forms, ...(addresses as Address[])]);
+   setForms([]);
+ };
+
+
+  const removeAddress = async (id?: string) => {
+    const updated = addresses.filter((a) => a._id !== id) as Address[];
+    await updateAddresses(updated);
   };
+
+
+  const editAddress = (addr: Address) => {
+    setForms([addr, ...forms]);
+    removeAddress(addr._id);
+  };
+
+useEffect(() => {
+  if (addresses.length === 0 && forms.length === 0) {
+    setForms([emptyForm]);
+  }
+}, [addresses]);
+
 
   return (
     <div className="bg-white rounded-md p-6 space-y-8">
-      {/* ADD ADDRESS */}
-      <div className="border-[0.3px] border-gray-200 rounded-md p-4">
-        <p className="text-sm font-medium text-gray-700 mb-4">
-          + Add Address
-        </p>
+      <button
+        onClick={addNewForm}
+        className="text-sm font-medium text-white rounded-xl bg-defined-green py-2 px-4 mb-4"
+      >
+        + Add Address
+      </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
-          <Input
-            placeholder="Name"
-            value={form.name}
-            onChange={(v) => handleChange("name", v)}
-          />
-          <Input
-            placeholder="Mobile Number"
-            value={form.mobile}
-            onChange={(v) => handleChange("mobile", v)}
-          />
-          <Input
-            placeholder="Pin Code"
-            value={form.pincode}
-            onChange={(v) => handleChange("pincode", v)}
-          />
-          <Input
-            placeholder="Area and Street/Landmark"
-            value={form.area}
-            onChange={(v) => handleChange("area", v)}
-          />
-          <Input
-            placeholder="City"
-            value={form.city}
-            onChange={(v) => handleChange("city", v)}
-          />
-          <Input
-            placeholder="State"
-            value={form.state}
-            onChange={(v) => handleChange("state", v)}
-          />
-          <Input
-            placeholder="Country"
-            value={form.country}
-            onChange={(v) => handleChange("country", v)}
-          />
-          <Input
-            placeholder="Alternative Phone Number"
-            value={form.altMobile}
-            onChange={(v) => handleChange("altMobile", v)}
+      {/* FORMS */}
+      {forms.map((form, idx) => (
+        <div
+          key={idx}
+          className="border-[0.3px] border-gray-200 rounded-md p-4"
+        >
+          <AddressForm
+            form={form}
+            onChange={(f) =>
+              setForms((prev) => prev.map((p, i) => (i === idx ? f : p)))
+            }
           />
         </div>
+      ))}
 
-        {/* Address Type */}
-        <div className="mt-4">
-          <p className="text-sm font-medium text-gray-700 mb-2">
-            Address type
-          </p>
-
-          <div className="flex gap-6 text-sm">
-            {(["Home", "Office", "Others"] as AddressType[]).map(
-              (type) => (
-                <label
-                  key={type}
-                  className="flex items-center gap-2 cursor-pointer text-gray-700"
-                >
-                  <input
-                    type="radio"
-                    checked={form.type === type}
-                    onChange={() =>
-                      setForm({ ...form, type })
-                    }
-                    className="accent-green-600"
-                  />
-                  {type}
-                </label>
-              )
-            )}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="mt-6 flex gap-4">
-          <button
-            onClick={saveAddress}
-            className="bg-define-green text-white px-5 py-2 rounded-md text-sm hover:bg-green-700"
-          >
-            Save Address
-          </button>
-
-          <button
-            onClick={() => setForm(emptyForm)}
-            className="bg-yellow-400 text-define-black px-5 py-2 rounded-md text-sm hover:bg-yellow-500"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
+      {forms.length > 0 && (
+        <button
+          onClick={saveAll}
+          className="bg-defined-green text-white px-5 py-2 rounded-md text-sm"
+        >
+          Save Address
+        </button>
+      )}
 
       {/* SAVED ADDRESSES */}
       <div className="space-y-4">
         {addresses.map((addr) => (
           <div
-            key={addr.id}
-            className="border-[0.3px] border-gray-200 rounded-md p-4 flex justify-between items-start"
+            key={addr._id}
+            className="border-[0.3px] border-gray-200 rounded-md p-4 flex justify-between gap-4"
           >
-            <div>
-              <span className="inline-block text-xs bg-define-green text-white px-2 py-[2px] rounded">
+            <div className="space-y-1">
+              <span className="inline-block text-xs bg-defined-green text-white px-2 py-0.5 rounded">
                 {addr.type}
               </span>
 
-              <p className="font-medium mt-2">
+              <p className="text-gray-800 font-semibold">
                 {addr.name}
+                {addr.mobile && (
+                  <span className="text-sm text-gray-500 ml-2">
+                    | {addr.mobile}
+                  </span>
+                )}
               </p>
 
-              <p className="text-sm text-gray-600 mt-1">
-                {addr.area}, {addr.city}, {addr.state} -{" "}
-                {addr.pincode}, {addr.country}
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {[addr.area, addr.city, addr.state, addr.pin]
+                  .filter(Boolean)
+                  .join(", ")}
               </p>
+
+              {addr.alternateMobile && (
+                <p className="text-xs text-gray-500">
+                  Alternate: {addr.alternateMobile}
+                </p>
+              )}
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 shrink-0">
               <Trash2
                 size={16}
                 className="text-red-500 cursor-pointer"
-                onClick={() => removeAddress(addr.id)}
+                onClick={() => removeAddress(addr._id)}
               />
               <Pencil
                 size={16}
                 className="text-green-600 cursor-pointer"
+                onClick={() => editAddress({ ...addr, type: addr.type as AddressType })}
               />
             </div>
           </div>
@@ -190,7 +206,75 @@ export default function ManageAddress() {
   );
 }
 
-/* INPUT COMPONENT */
+/* ---------------- FORM ---------------- */
+
+function AddressForm({
+  form,
+  onChange,
+}: {
+  form: Address;
+  onChange: (v: Address) => void;
+}) {
+  const update = (k: keyof Address, v: any) => onChange({ ...form, [k]: v });
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+        <Input
+          placeholder="Name"
+          value={form.name}
+          onChange={(v) => update("name", v)}
+        />
+        <Input
+          placeholder="Mobile Number"
+          value={form.mobile}
+          onChange={(v) => update("mobile", v)}
+        />
+        <Input
+          placeholder="Pin Code"
+          value={form.pin}
+          onChange={(v) => update("pin", v)}
+        />
+        <Input
+          placeholder="Area"
+          value={form.area}
+          onChange={(v) => update("area", v)}
+        />
+        <Input
+          placeholder="City"
+          value={form.city}
+          onChange={(v) => update("city", v)}
+        />
+        <Input
+          placeholder="State"
+          value={form.state}
+          onChange={(v) => update("state", v)}
+        />
+        <Input
+          placeholder="Alternative Phone"
+          value={form.alternateMobile}
+          onChange={(v) => update("alternateMobile", v)}
+        />
+      </div>
+
+      <div className="mt-4 flex gap-6 text-sm text-defined-green">
+        {(["home", "office", "others"] as AddressType[]).map((t) => (
+          <label key={t} className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="radio"
+              checked={form.type === t}
+              onChange={() => update("type", t)}
+            />
+            {t}
+          </label>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ---------------- INPUT ---------------- */
+
 function Input({
   placeholder,
   value,
@@ -205,7 +289,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="border-[0.3px] border-gray-200 rounded-md px-4 py-3 text-sm w-full focus:outline-none focus:border-gray-200"
+      className="border-[0.3px] border-gray-200 rounded-md px-4 py-3 text-sm w-full"
     />
   );
 }

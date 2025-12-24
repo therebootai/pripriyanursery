@@ -204,7 +204,7 @@ export default function Header() {
                 <button
                   onClick={async () => {
                     await logoutCustomer();
-                    router.push("/");
+                    router.replace("/");
                   }}
                   className="w-full rounded-full bg-red-100 py-3 font-bold text-red-600"
                 >

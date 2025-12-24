@@ -1,9 +1,12 @@
 export type CategoryUI = {
-  id: string
-  name: string
-  image: string
-  slug: string
-}
+  id: string;
+  name: string;
+  image: {
+    public_id: string;
+    url: string;
+  };
+  categoryId: string;
+};
 
 export async function fetchCategories(): Promise<CategoryUI[]> {
   const res = await fetch("http://localhost:8000/api/category", {
@@ -16,15 +19,14 @@ export async function fetchCategories(): Promise<CategoryUI[]> {
 
   const json = await res.json()
 
-  // 🔥 VERY IMPORTANT FIX
   const categories = Array.isArray(json)
     ? json
-    : json.data || json.categories || []
+    : json.categories || []
 
-  return categories.map((cat: any) => ({
-    id: cat._id,
+  return categories.map((cat: CategoryUI) => ({
+    id: cat.id,
     name: cat.name,
     image: cat.image?.url || "/assets/home/category/plants.png",
-    slug: cat.categoryId,
-  }))
+    categoryId: cat.categoryId,
+  }));
 }

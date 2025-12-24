@@ -7,8 +7,8 @@ export interface Customer {
   customerId: string;
   name: string;
   email: string;
+  gender: string;
   mobile: string;
-  pin: string;
   avatar: {
     public_id: string;
     url: string;
@@ -16,12 +16,13 @@ export interface Customer {
   addresses: Array<{
     _id: string;
     type: string;
-    addressLine1: string;
-    addressLine2?: string;
+    name: string;
+    mobile: string;
+    area: string;
     city: string;
     state: string;
     pin: string;
-    isPrimary: boolean;
+    alternateMobile: string;
   }>;
   // cart: Array<{
   //   productId: mongoose.Types.ObjectId;

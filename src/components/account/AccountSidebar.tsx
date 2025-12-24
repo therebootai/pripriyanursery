@@ -32,7 +32,7 @@ export default function AccountSidebar({
       >
         {/* Profile */}
         <AccountProfile
-          name="Abul Hasan"
+          name="User"
           image="/assets/images (3).jpeg"
         />
 
