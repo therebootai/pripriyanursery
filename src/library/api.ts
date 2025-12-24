@@ -4,9 +4,53 @@ const API = process.env.NEXT_PUBLIC_API_URL;
 
 export interface Customer {
   _id: string;
-  name?: string;
+  customerId: string;
+  name: string;
+  email: string;
   mobile: string;
-  createdAt: string;
+  pin: string;
+  avatar: {
+    public_id: string;
+    url: string;
+  };
+  addresses: Array<{
+    _id: string;
+    type: string;
+    addressLine1: string;
+    addressLine2?: string;
+    city: string;
+    state: string;
+    pin: string;
+    isPrimary: boolean;
+  }>;
+  // cart: Array<{
+  //   productId: mongoose.Types.ObjectId;
+  //   variantId: mongoose.Types.ObjectId;
+  //   quantity: number;
+  //   priceAtTime: number;
+  // }>;
+  // wishlist: mongoose.Types.ObjectId[];
+  totalOrders: number;
+  totalSpent: number;
+  rewards: {
+    points: number;
+    tier: string;
+  };
+  giftCards: Array<{
+    code: string;
+    balance: number;
+    expiry: Date;
+  }>;
+  // recentlyViewed: mongoose.Types.ObjectId[];
+  notifications: Array<{
+    title: string;
+    message: string;
+    createdAt: Date;
+  }>;
+
+  status: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface SendOtpResponse {
@@ -37,7 +81,7 @@ export const sendOtp = async (mobile: string): Promise<SendOtpResponse> => {
     const { data } = await api.post<SendOtpResponse>("/customer/send-otp", {
       mobile,
     });
-    console.log(data);
+    // console.log(data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
@@ -54,6 +98,7 @@ export const verifyOtp = async (
       mobile,
       otp,
     });
+    console.log(data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
