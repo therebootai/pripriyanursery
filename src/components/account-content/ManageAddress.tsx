@@ -61,7 +61,7 @@ export default function ManageAddress() {
           + Add Address
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
           <Input
             placeholder="Name"
             value={form.name}
@@ -115,7 +115,7 @@ export default function ManageAddress() {
               (type) => (
                 <label
                   key={type}
-                  className="flex items-center gap-2 cursor-pointer"
+                  className="flex items-center gap-2 cursor-pointer text-gray-700"
                 >
                   <input
                     type="radio"
@@ -136,14 +136,14 @@ export default function ManageAddress() {
         <div className="mt-6 flex gap-4">
           <button
             onClick={saveAddress}
-            className="bg-green-600 text-white px-5 py-2 rounded-md text-sm hover:bg-green-700"
+            className="bg-define-green text-white px-5 py-2 rounded-md text-sm hover:bg-green-700"
           >
             Save Address
           </button>
 
           <button
             onClick={() => setForm(emptyForm)}
-            className="bg-yellow-400 text-black px-5 py-2 rounded-md text-sm hover:bg-yellow-500"
+            className="bg-yellow-400 text-define-black px-5 py-2 rounded-md text-sm hover:bg-yellow-500"
           >
             Cancel
           </button>

@@ -11,7 +11,7 @@ type OrderItem = {
   image: string;
   price: number;
   qty: number;
-  href: string;
+  href?: string;
 };
 
 type Order = {
@@ -19,19 +19,9 @@ type Order = {
   date: string;
   status: "Delivered" | "Processing" | "Cancelled";
   total: number;
+  shipTo?: string;
   items: OrderItem[];
   href: string;
-};
-
-const statusColor = (status: Order["status"]) => {
-  switch (status) {
-    case "Delivered":
-      return "bg-green-100 text-green-700";
-    case "Processing":
-      return "bg-yellow-100 text-yellow-700";
-    case "Cancelled":
-      return "bg-red-100 text-red-700";
-  }
 };
 
 export default function MyOrders() {
@@ -57,109 +47,125 @@ export default function MyOrders() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-        My Orders
-      </h2>
-
       {orders.map((order) => (
         <div
           key={order.orderId}
-          className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+          className="border border-gray-200 rounded-md bg-white"
         >
-          {/* Header */}
-          <div className="flex flex-wrap gap-4 justify-between items-start p-4 sm:p-5 bg-gray-50">
+          {/* HEADER */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-gray-100 text-sm">
             <div>
-              <p className="text-xs text-gray-500">ORDER ID</p>
-              <p className="text-sm font-medium">{order.orderId}</p>
+              <p className="text-gray-500">Order Placed</p>
+              <p className="font-medium">{order.date}</p>
             </div>
 
             <div>
-              <p className="text-xs text-gray-500">ORDER DATE</p>
-              <p className="text-sm">{order.date}</p>
+              <p className="text-gray-500">Total Amount</p>
+              <p className="font-medium">₹{order.total}</p>
             </div>
 
             <div>
-              <p className="text-xs text-gray-500">TOTAL</p>
-              <p className="text-sm font-semibold">₹{order.total}</p>
+              <p className="text-gray-500">Ship To</p>
+              <p className="font-medium">
+                {order.shipTo || "Customer"}
+              </p>
             </div>
 
-            <span
-              className={`px-3 py-1 text-xs rounded-full font-medium ${statusColor(
-                order.status
-              )}`}
-            >
-              {order.status}
-            </span>
+            <div className="text-right">
+              <p className="text-gray-500">
+                Order ID:{" "}
+                <span className="font-medium">{order.orderId}</span>
+              </p>
+              <div className="mt-1 space-x-2">
+                <Link href="#" className="text-blue-600 hover:underline">
+                  View Order Details
+                </Link>
+                <span>|</span>
+                <Link href="#" className="text-blue-600 hover:underline">
+                  Get Invoice
+                </Link>
+              </div>
+            </div>
           </div>
 
-          {/* Items */}
-          <div className="divide-y">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex flex-col sm:flex-row gap-4 p-4 items-start sm:items-center"
-              >
-                <div className="relative h-16 w-16 rounded-md overflow-hidden bg-gray-100">
-                  <Image
-                    src={item.image}
-                    alt={item.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+          {/* ITEMS */}
+          {order.items.map((item) => (
+            <div
+              key={item.id}
+              className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-4 p-4 border-t border-gray-200"
+            >
+              {/* LEFT */}
+              <div className="flex gap-4">
+              <div className="relative w-30 h-30 border border-gray-200 rounded overflow-hidden">
+  <Image
+    src={item.image}
+    alt={item.name}
+    fill
+    className="object-cover"
+  />
+</div>
 
-                <div className="flex-1">
-                  <p className="font-medium text-gray-800">
+
+                <div>
+                  <p className="font-medium text-gray-800 max-w-md">
                     {item.name}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Qty: {item.qty}
+                  <p className="text-sm text-gray-600 mt-1">
+                    Delivered on {order.date}
                   </p>
-                </div>
+                  <p className="text-sm text-gray-500">
+                    The package was handed over to the resident.
+                  </p>
 
-                <div className="text-sm font-semibold text-gray-800">
-                  ₹{item.price}
+                  <div className="flex gap-3 mt-4">
+                    <button className="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                      Buy Again
+                    </button>
+
+                    {/* 🔧 ONLY FIX HERE */}
+                    <Link
+                      href={item.href || "#"}
+                      className="px-4 py-2 text-sm bg-yellow-400 rounded hover:bg-yellow-500"
+                    >
+                      View Your Item
+                    </Link>
+                  </div>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Actions */}
-          <div className="flex flex-wrap gap-2 justify-end p-4 bg-gray-50">
-            <Link
-              href="#"
-              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
-            >
-              View Order
-            </Link>
+              {/* RIGHT ACTIONS */}
+              <div className="flex flex-col gap-2 w-full md:w-56">
+                <button
+                  onClick={() => {
+                    setTrackStatus(order.status);
+                    setTrackerOpen(true);
+                  }}
+                  className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                >
+                  Track Your Order
+                </button>
 
-            <Link
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                setTrackStatus(order.status);
-                setTrackerOpen(true);
-              }}
-              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
-            >
-              Track Order
-            </Link>
+                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                  Get Support
+                </button>
 
-            <Link
-              href="#"
-              className="text-xs sm:text-sm px-4 py-2 rounded-full border bg-white hover:bg-gray-100 transition"
-            >
-              Return & Replace
-            </Link>
+                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                  View Return / Replacement
+                </button>
+                  
+                  <Link href='/review'>
+                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                  Write a Review
+                </button>
+                </Link>
 
-            <button className="text-xs sm:text-sm px-4 py-2 rounded-full bg-green-600 text-white hover:bg-green-700 transition">
-              Buy Again
-            </button>
-          </div>
+              </div>
+            </div>
+          ))}
         </div>
       ))}
 
-      {/* Order Tracker Modal */}
+      {/* TRACKER MODAL */}
       <OrderTracker
         open={trackerOpen}
         status={trackStatus}

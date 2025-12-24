@@ -11,10 +11,6 @@ type Props = {
 
 
 
-      
-     
-
-
 export default function AccountMenu({ onItemClick }: Props) {
   const pathname = usePathname();
 
@@ -24,7 +20,7 @@ export default function AccountMenu({ onItemClick }: Props) {
     payments: true,
   });
 
-  /* ================= ACTIVE CLASS HANDLER ================= */
+
   const itemClass = (href: string) =>
     `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
      ${
@@ -33,7 +29,7 @@ export default function AccountMenu({ onItemClick }: Props) {
          : "hover:bg-green-50 text-gray-700"
      }`;
 
-  /* ================= AUTO OPEN ACCOUNT SECTION ================= */
+  
   useEffect(() => {
     if (pathname.startsWith("/account")) {
       setOpen((prev) => ({ ...prev, account: true }));
@@ -42,10 +38,7 @@ export default function AccountMenu({ onItemClick }: Props) {
 
   return (
     <div className="mt-4 space-y-3">
-      {/* ================= YOUR ORDERS ================= */}
      
-
-      {/* ================= ACCOUNT SETTINGS ================= */}
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
@@ -63,7 +56,7 @@ export default function AccountMenu({ onItemClick }: Props) {
         </button>
 
         {open.account && (
-          <ul className="bg-white">
+          <ul className="bg-white text-gray-600">
             <Link
               href="/account-info"
               onClick={onItemClick}
@@ -101,11 +94,12 @@ export default function AccountMenu({ onItemClick }: Props) {
         </button>
 
         {open.orders && (
-          <ul className="bg-white">
+          <ul className="bg-white text-gray-600">
             <Link
               href="/my-orders"
               onClick={onItemClick}
               className={itemClass("/my-orders")}
+
             >
               My Orders
             </Link>
@@ -118,13 +112,22 @@ export default function AccountMenu({ onItemClick }: Props) {
               My Wishlist 
             </Link>
 
-            {/* <Link
+             <Link
               href="/my-cart"
               onClick={onItemClick}
               className={itemClass("/my-cart")}
             >
               My Cart
-            </Link> */}
+            </Link> 
+
+
+             <Link
+              href="/show-review"
+              onClick={onItemClick}
+              className={itemClass("/show-review")}
+            >
+              Review
+            </Link> 
           </ul>
         )}
       </div>

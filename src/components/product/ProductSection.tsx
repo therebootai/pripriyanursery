@@ -26,7 +26,7 @@ export default function ProductSection({
   return (
     <section className="pt-2 pb-6">
       <div className="mx-auto max-w-[1300px] px-4">
-        <h2 className="mb-8 text-2xl font-bold">{title}</h2>
+        <h2 className="mb-8 text-2xl font-bold text-define-black">{title}</h2>
         <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4">
           {displayProducts.map((p) => (
             <ProductCards

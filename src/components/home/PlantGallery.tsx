@@ -7,8 +7,8 @@ import { galleryData } from '@/lib/galleryData'
 export default function PlantsGallery() {
   const [activeIndex, setActiveIndex] = useState(0)
 
-  // ✅ LIMIT TO 8
-  const limitedGallery = galleryData.slice(0, 8)
+
+  const limitedGallery = galleryData.slice(0, 5)
 
   return (
     <section className="py-16">
