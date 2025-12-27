@@ -14,9 +14,21 @@ type Props = {
 export default function AccountMenu({ onItemClick }: Props) {
   const pathname = usePathname();
 
+  const items = [
+    { href: "/my-account", label: "My Account" },
+    { href: "/manage-address", label: "Manage Address" },     
+    { href: "/my-orders", label: "My Orders" },
+    { href: "/my-wishlist", label: "My Wishlist" },
+    { href: "/my-cart", label: "My Cart" },
+    { href: "/my-reviews", label: "My Reviews" },
+    { href: "/upi", label: "UPI" },
+    { href: "/card", label: "Card" },
+    { href: "/net-banking", label: "Net Banking" },
+  ];
+
   const [open, setOpen] = useState({
     orders: true,
-    account: true, // ✅ open by default
+    account: true,
     payments: true,
   });
 
@@ -57,21 +69,16 @@ export default function AccountMenu({ onItemClick }: Props) {
 
         {open.account && (
           <ul className="bg-white text-gray-600">
-            <Link
-              href="/account-info"
-              onClick={onItemClick}
-              className={itemClass("/account-info")}
-            >
-              Account Information
-            </Link>
-
-            <Link
-              href="/manage-address"
-              onClick={onItemClick}
-              className={itemClass("/manage-address")}
-            >
-              Manage Address
-            </Link>
+            {items.slice(0, 2).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}           
           </ul>
         )}
       </div>
@@ -95,44 +102,20 @@ export default function AccountMenu({ onItemClick }: Props) {
 
         {open.orders && (
           <ul className="bg-white text-gray-600">
-            <Link
-              href="/my-orders"
-              onClick={onItemClick}
-              className={itemClass("/my-orders")}
-
-            >
-              My Orders
-            </Link>
-
-            <Link
-              href="/my-wishlist"
-              onClick={onItemClick}
-              className={itemClass("/my-wishlist")}
-            >
-              My Wishlist 
-            </Link>
-
-             <Link
-              href="/my-cart"
-              onClick={onItemClick}
-              className={itemClass("/my-cart")}
-            >
-              My Cart
-            </Link> 
-
-
-             <Link
-              href="/show-review"
-              onClick={onItemClick}
-              className={itemClass("/show-review")}
-            >
-              Review
-            </Link> 
+            {items.slice(2,6).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}           
           </ul>
         )}
       </div>
 
-      {/* ================= PAYMENTS ================= */}
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
@@ -151,15 +134,16 @@ export default function AccountMenu({ onItemClick }: Props) {
 
         {open.payments && (
           <ul className="bg-white">
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              UPI
-            </li>
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              Cards
-            </li>
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              Net Banking
-            </li>
+            {items.slice(6).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </ul>
         )}
       </div>

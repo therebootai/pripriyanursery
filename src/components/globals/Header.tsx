@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -16,9 +16,14 @@ import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { useCustomer } from "@/context/CustomerContext";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
+
 
 export default function Header() {
+  const [search, setSearch] = useState("");
+  const pathname = usePathname();
+  const debouncedSearch = useDebounce(search, 800);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -33,6 +38,21 @@ export default function Header() {
     { label: "Bengali", code: "BEN" },
     { label: "Hindi", code: "HIN" },
   ];
+
+  useEffect(() => {
+    const query = debouncedSearch.trim();
+    if (query) {
+      router.push(`/?q=${encodeURIComponent(query)}`, {
+        scroll: false,
+      });
+      return;
+    }
+
+    if (!query && pathname === "/") {
+      router.push("/", { scroll: false });
+    }
+  }, [debouncedSearch, pathname]);
+
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -59,7 +79,9 @@ export default function Header() {
                 size={18}
               />
               <input
-                placeholder="Search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search products..."
                 className="w-full rounded-full text-defined-green placeholder:text-defined-green bg-gray-100 py-2 pl-10 pr-4 text-sm outline-none"
               />
             </div>
@@ -103,22 +125,20 @@ export default function Header() {
             </div>
 
             {/* AUTH */}
-            {!loading && !customer && (
+            {!customer ? (
               <button
                 onClick={() => setIsSignupOpen(true)}
                 className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green  flex gap-1"
               >
                 Login <User size={16} />
               </button>
-            )}
-
-            {!loading && customer && (
-              <div className="relative">
+            ) : (
+  <div className="relative">
                 <button
                   onClick={() => setAccountOpen(!accountOpen)}
                   className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green flex items-center gap-1"
                 >
-                  Account <ChevronDown size={16} />
+                  {customer.name ?? "Account"} <ChevronDown size={16} />
                 </button>
 
                 {accountOpen && (
@@ -142,7 +162,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            )}
+            )}         
 
             <Link
               href="/cart"

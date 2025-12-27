@@ -88,6 +88,7 @@ export default function AccountInformation() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
    const { customer, setCustomer } = useCustomer();
+   const [currentCustomer, setCurrentCustomer] = useState(customer);
     const [gender, setGender] = useState(customer?.gender || "male");
   
   const updateField = async (key: string, value: string) => {
@@ -151,12 +152,16 @@ const deactivateAccount = async () => {
   } catch {}
 };
 
-  
+
     useEffect(() => {
       if (!customer) return;
-
+      
       updateField("gender", gender);
     }, [gender]);
+    
+    useEffect(() => {
+      setCurrentCustomer(customer);
+    }, [customer]);
 
 
   return (
@@ -169,21 +174,21 @@ const deactivateAccount = async () => {
       {/* Editable Fields */}
       <div className="space-y-4 max-w-xl text-gray-700">
         <EditableField
-          value={customer?.name || ""}
+          value={currentCustomer?.name || ""}
           fieldKey="name"
           placeholder="Your name"
           onSave={updateField}
         />
 
         <EditableField
-          value={customer?.mobile || ""}
+          value={currentCustomer?.mobile || ""}
           fieldKey="mobile"
           placeholder="Your mobile number"
           onSave={updateField}
         />
 
         <EditableField
-          value={customer?.email || ""}
+          value={currentCustomer?.email || ""}
           fieldKey="email"
           placeholder="Your email address"
           onSave={updateField}

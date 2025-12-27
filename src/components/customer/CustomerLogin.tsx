@@ -41,6 +41,7 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
 
       // save session
       localStorage.setItem("customer", JSON.stringify(res.customer));
+      console.log(res.customer);
 
       onClose();
       router.push("/myaccount");

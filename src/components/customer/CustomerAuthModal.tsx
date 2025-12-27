@@ -56,6 +56,7 @@ const { refreshCustomer, setCustomer } = useCustomer();
 
        setCustomer(res.customer);
        localStorage.setItem("customer", JSON.stringify(res.customer));
+       console.log(res.customer)
 
     //  await refreshCustomer(); 
 

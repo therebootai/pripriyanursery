@@ -3,6 +3,7 @@
 import AccountProfile from "./AccountProfile";
 import AccountMenu from "./AccountMenu";
 import { Menu } from "lucide-react";
+import { useCustomer } from "@/context/CustomerContext";
 
 type Props = {
   open: boolean;
@@ -13,6 +14,7 @@ export default function AccountSidebar({
   open,
   onToggle,
 }: Props) {
+  const {customer} = useCustomer();
   return (
     <aside className="w-full md:w-[300px] bg-white rounded-md p-3 shadow-sm">
       {/* Mobile Header */}
@@ -32,7 +34,7 @@ export default function AccountSidebar({
       >
         {/* Profile */}
         <AccountProfile
-          name="User"
+          name={customer?.name || "User"}
           image="/assets/images (3).jpeg"
         />
 

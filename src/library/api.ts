@@ -1,3 +1,4 @@
+import { ProductType } from "@/components/product/ProductSection";
 import axios, { AxiosError } from "axios";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
@@ -30,7 +31,7 @@ export interface Customer {
   //   quantity: number;
   //   priceAtTime: number;
   // }>;
-  // wishlist: mongoose.Types.ObjectId[];
+  wishlist: ProductType[];
   totalOrders: number;
   totalSpent: number;
   rewards: {
@@ -99,7 +100,7 @@ export const verifyOtp = async (
       mobile,
       otp,
     });
-    console.log(data);
+    console.log("verify otp wala data",data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
@@ -107,13 +108,24 @@ export const verifyOtp = async (
   }
 };
 
-export const getCustomer = async (): Promise<Customer> => {
+export const getMe = async (): Promise<Customer> => {
   try {
     const { data } = await api.get<Customer>("/customer/me");
+    console.log("me data",data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
     throw new Error(err.response?.data?.message ?? "Failed to get customer");
+  }
+};
+
+export const getCustomer = async (): Promise<Customer> => {
+  try {
+    const { data } = await api.get<Customer>("/customer");
+    return data;
+  } catch (error) {
+    const err = error as AxiosError<ApiErrorResponse>;
+    throw new Error(err.response?.data?.message ?? "Failed to get customers");
   }
 };
 

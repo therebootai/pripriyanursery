@@ -1,12 +1,12 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { Customer, getCustomer, logout } from "@/library/api";
+import { Customer, getMe, logout } from "@/library/api";
 
 interface CustomerContextType {
   customer: Customer | null;
   loading: boolean;
-  setCustomer: (customer: Customer | null) => void;
+  setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   refreshCustomer: () => Promise<void>;
   logoutCustomer: () => Promise<void>;
 }
@@ -23,6 +23,7 @@ export const CustomerProvider = ({
 
   useEffect(() => {
     const stored = localStorage.getItem("customer");
+    console.log(stored)
 
     if (stored) {
       setCustomer(JSON.parse(stored));
@@ -32,12 +33,20 @@ export const CustomerProvider = ({
     }
   }, []);
 
+  // 🔥 Keep localStorage ALWAYS in sync with customer state
+  useEffect(() => {
+    if (customer) {
+      localStorage.setItem("customer", JSON.stringify(customer));
+    } else {
+      localStorage.removeItem("customer");
+    }
+  }, [customer]);
 
   const refreshCustomer = async () => {
     try {
-      const data = await getCustomer();
-      setCustomer(data);
-      localStorage.setItem("customer", JSON.stringify(data));
+      const data = await getMe();
+      console.log(data)
+      setCustomer(data);      
     } catch {
       setCustomer(null);
       localStorage.removeItem("customer");
@@ -48,10 +57,9 @@ export const CustomerProvider = ({
 
   const logoutCustomer = async () => {
     await logout();
-    setCustomer(null);
-    localStorage.removeItem("customer");
+    setCustomer(null);    
   };
- 
+
   return (
     <CustomerContext.Provider
       value={{
