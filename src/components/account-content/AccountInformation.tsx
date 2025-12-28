@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { logout } from "@/library/api";
 import ConfirmModal from "../ui/ConfirmModal";
 
-
 type EditableFieldProps = {
   value: string;
   placeholder?: string;
@@ -82,44 +81,53 @@ function EditableField({
   );
 }
 
-
-export default function AccountInformation() {  
+export default function AccountInformation() {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
-   const { customer, setCustomer } = useCustomer();
-   const [currentCustomer, setCurrentCustomer] = useState(customer);
-    const [gender, setGender] = useState(customer?.gender || "male");
-  
+  const { customer, setCustomer, loading: customerLoading } = useCustomer();
+  const [currentCustomer, setCurrentCustomer] = useState(customer);
+  const [gender, setGender] = useState(customer?.gender || "male");
+
+  // Add loading state
+  const [initialized, setInitialized] = useState(false);
+
   const updateField = async (key: string, value: string) => {
     if (!customer?._id || !value.trim()) return;
 
-     if (key === "mobile" && !value.startsWith("91")) {
-       toast.error("Mobile number should start with 91");
-       throw new Error("Invalid phone");
-     }
-
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ [key]: value }),
-      }
-    );
-
-    if (!res.ok) {
-      toast.error("Update failed");
-      return;
+    if (key === "mobile" && !value.startsWith("91")) {
+      toast.error("Mobile number should start with 91");
+      throw new Error("Invalid phone");
     }
 
-    const data = await res.json();
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ [key]: value }),
+        }
+      );
 
-    setCustomer(data.data);
-    localStorage.setItem("customer", JSON.stringify(data.data));
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "Update failed");
+      }
 
-    toast.success("Update successful");
+      const data = await res.json();
+
+      // Update the customer in context
+      setCustomer(data.data);
+
+      // The CustomerProvider will sync to localStorage automatically
+      toast.success("Update successful");
+      return data.data;
+    } catch (error: any) {
+      toast.error(error.message || "Update failed");
+      throw error;
+    }
   };
 
   const deleteAccount = async () => {
@@ -143,26 +151,44 @@ export default function AccountInformation() {
     router.replace("/");
   };
 
-const deactivateAccount = async () => {
-  try {
-    await updateField("status", "false");
-    toast.success("Account deactivated");
-    await logout();
-    router.replace("/");
-  } catch {}
-};
+  const deactivateAccount = async () => {
+    try {
+      await updateField("status", "false");
+      toast.success("Account deactivated");
+      await logout();
+      router.replace("/");
+    } catch {}
+  };
 
-
-    useEffect(() => {
-      if (!customer) return;
-      
-      updateField("gender", gender);
-    }, [gender]);
-    
-    useEffect(() => {
+  useEffect(() => {
+    if (!customerLoading && customer) {
       setCurrentCustomer(customer);
-    }, [customer]);
+      setGender(customer?.gender || "male");
+      setInitialized(true);
+    }
+  }, [customer, customerLoading]);
 
+  useEffect(() => {
+    if (!customer || gender === customer.gender) return;
+
+    // Only update if gender actually changed
+    updateField("gender", gender).catch((error) => {
+      console.error("Failed to update gender:", error);
+    });
+  }, [gender]); // Only run when gender changes
+
+  if (customerLoading || !initialized) {
+    return (
+      <div className="bg-white rounded-md p-6 md:p-8 md:pb-30 relative overflow-hidden">
+        <div className="animate-pulse space-y-4">
+          <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+          <div className="h-10 bg-gray-100 rounded"></div>
+          <div className="h-10 bg-gray-100 rounded"></div>
+          <div className="h-10 bg-gray-100 rounded"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-md p-6 md:p-8 md:pb-30 relative overflow-hidden">

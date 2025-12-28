@@ -23,11 +23,22 @@ export const CustomerProvider = ({
 
   useEffect(() => {
     const stored = localStorage.getItem("customer");
-    console.log(stored)
 
     if (stored) {
-      setCustomer(JSON.parse(stored));
-      setLoading(false);
+      try {
+        const parsed = JSON.parse(stored);
+        if (parsed && typeof parsed === "object") {
+          setCustomer(parsed);
+          setLoading(false);
+        } else {
+          // Invalid JSON, fetch fresh data
+          refreshCustomer().finally(() => setLoading(false));
+        }
+      } catch (error) {
+        console.error("Failed to parse customer from localStorage:", error);
+        localStorage.removeItem("customer"); // Clean up invalid data
+        refreshCustomer().finally(() => setLoading(false));
+      }
     } else {
       refreshCustomer().finally(() => setLoading(false));
     }
@@ -45,8 +56,8 @@ export const CustomerProvider = ({
   const refreshCustomer = async () => {
     try {
       const data = await getMe();
-      console.log(data)
-      setCustomer(data);      
+      console.log(data);
+      setCustomer(data);
     } catch {
       setCustomer(null);
       localStorage.removeItem("customer");
@@ -57,7 +68,7 @@ export const CustomerProvider = ({
 
   const logoutCustomer = async () => {
     await logout();
-    setCustomer(null);    
+    setCustomer(null);
   };
 
   return (
