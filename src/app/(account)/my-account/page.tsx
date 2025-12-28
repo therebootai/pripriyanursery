@@ -1,11 +1,12 @@
-import AccountInformation from '@/components/account-content/AccountInformation'
+import AccountInformation from "@/components/account-content/AccountInformation";
+import { Suspense } from "react";
 
 const page = () => {
   return (
-    <>
-    <AccountInformation/>
-    </>
-  )
-}
+    <Suspense fallback={<div>Loading...</div>}>
+      <AccountInformation />
+    </Suspense>
+  );
+};
 
-export default page
+export default page;

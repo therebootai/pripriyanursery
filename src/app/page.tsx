@@ -20,7 +20,7 @@ export async function fetchProducts() {
     // console.log((await res.json()).data);
     return res.json();
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return [];
   }
 }
