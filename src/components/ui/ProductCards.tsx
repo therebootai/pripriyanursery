@@ -9,6 +9,8 @@ import { useCustomer } from "@/context/CustomerContext";
 import axios from "axios";
 import { Customer } from "@/library/api";
 import { toggleWishlistApi } from "@/library/wishlist";
+import { addToCartApi, removeFromCartApi } from "@/library/cart";
+
 
 
 export default function ProductCards({
@@ -37,8 +39,6 @@ export default function ProductCards({
 
   const customerId = customer?._id;
 
-
-
 const handleWishlist = async () => {
   if (!customerId || loading) return;
 
@@ -65,6 +65,37 @@ const handleWishlist = async () => {
   }
 };
 
+const handleCart = async () => {
+  if (!customerId || loading) return;
+
+  setLoading(true);
+
+  try {
+    let res;
+
+    if (isInCart) {
+      res = await removeFromCartApi(customerId, id);
+    } else {
+      res = await addToCartApi(customerId, id, undefined, 1, price);
+    }
+
+    setCustomer((prev) =>
+      prev
+        ? {
+            ...prev,
+            cart: res.data,
+          }
+        : prev
+    );
+
+    setIsInCart(!isInCart);
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 useEffect(() => {
   if (!customer || !customer.wishlist) return;
 
@@ -73,6 +104,16 @@ useEffect(() => {
   );
 
   setIsWishlisted(exists);
+}, [customer, id]);
+
+useEffect(() => {
+  if (!customer || !customer.cart) return;
+
+  const exists = customer.cart.some(
+    (item: any) => String(item.productId?._id || item.productId) === String(id)
+  );
+
+  setIsInCart(exists);
 }, [customer, id]);
 
 
@@ -135,7 +176,7 @@ useEffect(() => {
           </Link>
 
           <button
-            // onClick={addToCart}
+            onClick={handleCart}
             disabled={isInCart}
             className={`
               group flex items-center justify-center gap-2

@@ -3,7 +3,7 @@ import ImageSection1 from "@/components/home/ImageSection1";
 import HomeCategory from "@/components/home/HomeCategory";
 // import NewestProducts from "@/components/product/NewestProducts";
 import ProductSection from "@/components/product/ProductSection";
-import { productData } from "@/lib/productData";
+// import { productData } from "@/lib/productData";
 import Homebanner2 from "@/components/home/HomeBanner2";
 import PlantsGallery from "@/components/home/PlantGallery";
 import FeaturesSection from "@/components/home/FeaturesSection";

@@ -25,12 +25,12 @@ export interface Customer {
     pin: string;
     alternateMobile: string;
   }>;
-  // cart: Array<{
-  //   productId: mongoose.Types.ObjectId;
-  //   variantId: mongoose.Types.ObjectId;
-  //   quantity: number;
-  //   priceAtTime: number;
-  // }>;
+  cart: Array<{
+    productId: string;
+    variantId?: string;
+    quantity: number;
+    priceAtTime: number;
+  }>;
   wishlist: ProductType[];
   totalOrders: number;
   totalSpent: number;
