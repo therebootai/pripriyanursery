@@ -14,31 +14,31 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
     const [loading, setLoading] = useState(false);
     console.log(name)
 
-  // const handleWishlist = async () => {
-  //   if (!customerId || loading) return;
+  const handleWishlist = async () => {
+    if (!customerId || loading) return;
   
-  //   setLoading(true);
+    setLoading(true);
 
   
-  //   try {
-  //     const res = await toggleWishlistApi(customerId, id);
+    try {
+      const res = await toggleWishlistApi(customerId, id);
   
-  //     // 🔥 Update global customer wishlist
-  //     setCustomer((prev) =>
-  //       prev
-  //         ? {
-  //             ...prev,
-  //             wishlist: res.wishlist,
-  //           }
-  //         : prev
-  //     );
+      // 🔥 Update global customer wishlist
+      setCustomer((prev) =>
+        prev
+          ? {
+              ...prev,
+              wishlist: res.wishlist,
+            }
+          : prev
+      );
   
-  //   } catch (err) {
-  //     console.log(err);
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 
