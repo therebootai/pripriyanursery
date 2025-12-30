@@ -14,52 +14,41 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
-
 const socialLinks = [
   // { icon: Linkedin, href: 'https://www.linkedin.com/' },
   // { icon: Instagram, href: 'https://www.instagram.com/' },
   // { icon: Youtube, href: 'https://www.youtube.com/' },
-  { icon: Facebook, href: 'https://www.facebook.com/pripriyanursery' },
-]
-
-
+  { icon: Facebook, href: "https://www.facebook.com/pripriyanursery" },
+];
 
 const quickLinks = [
   { label: "Home", href: "/" },
   { label: "Category", href: "/category" },
-   { label: "All Category", href: "/categories" },
+  { label: "All Category", href: "/categories" },
   { label: "My Account", href: "/my-account" },
   // { label: "Our Services", href: "" },
   // { label: "Why Us", href: "" },
   // { label: "Contact Us", href: "" },
-]
-
+];
 
 const quickLinks2 = [
-  
-   { label: "Invoice Help", href: "" },
+  { label: "Invoice Help", href: "" },
   { label: "Our CSR", href: "" },
-]
-
+];
 
 const quickLinks3 = [
-   { label: "Terms & Condition", href: "/terms_condition" },
+  { label: "Terms & Condition", href: "/terms_condition" },
   { label: "Privacy Policy", href: "/privacy_policy" },
- 
+
   { label: "Shiping Policy", href: "/shiping_policy" },
   { label: "Refund Policy", href: "/refund_policy" },
- 
-  
-]
-
+];
 
 export default function Footer() {
   const [formData, setFormData] = useState<{ message: string }>({
-  message: "",
-});
-const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-
-
+    message: "",
+  });
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const whatsappMessage = `Message: ${formData.message}`;
 
     const encodedMessage = encodeURIComponent(whatsappMessage);
@@ -99,7 +88,6 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                 <div className="flex w-full md:w-[550px] px-4 md:px-0">
                   {/* Input Field */}
                   <div className="flex items-center   backdrop-blur-md rounded-l-[40px] px-3 w-full">
-                    
                     <svg
                       width="28"
                       height="28"
@@ -138,13 +126,13 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
                         >
                           <stop
                             offset="0.322115"
-                            stop-color="#34A853"
-                            stop-opacity="0"
+                            stopColor="#34A853"
+                            stopOpacity="0"
                           />
                           <stop
                             offset="1"
-                            stop-color="#34A853"
-                            stop-opacity="0.6"
+                            stopColor="#34A853"
+                            stopOpacity="0.6"
                           />
                         </radialGradient>
                       </defs>
@@ -181,114 +169,127 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
               {/* BRAND – BIG */}
               <div className="lg:col-span-3">
                 <Link href="/" className="block">
-  <Image
-    src="/assets/Pri Priya Nursery Logo.png"
-    alt="Pri Priya Nursery Logo"
-    width={80}
-    height={60}
-    className="object-contain"
-    priority
-  />
-</Link>
+                  <Image
+                    src="/assets/Pri Priya Nursery Logo.png"
+                    alt="Pri Priya Nursery Logo"
+                    width={80}
+                    height={60}
+                    className="object-contain"
+                    priority
+                  />
+                </Link>
                 <p className="mt-4 text-sm leading-relaxed">
-                  Pri Priya Nursery is a trusted wholesaler, manufacturer, and supplier of quality live plants across India, with special focus on North East regions. We provide healthy, carefully nurtured plants, reliable delivery, and dedicated customer support for gardeners, landscapers, and plant lovers.
+                  Pri Priya Nursery is a trusted wholesaler, manufacturer, and
+                  supplier of quality live plants across India, with special
+                  focus on North East regions. We provide healthy, carefully
+                  nurtured plants, reliable delivery, and dedicated customer
+                  support for gardeners, landscapers, and plant lovers.
                 </p>
               </div>
 
               {/* QUICK LINK 1 – SMALL */}
               <div className="lg:col-span-2 md:pl-[60px]">
-      <h4 className="mb-4 font-semibold text-white text-[22px]">
-        Quick Link
-      </h4>
-      <ul className="space-y-3 text-[17px]">
-        {quickLinks.map((link) => (
-          <li key={link.label} className="flex items-center gap-2">
-            <Check size={14} />
-            <Link href={link.href} className="hover:text-green-500 transition">
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+                <h4 className="mb-4 font-semibold text-white text-[22px]">
+                  Quick Link
+                </h4>
+                <ul className="space-y-3 text-[17px]">
+                  {quickLinks.map((link) => (
+                    <li key={link.label} className="flex items-center gap-2">
+                      <Check size={14} />
+                      <Link
+                        href={link.href}
+                        className="hover:text-green-500 transition"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* QUICK LINK 2 – SMALL */}
               <div className="lg:col-span-2 md:pl-[30px]">
-      <h4 className="mb-4 font-semibold text-white text-[22px]">
-        Quick Link
-      </h4>
-      <ul className="space-y-3 text-[17px]">
-        {quickLinks2.map((link) => (
-          <li key={link.label} className="flex items-center gap-2">
-            <Check size={14} />
-            <Link
-              href={link.href}
-              className="hover:text-green-500 transition"
-            >
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+                <h4 className="mb-4 font-semibold text-white text-[22px]">
+                  Quick Link
+                </h4>
+                <ul className="space-y-3 text-[17px]">
+                  {quickLinks2.map((link) => (
+                    <li key={link.label} className="flex items-center gap-2">
+                      <Check size={14} />
+                      <Link
+                        href={link.href}
+                        className="hover:text-green-500 transition"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* QUICK LINK 3 – SMALL */}
               <div className="lg:col-span-2 md:pl-[30px]">
-      <h4 className="mb-4 font-semibold text-white text-[22px]">
-        Quick Link
-      </h4>
-      <ul className="space-y-3 text-[17px]">
-        {quickLinks3.map((link) => (
-          <li key={link.label} className="flex items-center gap-2">
-            <Check size={14} />
-            <Link
-              href={link.href}
-              className="hover:text-green-500 transition"
-            >
-              {link.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+                <h4 className="mb-4 font-semibold text-white text-[22px]">
+                  Quick Link
+                </h4>
+                <ul className="space-y-3 text-[17px]">
+                  {quickLinks3.map((link) => (
+                    <li key={link.label} className="flex items-center gap-2">
+                      <Check size={14} />
+                      <Link
+                        href={link.href}
+                        className="hover:text-green-500 transition"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* CONTACT – BIG */}
               <div className="lg:col-span-3">
-      <h4 className="mb-4 font-semibold text-white text-[22px]">
-        Contact Information
-      </h4>
-      <ul className="space-y-4 text-[17px]">
-        {/* Phone */}
-        <li className="flex items-center gap-2">
-          <Phone size={16} />
-          <Link href="tel:+917586891753" className="hover:text-green-500 transition">
-            +91 75868 91753
-          </Link>
-        </li>
+                <h4 className="mb-4 font-semibold text-white text-[22px]">
+                  Contact Information
+                </h4>
+                <ul className="space-y-4 text-[17px]">
+                  {/* Phone */}
+                  <li className="flex items-center gap-2">
+                    <Phone size={16} />
+                    <Link
+                      href="tel:+917586891753"
+                      className="hover:text-green-500 transition"
+                    >
+                      +91 75868 91753
+                    </Link>
+                  </li>
 
-        {/* Email */}
-        <li className="flex items-center gap-2">
-          <Mail size={16} />
-          <Link href="mailto:pripriyanursery@gmail.com" className="hover:text-green-500 transition">
-           pripriyanursery@gmail.com
-          </Link>
-        </li>
+                  {/* Email */}
+                  <li className="flex items-center gap-2">
+                    <Mail size={16} />
+                    <Link
+                      href="mailto:pripriyanursery@gmail.com"
+                      className="hover:text-green-500 transition"
+                    >
+                      pripriyanursery@gmail.com
+                    </Link>
+                  </li>
 
-        {/* Address */}
-        <li className="flex items-start gap-2">
-          <MapPin size={16} />
-          <Link
-            href="https://maps.app.goo.gl/HDFP8hN6nWyEAaJ6A"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-green-500 transition"
-          >
-          Simulpukur, Gangadhar shishu niketan, Simulpukur, Ukrah, Nadia, West Bengal, 741257
-          </Link>
-        </li>
-      </ul>
-    </div>
-
+                  {/* Address */}
+                  <li className="flex items-start gap-2">
+                    <MapPin size={16} />
+                    <Link
+                      href="https://maps.app.goo.gl/HDFP8hN6nWyEAaJ6A"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-green-500 transition"
+                    >
+                      Simulpukur, Gangadhar shishu niketan, Simulpukur, Ukrah,
+                      Nadia, West Bengal, 741257
+                    </Link>
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -333,14 +334,19 @@ const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 
           {/* RIGHT */}
           <div className="flex gap-4">
-      {socialLinks.map(({ icon: Icon, href }, i) => (
-        <Link key={i} href={href} target="_blank" rel="noopener noreferrer">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-100 transition">
-            <Icon size={20} className="text-black" />
+            {socialLinks.map(({ icon: Icon, href }, i) => (
+              <Link
+                key={i}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-100 transition">
+                  <Icon size={20} className="text-black" />
+                </div>
+              </Link>
+            ))}
           </div>
-        </Link>
-      ))}
-    </div>
         </div>
       </div>
 

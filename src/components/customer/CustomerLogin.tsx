@@ -41,6 +41,7 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
 
       // save session
       localStorage.setItem("customer", JSON.stringify(res.customer));
+      console.log(res.customer);
 
       onClose();
       router.push("/myaccount");
@@ -78,7 +79,7 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
         </button>
 
         {/* GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_3fr] rounded-xl overflow-hidden shadow-lg">
+        <div className="grid grid-cols-1 md:grid-cols-[1.2fr_2.8fr] rounded-xl overflow-hidden shadow-lg">
           {/* LEFT — DESKTOP ONLY */}
           <div className="hidden md:flex bg-defined-green text-white p-8 flex-col justify-between">
             <div>

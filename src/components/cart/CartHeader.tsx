@@ -1,12 +1,12 @@
-type CartHeaderProps = {
-  count: number;
-};
+import { useCustomer } from "@/context/CustomerContext";
 
-export default function CartHeader({ count }: CartHeaderProps) {
+
+export default function CartHeader() {
+  const {customer} = useCustomer();
   return (
     <div className="mb-4">
       <h2 className="text-lg font-semibold text-gray-800">
-       Cart- ({count.toString().padStart(2, "0")})
+       Cart- ({customer?.cart.length || 0})
       </h2>
     </div>
   );

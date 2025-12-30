@@ -11,29 +11,37 @@ type Props = {
 
 
 
-      
-     
-
-
 export default function AccountMenu({ onItemClick }: Props) {
   const pathname = usePathname();
 
+  const items = [
+    { href: "/my-account", label: "My Account" },
+    { href: "/manage-address", label: "Manage Address" },     
+    { href: "/my-orders", label: "My Orders" },
+    { href: "/my-wishlist", label: "My Wishlist" },
+    { href: "/my-cart", label: "My Cart" },
+    { href: "/my-reviews", label: "My Reviews" },
+    { href: "/upi", label: "UPI" },
+    { href: "/card", label: "Card" },
+    { href: "/net-banking", label: "Net Banking" },
+  ];
+
   const [open, setOpen] = useState({
     orders: true,
-    account: true, // ✅ open by default
+    account: true,
     payments: true,
   });
 
-  /* ================= ACTIVE CLASS HANDLER ================= */
+
   const itemClass = (href: string) =>
     `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
      ${
        pathname.startsWith(href)
-         ? "bg-green-50 text-define-green font-semibold"
+         ? "bg-green-50 text-defined-green font-semibold"
          : "hover:bg-green-50 text-gray-700"
      }`;
 
-  /* ================= AUTO OPEN ACCOUNT SECTION ================= */
+  
   useEffect(() => {
     if (pathname.startsWith("/account")) {
       setOpen((prev) => ({ ...prev, account: true }));
@@ -42,16 +50,13 @@ export default function AccountMenu({ onItemClick }: Props) {
 
   return (
     <div className="mt-4 space-y-3">
-      {/* ================= YOUR ORDERS ================= */}
      
-
-      {/* ================= ACCOUNT SETTINGS ================= */}
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, account: !prev.account }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Account Settings
           <ChevronDown
@@ -63,22 +68,17 @@ export default function AccountMenu({ onItemClick }: Props) {
         </button>
 
         {open.account && (
-          <ul className="bg-white">
-            <Link
-              href="/account-info"
-              onClick={onItemClick}
-              className={itemClass("/account-info")}
-            >
-              Account Information
-            </Link>
-
-            <Link
-              href="/manage-address"
-              onClick={onItemClick}
-              className={itemClass("/manage-address")}
-            >
-              Manage Address
-            </Link>
+          <ul className="bg-white text-gray-600">
+            {items.slice(0, 2).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}           
           </ul>
         )}
       </div>
@@ -89,7 +89,7 @@ export default function AccountMenu({ onItemClick }: Props) {
           onClick={() =>
             setOpen((prev) => ({ ...prev, orders: !prev.orders }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Your Orders
           <ChevronDown
@@ -101,41 +101,27 @@ export default function AccountMenu({ onItemClick }: Props) {
         </button>
 
         {open.orders && (
-          <ul className="bg-white">
-            <Link
-              href="/my-orders"
-              onClick={onItemClick}
-              className={itemClass("/my-orders")}
-            >
-              My Orders
-            </Link>
-
-            <Link
-              href="/my-wishlist"
-              onClick={onItemClick}
-              className={itemClass("/my-wishlist")}
-            >
-              My Wishlist 
-            </Link>
-
-            {/* <Link
-              href="/my-cart"
-              onClick={onItemClick}
-              className={itemClass("/my-cart")}
-            >
-              My Cart
-            </Link> */}
+          <ul className="bg-white text-gray-600">
+            {items.slice(2,6).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}           
           </ul>
         )}
       </div>
 
-      {/* ================= PAYMENTS ================= */}
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, payments: !prev.payments }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-define-green font-semibold"
+          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Payments
           <ChevronDown
@@ -148,15 +134,16 @@ export default function AccountMenu({ onItemClick }: Props) {
 
         {open.payments && (
           <ul className="bg-white">
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              UPI
-            </li>
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              Cards
-            </li>
-            <li className="px-4 py-2 text-sm hover:bg-green-50 cursor-pointer">
-              Net Banking
-            </li>
+            {items.slice(6).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onItemClick}
+                className={itemClass(item.href)}
+              >
+                {item.label}
+              </Link>
+            ))}
           </ul>
         )}
       </div>

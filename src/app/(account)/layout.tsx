@@ -1,31 +1,19 @@
-"use client";
+export const dynamic = "force-dynamic";
 
-import { useState } from "react";
-import AccountSidebar from "@/components/account/AccountSidebar";
-import MainTemplates from "@/templates/MainTemplates";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import AccountShell from "@/components/account/AccountShell";
 
-export default function ProfileLayout({
+export default async function AccountLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const token = (await cookies()).get("token");
 
-  return (
-    <MainTemplates>
-      <div className="bg-gray-50 min-h-screen">
-        <div className="mx-auto max-w-[1300px] px-4 py-6 flex flex-col md:flex-row gap-6">
-          
-          {/* Sidebar */}
-          <AccountSidebar
-            open={sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
-          />
+  if (!token) {
+    redirect("/");
+  }
 
-          {/* Content */}
-          <div className="flex-1">{children}</div>
-        </div>
-      </div>
-    </MainTemplates>
-  );
+  return <AccountShell>{children}</AccountShell>;
 }

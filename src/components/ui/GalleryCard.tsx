@@ -33,7 +33,7 @@ export default function GalleryCard({
         "
       />
 
-      {/* ✅ Overlay : Always visible + bottom to top */}
+
       <div
         className={clsx(
           `
@@ -47,7 +47,7 @@ export default function GalleryCard({
         )}
       />
 
-      {/* ✅ Title : bottom → up */}
+   
       <div
         className={clsx(
           `
@@ -59,7 +59,7 @@ export default function GalleryCard({
             : 'opacity-90 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'
         )}
       >
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="md:text-lg text-[14px] font-semibold text-white">
           {title}
         </h3>
       </div>

@@ -1,10 +1,12 @@
-import CartList from '@/components/cart/CartList'
+import ShowReview from '@/components/review/ShowReview'
 import React from 'react'
 
 const page = () => {
   return (
     <>
-     <CartList/>    
+    
+       <ShowReview/>
+    
     </>
   )
 }
