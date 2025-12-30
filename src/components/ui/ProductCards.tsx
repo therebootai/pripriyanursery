@@ -32,7 +32,7 @@ export default function ProductCards({
   // tag,
   slug,
 }: ProductType) {
-  const { customer, setCustomer } = useCustomer();
+  const { customer, refreshCustomer } = useCustomer();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
@@ -48,17 +48,9 @@ const handleWishlist = async () => {
   try {
     const res = await toggleWishlistApi(customerId, id);
 
-    // 🔥 Update global customer wishlist
-    setCustomer((prev) =>
-      prev
-        ? {
-            ...prev,
-            wishlist: res.wishlist,
-          }
-        : prev
-    );
-
+    await refreshCustomer();
   } catch (err) {
+    console.error(err);
     setIsWishlisted((prev) => !prev);
   } finally {
     setLoading(false);
@@ -74,19 +66,11 @@ const handleCart = async () => {
     let res;
 
     if (isInCart) {
-      res = await removeFromCartApi(customerId, id);
+       await removeFromCartApi(customerId, id);
     } else {
-      res = await addToCartApi(customerId, id, undefined, 1, price);
+      await addToCartApi(customerId, id, undefined, 1, price);
     }
-
-    setCustomer((prev) =>
-      prev
-        ? {
-            ...prev,
-            cart: res.data,
-          }
-        : prev
-    );
+ await refreshCustomer();
 
     setIsInCart(!isInCart);
   } catch (err) {

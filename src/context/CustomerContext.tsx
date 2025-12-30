@@ -6,7 +6,6 @@ import { Customer, getMe, logout } from "@/library/api";
 interface CustomerContextType {
   customer: Customer | null;
   loading: boolean;
-  setCustomer: React.Dispatch<React.SetStateAction<Customer | null>>;
   refreshCustomer: () => Promise<void>;
   logoutCustomer: () => Promise<void>;
 }
@@ -22,45 +21,16 @@ export const CustomerProvider = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const stored = localStorage.getItem("customer");
-
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (parsed && typeof parsed === "object") {
-          setCustomer(parsed);
-          setLoading(false);
-        } else {
-          // Invalid JSON, fetch fresh data
-          refreshCustomer().finally(() => setLoading(false));
-        }
-      } catch (error) {
-        console.error("Failed to parse customer from localStorage:", error);
-        localStorage.removeItem("customer"); // Clean up invalid data
-        refreshCustomer().finally(() => setLoading(false));
-      }
-    } else {
-      refreshCustomer().finally(() => setLoading(false));
-    }
+    refreshCustomer();
   }, []);
-
-  // 🔥 Keep localStorage ALWAYS in sync with customer state
-  useEffect(() => {
-    if (customer) {
-      localStorage.setItem("customer", JSON.stringify(customer));
-    } else {
-      localStorage.removeItem("customer");
-    }
-  }, [customer]);
 
   const refreshCustomer = async () => {
     try {
+      setLoading(true);
       const data = await getMe();
-      console.log(data);
       setCustomer(data);
-    } catch {
+    } catch (error) {
       setCustomer(null);
-      localStorage.removeItem("customer");
     } finally {
       setLoading(false);
     }
@@ -76,7 +46,6 @@ export const CustomerProvider = ({
       value={{
         customer,
         loading,
-        setCustomer,
         refreshCustomer,
         logoutCustomer,
       }}

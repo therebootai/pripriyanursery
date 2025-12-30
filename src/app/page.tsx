@@ -39,24 +39,7 @@ export default async function Home() {
           title="Newest Product in this Month"
           products={products.data}
           pagination={products.pagination}
-          rows={2}
-        />
-
-        {/* <ProductSection
-          title="Indoor Plants"
-          products={productData.indoor}
-          rows={1}
-        />
-
-        <ProductSection
-          title="Outdoor"
-          products={productData.outdoor}
-          rows={1}
-        />
-
-        <ProductSection title="Mango" products={productData.mango} rows={1} />
-
-        <ProductSection title="Fruit" products={productData.fruit} rows={1} /> */}
+        />       
 
         <Homebanner2 />
 

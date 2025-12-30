@@ -36,7 +36,7 @@ const emptyForm: Address = {
 };
 
 export default function ManageAddress() {
-  const { customer, setCustomer } = useCustomer();
+  const { customer, refreshCustomer } = useCustomer();
 
   const [forms, setForms] = useState<Address[]>([]);
   const addresses = customer?.addresses || [];
@@ -61,8 +61,7 @@ export default function ManageAddress() {
     }
 
     const data = await res.json();
-    setCustomer(data.data);
-    localStorage.setItem("customer", JSON.stringify(data.data));
+    await refreshCustomer();
     toast.success("Address updated");
   };
 

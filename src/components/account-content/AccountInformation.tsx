@@ -85,8 +85,7 @@ export default function AccountInformation() {
   const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deactivateOpen, setDeactivateOpen] = useState(false);
-  const { customer, setCustomer, loading: customerLoading } = useCustomer();
-  const [currentCustomer, setCurrentCustomer] = useState(customer);
+  const { customer, loading, refreshCustomer } = useCustomer();  
   const [gender, setGender] = useState(customer?.gender || "male");
 
   // Add loading state
@@ -118,10 +117,7 @@ export default function AccountInformation() {
 
       const data = await res.json();
 
-      // Update the customer in context
-      setCustomer(data.data);
-
-      // The CustomerProvider will sync to localStorage automatically
+    await refreshCustomer();
       toast.success("Update successful");
       return data.data;
     } catch (error: any) {
@@ -161,12 +157,11 @@ export default function AccountInformation() {
   };
 
   useEffect(() => {
-    if (!customerLoading && customer) {
-      setCurrentCustomer(customer);
+    if (!loading && customer) {
       setGender(customer?.gender || "male");
       setInitialized(true);
     }
-  }, [customer, customerLoading]);
+  }, [customer, loading]);
 
   useEffect(() => {
     if (!customer || gender === customer.gender) return;
@@ -177,7 +172,7 @@ export default function AccountInformation() {
     });
   }, [gender]); // Only run when gender changes
 
-  if (customerLoading || !initialized) {
+  if (loading || !initialized) {
     return (
       <div className="bg-white rounded-md p-6 md:p-8 md:pb-30 relative overflow-hidden">
         <div className="animate-pulse space-y-4">
@@ -200,21 +195,21 @@ export default function AccountInformation() {
       {/* Editable Fields */}
       <div className="space-y-4 max-w-xl text-gray-700">
         <EditableField
-          value={currentCustomer?.name || ""}
+          value={customer?.name || ""}
           fieldKey="name"
           placeholder="Your name"
           onSave={updateField}
         />
 
         <EditableField
-          value={currentCustomer?.mobile || ""}
+          value={customer?.mobile || ""}
           fieldKey="mobile"
           placeholder="Your mobile number"
           onSave={updateField}
         />
 
         <EditableField
-          value={currentCustomer?.email || ""}
+          value={customer?.email || ""}
           fieldKey="email"
           placeholder="Your email address"
           onSave={updateField}

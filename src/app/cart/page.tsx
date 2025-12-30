@@ -1,10 +1,10 @@
 import MainTemplates from "@/templates/MainTemplates";
-import CartClient from "@/components/cartitem/CartClients";
+import CartList from "@/components/cart/CartList";
 
 export default function CartPage() {
   return (
     <MainTemplates>
-      <CartClient />
+      <CartList />
     </MainTemplates>
   );
 }

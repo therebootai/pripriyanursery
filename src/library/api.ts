@@ -26,8 +26,8 @@ export interface Customer {
     alternateMobile: string;
   }>;
   cart: Array<{
-    productId: string;
-    variantId?: string;
+    productId: string | ProductType;
+    variantId?: string | ProductType;
     quantity: number;
     priceAtTime: number;
   }>;
@@ -131,8 +131,7 @@ export const getCustomer = async (): Promise<Customer> => {
 
 export const logout = async () => {
   try {
-    await api.post("/customer/logout");
-    localStorage.removeItem("customer");
+    await api.post("/customer/logout");    
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
     throw new Error(err.response?.data?.message ?? "Failed to logout");

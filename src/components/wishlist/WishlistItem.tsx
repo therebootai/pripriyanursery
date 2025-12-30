@@ -9,7 +9,7 @@ import { useEffect, useState } from "react";
 
 export default function WishlistItem({ id, name, price, mrp, discount, coverImage, variables, slug }: ProductType) {
 
-   const { customer, setCustomer } = useCustomer();
+   const { customer, refreshCustomer} = useCustomer();
    const customerId = customer?._id;
     const [loading, setLoading] = useState(false);
     console.log(name)
@@ -21,18 +21,9 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
 
   
     try {
-      const res = await toggleWishlistApi(customerId, id);
+      await toggleWishlistApi(customerId, id);
   
-      // 🔥 Update global customer wishlist
-      setCustomer((prev) =>
-        prev
-          ? {
-              ...prev,
-              wishlist: res.wishlist,
-            }
-          : prev
-      );
-  
+     await refreshCustomer();
     } catch (err) {
       console.log(err);
     } finally {

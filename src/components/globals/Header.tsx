@@ -138,7 +138,7 @@ export default function Header() {
                   onClick={() => setAccountOpen(!accountOpen)}
                   className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green flex items-center gap-1"
                 >
-                  {customer.name ?? "User"} <ChevronDown size={16} />
+                  {customer?.name ? customer.name : "User"} <ChevronDown size={16} />
                 </button>
 
                 {accountOpen && (

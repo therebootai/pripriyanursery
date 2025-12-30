@@ -1,60 +1,67 @@
-"use client";
-
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import MainTemplates from "@/templates/MainTemplates";
+import { redirect } from "next/navigation";
 
-export default function ThankYou() {
-  const searchParams = useSearchParams();
-  const orderId = searchParams.get("orderId");
+export default async function ThankYou({
+  searchParams,
+}: {
+  searchParams: Promise<{ payment_id?: string; order_id?: string }>;
+}) {
+   const { payment_id, order_id } = await searchParams;
+
+   if (!payment_id || !order_id) {
+     redirect("/");
+   }
 
   return (
- 
-      <div className="min-h-[70vh] flex items-center justify-center px-4 py-10 sm:py-14">
-        <div
-          className="
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-10 sm:py-14">
+      <div
+        className="
             bg-white border border-gray-200 rounded-xl shadow-lg
             w-full max-w-sm sm:max-w-md
             text-center
             p-6 sm:p-8
           "
-        >
-          {/* ICON */}
-          <div className="flex justify-center mb-4">
-            <CheckCircle
-              size={64}
-              className="text-green-600 sm:w-[72px] sm:h-[72px]"
-            />
-          </div>
+      >
+        {/* ICON */}
+        <div className="flex justify-center mb-4">
+          <CheckCircle
+            size={64}
+            className="text-green-600 sm:w-[72px] sm:h-[72px]"
+          />
+        </div>
 
-          {/* TITLE */}
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-            Order Placed Successfully 
-          </h1>
+        {/* TITLE */}
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
+          Order Placed Successfully
+        </h1>
 
-          <p className="mt-2 text-gray-500 text-xs sm:text-sm">
-            Thank you for shopping with us. Your order has been confirmed.
+        <p className="mt-2 text-gray-500 text-xs sm:text-sm">
+          Thank you for shopping with us. Your order has been confirmed.
+        </p>
+
+        {/* ORDER ID */}
+        <div className="mt-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
+          <p className="text-xs sm:text-sm text-gray-500">Order ID</p>
+          <p className="font-semibold text-green-600 text-base sm:text-lg tracking-wide">
+            {order_id || "ORD000000"}
           </p>
-
-          {/* ORDER ID */}
-          <div className="mt-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
-            <p className="text-xs sm:text-sm text-gray-500">Order ID</p>
-            <p className="font-semibold text-green-600 text-base sm:text-lg tracking-wide">
-              {orderId || "ORD000000"}
-            </p>
-          </div>
-
-          {/* INFO */}
-          <p className="mt-4 text-xs sm:text-sm text-gray-500">
-            You will receive order updates on your registered email.
+          <p className="text-xs sm:text-sm text-gray-500">Payment ID</p>
+          <p className="font-semibold text-green-600 text-base sm:text-lg tracking-wide">
+            {payment_id || "ORD000000"}
           </p>
+        </div>
 
-          {/* ACTION BUTTONS */}
-          <div className="mt-6 flex flex-col sm:flex-row gap-3">
-            <Link
-              href="/"
-              className="
+        {/* INFO */}
+        <p className="mt-4 text-xs sm:text-sm text-gray-500">
+          You will receive order updates on your registered email.
+        </p>
+
+        {/* ACTION BUTTONS */}
+        <div className="mt-6 flex flex-col sm:flex-row gap-3">
+          <Link
+            href="/"
+            className="
                 flex-1 text-center
                 px-4 py-2 sm:py-2.5
                 rounded-full
@@ -64,13 +71,13 @@ export default function ThankYou() {
                 hover:from-emerald-600 hover:to-green-500
                 transition
               "
-            >
-              Continue Shopping
-            </Link>
+          >
+            Continue Shopping
+          </Link>
 
-            <Link
-              href="/orders"
-              className="
+          <Link
+            href="/my-orders"
+            className="
                 flex-1 text-center
                 px-4 py-2 sm:py-2.5
                 rounded-full
@@ -80,12 +87,11 @@ export default function ThankYou() {
                 hover:bg-gray-100
                 transition
               "
-            >
-              View Orders
-            </Link>
-          </div>
+          >
+            View Orders
+          </Link>
         </div>
       </div>
- 
+    </div>
   );
 }

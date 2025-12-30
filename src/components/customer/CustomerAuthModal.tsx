@@ -16,7 +16,7 @@ interface Props {
 
 export default function CustomerLoginModal({ isOpen, onClose }: Props) {
   const router = useRouter();
-const { refreshCustomer, setCustomer } = useCustomer();
+const { refreshCustomer } = useCustomer();
   const [step, setStep] = useState<Step>("MOBILE");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
@@ -54,11 +54,7 @@ const { refreshCustomer, setCustomer } = useCustomer();
      setLoading(true);
      const res = await verifyOtp(mobile, otp);
 
-       setCustomer(res.customer);
-       localStorage.setItem("customer", JSON.stringify(res.customer));
-       console.log(res.customer)
-
-    //  await refreshCustomer(); 
+     await refreshCustomer(); 
 
      setMobile("");
      setOtp("");

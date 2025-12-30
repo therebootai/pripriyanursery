@@ -65,7 +65,6 @@ export default function ProductSection({
   title,
   products,
   pagination,
-  rows = 2,
 }: {
   title: string
   products: ProductType[],
@@ -75,7 +74,6 @@ export default function ProductSection({
     limit: number;
     totalPages: number;
   }
-  rows?: number
 }) {
   const searchParams = useSearchParams();
   const query = searchParams.get("q")?.toLowerCase() || "";
