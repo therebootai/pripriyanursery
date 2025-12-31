@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -19,11 +19,22 @@ import { useCustomer } from "@/context/CustomerContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
+type SearchItem = {
+  type: "product" | "category" | "brand" | "attribute";
+  name: string;
+  slug?: string;
+  image?: string;
+};
 
 export default function Header() {
-  const [search, setSearch] = useState("");
-  const pathname = usePathname();
-  const debouncedSearch = useDebounce(search, 800);
+  const [query, setQuery] = useState("");
+  const debouncedQuery = useDebounce(query, 400);
+  const [results, setResults] = useState<any[]>([]);
+  const [show, setShow] = useState(false);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+const inputRef = useRef<HTMLDivElement>(null);
+const dropdownRef = useRef<HTMLDivElement>(null);
+
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
@@ -32,6 +43,7 @@ export default function Header() {
 
   const { customer, loading, logoutCustomer } = useCustomer();
   const router = useRouter();
+  const [activeIndex, setActiveIndex] = useState(-1);
 
   const languages = [
     { label: "English", code: "ENG" },
@@ -40,19 +52,118 @@ export default function Header() {
   ];
 
   useEffect(() => {
-    const query = debouncedSearch.trim();
-    if (query) {
-      router.push(`/?q=${encodeURIComponent(query)}`, {
-        scroll: false,
-      });
+    if (!debouncedQuery) {
+      setResults([]);
       return;
     }
 
-    if (!query && pathname === "/") {
-      router.push("/", { scroll: false });
-    }
-  }, [debouncedSearch, pathname]);
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/search?q=${debouncedQuery}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setResults(data.results);
+          setShow(true);
+        }
+      });
+  }, [debouncedQuery]);
 
+  const fetchSuggestions = async () => {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/search/suggestions`
+    );
+    const data = await res.json();
+    if (data.success) {
+      setSuggestions(data.results);
+    }
+  };
+
+  const rankResults = (items: SearchItem[]) => {
+    const priority = {
+      product: 1,
+      category: 2,
+      brand: 3,
+      attribute: 4,
+    } as Record<string, number>;
+
+    return [...items].sort((a, b) => priority[a.type] - priority[b.type]);
+  };
+
+  const handleSearchClick = (item: any) => {
+    setShow(false);
+    setQuery("");
+
+    switch (item.type) {
+      case "product":
+        router.push(`/product/${item.slug}`);
+        break;
+
+      case "category":
+        router.push(`/products?category=${encodeURIComponent(item.name)}`);
+        break;
+
+      case "brand":
+        router.push(`/products?brand=${encodeURIComponent(item.name)}`);
+        break;
+
+      case "attribute":
+        router.push(`/products?attributes=${encodeURIComponent(item.name)}`);
+        break;
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!show) return;
+
+    const list = query ? results : suggestions;
+    if (!list.length) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev + 1) % list.length);
+    }
+
+    if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) => (prev - 1 + list.length) % list.length);
+    }
+
+    if (e.key === "Enter" && activeIndex >= 0) {
+      e.preventDefault();
+      handleSearchClick(list[activeIndex]);
+    }
+
+    if (e.key === "Escape") {
+      setShow(false);
+    }
+  };
+
+  /* ================= OUTSIDE CLICK ================= */
+
+useEffect(() => {
+  const handler = (e: MouseEvent) => {
+    const target = e.target as Node;
+
+    if (
+      inputRef.current?.contains(target) ||
+      dropdownRef.current?.contains(target)
+    ) {
+      return;
+    }
+
+    setShow(false);
+    setActiveIndex(-1);
+  };
+
+   document.addEventListener("pointerdown", handler, true); 
+  return () => {
+    document.removeEventListener("pointerdown", handler, true);
+  };
+}, []);
+
+
+  /* ================= RENDER ================= */
+
+  const list = query ? results : suggestions;
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
@@ -72,19 +183,102 @@ export default function Header() {
           </Link>
 
           {/* SEARCH (always visible) */}
-          <div className="flex-1 max-w-md hidden sm:block">
+          <div ref={inputRef} className="flex-1 max-w-md hidden sm:block">
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-defined-green "
                 size={18}
               />
               <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => {
+                  if (!query) {
+                    fetchSuggestions();
+                    setShow(true);
+                  }
+                }}
+                onKeyDown={handleKeyDown}
                 placeholder="Search products..."
                 className="w-full rounded-full text-defined-green placeholder:text-defined-green bg-gray-100 py-2 pl-10 pr-4 text-sm outline-none"
               />
             </div>
+            {show && (
+              <div ref={dropdownRef} className="absolute z-50 mt-2 w-[50rem] rounded-lg bg-white shadow-lg">
+                {/* 🔥 RANDOM / POPULAR SUGGESTIONS */}
+                {!query && suggestions.length > 0 && (
+                  <>
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500">
+                      Suggestions
+                    </div>
+
+                    {suggestions.map((item, idx) => (
+                      <button
+                        key={`suggest-${idx}`}
+                        onClick={() => handleSearchClick(item)}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                      >
+                        {item.type === "product" && item.image && (
+                          <Image
+                            src={item.image}
+                            alt=""
+                            width={32}
+                            height={32}
+                          />
+                        )}
+
+                        <span className="text-sm text-gray-500">
+                          <b>{item.name}</b>
+                          <span className="ml-2 text-xs text-gray-500">
+                            {item.type}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* 🔎 LIVE SEARCH RESULTS */}
+                {query && results.length > 0 && (
+                  <>
+                    <div className="px-4 py-2 text-xs font-semibold text-gray-500">
+                      Results
+                    </div>
+
+                    {results.map((item, idx) => (
+                      <button
+                        key={`result-${idx}`}
+                        onClick={() => handleSearchClick(item)}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                      >
+                        {item.type === "product" && item.image && (
+                          <Image
+                            src={item.image}
+                            alt=""
+                            width={32}
+                            height={32}
+                          />
+                        )}
+
+                        <span className="text-sm text-gray-500">
+                          <b>{item.name}</b>
+                          <span className="ml-2 text-xs text-gray-500">
+                            {item.type}
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                  </>
+                )}
+
+                {/* ❌ NO RESULTS */}
+                {query && results.length === 0 && (
+                  <div className="px-4 py-3 text-sm text-gray-400">
+                    No results found
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* DESKTOP ACTIONS */}
@@ -133,12 +327,13 @@ export default function Header() {
                 Login <User size={16} />
               </button>
             ) : (
-  <div className="relative">
+              <div className="relative">
                 <button
                   onClick={() => setAccountOpen(!accountOpen)}
                   className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green flex items-center gap-1"
                 >
-                  {customer?.name ? customer.name : "User"} <ChevronDown size={16} />
+                  {customer?.name ? customer.name : "User"}{" "}
+                  <ChevronDown size={16} />
                 </button>
 
                 {accountOpen && (
@@ -162,7 +357,7 @@ export default function Header() {
                   </div>
                 )}
               </div>
-            )}         
+            )}
 
             <Link
               href="/cart"
