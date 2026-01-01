@@ -4,20 +4,20 @@ import Link from 'next/link'
 
 type Props = {
   data?: {
-    id: string
-    name: string
-    image: string
-    slug: string
-  }[]
-  limit?: number
+    categoryId: string;
+    name: string;
+    image: string;
+    slug: string;
+  }[];
+  limit?: number;
   cols?: {
-    mobile?: number
-    sm?: number
-    md?: number
-    lg?: number
-    xl?: number
-  }
-}
+    mobile?: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+    xl?: number;
+  };
+};
 
 export default function CategoryGrid({ data = [], limit, cols }: Props) {
   const visible = limit ? data.slice(0, limit) : data
@@ -37,8 +37,8 @@ export default function CategoryGrid({ data = [], limit, cols }: Props) {
     <div className={gridClass}>
       {visible.map((cat) => (
         <Link
-          key={cat.id} 
-          href={`/categories/${cat.slug}`}
+          key={cat.categoryId} 
+          href={`/categories/${cat.name}`}
           className="text-center group"
         >
           <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:h-[170px] lg:w-[170px] overflow-hidden rounded-full bg-gray-300">
