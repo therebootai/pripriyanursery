@@ -3,6 +3,7 @@ import { useSearchParams } from "next/navigation";
 import ProductCards from '@/components/ui/ProductCards'
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
+import CardSkeleton from '../ui/CardSkeleton';
 
 export type ImageType = {
   public_id: string;
@@ -170,17 +171,13 @@ useEffect(() => {
         {/* Infinite Scroll Loader */}
         {!query && pagination.totalPages > page && (
           <div
-            className="flex justify-center items-center gap-4 mt-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4 gap-6"
             ref={ref}
           >
-            <span className="animate-pulse text-2xl font-bold text-defined-green">
-              Loading...
-            </span>
-            <div
-              className="size-9 inline-block rounded-full border-6 border-r-defined-green border-solid animate-spin border-white"
-              role="status"
-              aria-label="Loading"
-            ></div>
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />            
+                        
           </div>
         )}
       </div>

@@ -11,6 +11,15 @@ export default function CategoryHeader({ category, brand, attribute }: { categor
         <button className="rounded-full bg-green-600 px-4 py-1 text-xs text-white">
           Popularity
         </button>
+        <button className="rounded-full bg-green-600 px-4 py-1 text-xs text-white">
+          Price : Low to High
+        </button>
+        <button className="rounded-full bg-green-600 px-4 py-1 text-xs text-white">
+          Price : High to Low
+        </button>
+        <button className="rounded-full bg-green-600 px-4 py-1 text-xs text-white">
+          Newest First
+        </button>
       </div>
     </div>
   );

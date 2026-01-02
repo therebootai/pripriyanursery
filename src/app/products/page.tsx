@@ -9,23 +9,26 @@ const page = async ({
   searchParams,
 }: {
   searchParams: Promise<{
-    category?: string;
-    brand?: string;
-    attribute?: string;
+    category?: string | string[];
+    brand?: string | string[];
+    attribute?: string | string[];
   }>;
 }) => {
-     const resolvedSearchParams = await searchParams;
-  const activeCategory = resolvedSearchParams.category
-    ? decodeURIComponent(resolvedSearchParams.category)
-    : null;
 
-  const activeBrand = resolvedSearchParams.brand
-    ? decodeURIComponent(resolvedSearchParams.brand)
-    : null;
+  const normalizeParam = (param?: string | string[]) => {
+    if (!param) return [];
+    if (Array.isArray(param)) {
+      return param.map((p) => decodeURIComponent(p));
+    }
+    return [decodeURIComponent(param)];
+  };
 
-  const activeAttribute = resolvedSearchParams.attribute
-    ? decodeURIComponent(resolvedSearchParams.attribute)
-    : null;
+
+  const resolvedSearchParams = await searchParams;
+const activeCategory = normalizeParam(resolvedSearchParams.category);
+const activeBrand = normalizeParam(resolvedSearchParams.brand);
+const activeAttribute = normalizeParam(resolvedSearchParams.attribute);
+
 
   const [categories, brands, attributes] = await Promise.allSettled([
     fetchCategories(),
@@ -35,9 +38,12 @@ const page = async ({
 
   const url = new URL("http://localhost:8000/api/product/");
 
-  if (activeCategory) url.searchParams.set("category", activeCategory);
-  if (activeBrand) url.searchParams.set("brand", activeBrand);
-  if (activeAttribute) url.searchParams.set("attribute", activeAttribute);
+activeCategory.forEach((c) => url.searchParams.append("category", c));
+
+activeBrand.forEach((b) => url.searchParams.append("brand", b));
+
+activeAttribute.forEach((a) => url.searchParams.append("attribute", a));
+
 
   let products = [];
 

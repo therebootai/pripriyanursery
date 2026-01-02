@@ -25,21 +25,27 @@ export default function CategorySidebar({
   const [openBrand, setOpenBrand] = useState(true);
   const [openAttribute, setOpenAttribute] = useState(true);
 
-  const activeCategory = searchParams.get("category");
-  const activeBrand = searchParams.get("brand");
-  const activeAttribute = searchParams.get("attribute");
 
-  const handleCategoryClick = (category: string) => {
-    router.push(`/products?category=${encodeURIComponent(category)}`);
+  const toggleParam = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const values = params.getAll(key);
+
+    if (values.includes(value)) {
+      params.delete(key);
+      values.filter((v) => v !== value).forEach((v) => params.append(key, v));
+    } else {
+      params.append(key, value);
+    }
+
+    router.push(`/products?${params.toString()}`);
   };
-  const handleBrand = (name: string) => {
-    router.push(
-      `/products?brand=${encodeURIComponent(name)}`
-    );
-  };
-  const handleAttribute = (name: string) => {
-    router.push(`/products?attribute=${encodeURIComponent(name)}`);
-  };
+
+const handleCategoryClick = (name: string) => toggleParam("category", name);
+
+const handleBrand = (name: string) => toggleParam("brand", name);
+
+const handleAttribute = (name: string) => toggleParam("attribute", name);
+
 
   return (
     <aside className="sticky top-24 space-y-4">
@@ -56,7 +62,7 @@ export default function CategorySidebar({
           >
             <input
               type="checkbox"
-              checked={decodeURIComponent(activeCategory || "") === item.name}
+              checked={searchParams.getAll("category").includes(item.name)}
               readOnly
             />
             {item.name}
@@ -74,7 +80,11 @@ export default function CategorySidebar({
             className="flex items-center gap-2 text-sm cursor-pointer"
             onClick={() => handleBrand(b.name)}
           >
-            <input type="checkbox" checked={activeBrand === b.name} readOnly />
+            <input
+              type="checkbox"
+              checked={searchParams.getAll("brand").includes(b.name)}
+              readOnly
+            />
             {b.name}
           </label>
         ))}
@@ -92,7 +102,7 @@ export default function CategorySidebar({
           >
             <input
               type="checkbox"
-              checked={activeAttribute === a.name}
+              checked={searchParams.getAll("attribute").includes(a.name)}
               readOnly
             />
             {a.name}
