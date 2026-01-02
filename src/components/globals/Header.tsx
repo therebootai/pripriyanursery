@@ -106,7 +106,7 @@ const dropdownRef = useRef<HTMLDivElement>(null);
         break;
 
       case "attribute":
-        router.push(`/products?attributes=${encodeURIComponent(item.name)}`);
+        router.push(`/products?attribute=${encodeURIComponent(item.name)}`);
         break;
     }
   };
