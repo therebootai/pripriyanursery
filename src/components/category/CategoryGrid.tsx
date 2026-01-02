@@ -38,7 +38,7 @@ export default function CategoryGrid({ data = [], limit, cols }: Props) {
       {visible.map((cat) => (
         <Link
           key={cat.categoryId} 
-          href={`/categories/${cat.name}`}
+          href={`/products?category=${cat.name}`}
           className="text-center group"
         >
           <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:h-[170px] lg:w-[170px] overflow-hidden rounded-full bg-gray-300">

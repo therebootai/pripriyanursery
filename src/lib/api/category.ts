@@ -23,7 +23,7 @@ export async function fetchCategories(): Promise<CategoryUI[]> {
     ? json
     : json.categories || []
 
-    console.log(categories)
+    // console.log(categories)
 
   return categories.map((cat: CategoryUI) => ({
     id: cat.id,

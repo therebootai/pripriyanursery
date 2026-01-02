@@ -64,7 +64,7 @@ const handleCart = async () => {
 
   try {
     let res;
-
+    
     if (isInCart) {
        await removeFromCartApi(customerId, id);
     } else {

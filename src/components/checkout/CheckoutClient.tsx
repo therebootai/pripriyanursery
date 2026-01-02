@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { logout } from "@/library/api";
+import { CouponType } from "@/types/types";
 
 interface RazorpayInstance {
   open: () => void;
@@ -55,6 +56,11 @@ async function loadRazorpayScript(): Promise<void> {
 }
 
 export default function CheckoutClient() {
+  const [availableCoupons, setAvailableCoupons] = useState<CouponType[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponType | null>(null);
+  const [couponDiscount, setCouponDiscount] = useState(0);
+  const [couponMessage, setCouponMessage] = useState("");
+
   const [changeAccountMode, setChangeAccountMode] = useState(false);
   const [changeAddressMode, setChangeAddressMode] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -82,7 +88,7 @@ const selectedAddress =
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: Math.max(total - discount, 0),
+            amount: Math.max(total - couponDiscount, 0),
             currency: "INR",
           }),
         }
@@ -123,9 +129,9 @@ const selectedAddress =
                   product: (i.productId as ProductType)._id,
                   quantity: i.quantity,
                 })),
-                couponCode: coupon,
-                couponDiscount: discount,
-                orderValue: total - discount,
+                couponCode: appliedCoupon?.code,
+                couponDiscount: couponDiscount,
+                orderValue: total - couponDiscount,
               }),
             }
           );
@@ -194,20 +200,30 @@ const selectedAddress =
     0
   );
 
-  /* ------------------ TOTAL DISCOUNT (AGGREGATED) ------------------ */
-  const discount = cart.reduce((acc, item) => {
-    const product = item.productId as ProductType as ProductType;
+  useEffect(() => {
+    if (total <= 0) return;
 
-    if (
-      typeof item.priceAtTime !== "number" ||
-      typeof product?.price !== "number"
-    )
-      return acc;
+    const fetchCoupons = async () => {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
+      const data = await res.json();
+      console.log(data);
+      const validCoupons = data.coupons.filter((c: CouponType) => {
+        const now = new Date();
+        return (
+          total >= c.minOrderAmount &&
+          new Date(c.startDate) <= now &&
+          new Date(c.expirationDate) >= now &&
+          c.usageLimit > 0
+        );
+      });
 
-    const d = (item.priceAtTime - product.price) * item.quantity;
+      setAvailableCoupons(validCoupons);
+      console.log(validCoupons);
+    };
 
-    return d > 0 ? acc + d : acc;
-  }, 0);
+    fetchCoupons();
+  }, [total]);
+
 
   const handleLogoutAndRedirect = async () => {
     await logout();
@@ -220,6 +236,38 @@ const selectedAddress =
       setSelectedAddressId(selectedAddress._id);
     }
   }, [selectedAddress, selectedAddressId]);
+
+  const handleApplyCoupon = () => {
+    const found = availableCoupons.find(
+      (c) => c.code.toLowerCase() === coupon.toLowerCase()
+    );
+
+    if (!found) {
+      toast.error("Invalid or ineligible coupon");
+      setCouponMessage("Invalid or ineligible coupon");
+      setCouponDiscount(0);
+      setAppliedCoupon(null);
+      return;
+    }
+
+    let discountAmount = 0;
+
+    if (found.discountType === "percentage") {
+      discountAmount = (total * found.discountValue) / 100;
+    } else {
+      discountAmount = found.discountValue;
+    }
+
+    if (found.maxDiscountAmount) {
+      discountAmount = Math.min(discountAmount, found.maxDiscountAmount);
+    }
+
+    setAppliedCoupon(found);
+    setCouponDiscount(discountAmount);
+    setCouponMessage(`Coupon "${found.code}" applied successfully`);
+    toast.success(`Coupon "${found.code}" applied successfully`);
+  };
+
 
   if (!cart.length) {
     return (
@@ -434,22 +482,29 @@ const selectedAddress =
 
       {/* RIGHT */}
       <div className="bg-white border border-gray-200 rounded-md p-4 h-fit sticky top-24 self-start">
-        <h3 className="font-semibold text-defined-black border-b border-gray-200 pb-2">
-          Have a Coupon Code?
-        </h3>
+        {availableCoupons.length > 0 && (
+          <div>
+            <h3 className="font-semibold text-defined-black border-b border-gray-200 pb-2">
+              Have a Coupon Code?
+            </h3>
 
-        <div className="flex items-center gap-3 mt-4">
-          <input
-            value={coupon}
-            onChange={(e) => setCoupon(e.target.value)}
-            placeholder="Enter coupon code"
-            className="flex-1 border text-defined-black placeholder:text-defined-black border-gray-200 rounded-full px-4 py-2 text-sm outline-none"
-          />
+            <div className="flex items-center gap-3 mt-4">
+              <input
+                value={coupon}
+                onChange={(e) => setCoupon(e.target.value)}
+                placeholder="Enter coupon code"
+                className="flex-1 border text-defined-black placeholder:text-defined-black border-gray-200 rounded-full px-4 py-2 text-sm outline-none"
+              />
 
-          <button className="border border-green-500 text-defined-green rounded-full px-6 py-2 text-sm font-medium hover:bg-green-50 transition whitespace-nowrap">
-            Apply
-          </button>
-        </div>
+              <button
+                onClick={handleApplyCoupon}
+                className="border border-green-500 text-defined-green rounded-full px-6 py-2 text-sm font-medium hover:bg-green-50 transition whitespace-nowrap"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="text-sm space-y-3 mt-5 text-defined-black">
           <h2 className="font-semibold text-lg">Order Summary</h2>
@@ -462,17 +517,22 @@ const selectedAddress =
 
           <div className="flex justify-between pb-3">
             <span>Discount</span>
-            <span>₹{discount}</span>
+            <span>₹{couponDiscount}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-3">
             <span>Coupon Code</span>
             <span>{coupon || "—"}</span>
           </div>
+          {couponMessage !== "" && (
+            <div className="border border-green-500 text-defined-green rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap">
+              {couponMessage}
+            </div>
+          )}
 
           <div className="flex justify-between font-semibold">
             <span>Total Amount</span>
-            <span>₹{Math.max(total - discount, 0)}</span>
+            <span>₹{Math.max(total - couponDiscount, 0)}</span>
           </div>
         </div>
 

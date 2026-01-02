@@ -1,8 +1,8 @@
-export default function CategoryHeader({ category }: { category: string }) {
+export default function CategoryHeader({ category, brand, attribute }: { category: string | null, brand: string | null, attribute: string | null }) {
   return (
     <div className="rounded bg-white p-6 shadow-sm">
       <p className="text-sm text-gray-500">
-        Home <span className="mx-1">›</span> {decodeURIComponent(category)}
+        Home <span className="mx-1">›</span> {category} {">"} {brand} {">"} {attribute}
       </p>
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
