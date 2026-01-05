@@ -237,19 +237,12 @@ const selectedAddress =
     }
   }, [selectedAddress, selectedAddressId]);
 
-  const handleApplyCoupon = () => {
-    const found = availableCoupons.find(
-      (c) => c.code.toLowerCase() === coupon.toLowerCase()
-    );
+  const handleCouponSelect = (c: CouponType) => {
+    setCoupon(c.code);
+    applyCoupon(c);
+  };
 
-    if (!found) {
-      toast.error("Invalid or ineligible coupon");
-      setCouponMessage("Invalid or ineligible coupon");
-      setCouponDiscount(0);
-      setAppliedCoupon(null);
-      return;
-    }
-
+  const applyCoupon = (found: CouponType) => {
     let discountAmount = 0;
 
     if (found.discountType === "percentage") {
@@ -264,10 +257,24 @@ const selectedAddress =
 
     setAppliedCoupon(found);
     setCouponDiscount(discountAmount);
-    setCouponMessage(`Coupon "${found.code}" applied successfully`);
-    toast.success(`Coupon "${found.code}" applied successfully`);
+    setCouponMessage(`Coupon ${found.code} applied`);
   };
 
+
+ const handleApplyCoupon = () => {
+   const found = availableCoupons.find(
+     (c) => c.code.toLowerCase() === coupon.toLowerCase()
+   );
+
+   if (!found) {
+     setCouponMessage("Invalid or ineligible coupon");
+     setCouponDiscount(0);
+     setAppliedCoupon(null);
+     return;
+   }
+
+   applyCoupon(found);
+ };
 
   if (!cart.length) {
     return (
@@ -482,27 +489,52 @@ const selectedAddress =
 
       {/* RIGHT */}
       <div className="bg-white border border-gray-200 rounded-md p-4 h-fit sticky top-24 self-start">
+        <div>
+          <h3 className="font-semibold text-defined-black border-b border-gray-200 pb-2">
+            Have a Coupon Code?
+          </h3>
+
+          <div className="flex items-center gap-3 mt-4">
+            <input
+              value={coupon}
+              onChange={(e) => setCoupon(e.target.value)}
+              placeholder="Enter coupon code"
+              className="flex-1 border text-defined-black placeholder:text-defined-black border-gray-200 rounded-full px-4 py-2 text-sm outline-none"
+            />
+
+            <button
+              onClick={() => {
+                if (appliedCoupon) {
+                  setAppliedCoupon(null);
+                  setCoupon("");
+                  setCouponDiscount(0);
+                  setCouponMessage("");
+                } else {
+                  handleApplyCoupon();
+                }
+              }}
+              className={`rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap transition
+    ${
+      appliedCoupon
+        ? "border border-red-500 text-red-500 hover:bg-red-50"
+        : "border border-green-500 text-defined-green hover:bg-green-50"
+    }`}
+            >
+              {appliedCoupon ? "Remove" : "Apply"}
+            </button>
+          </div>
+        </div>
         {availableCoupons.length > 0 && (
-          <div>
-            <h3 className="font-semibold text-defined-black border-b border-gray-200 pb-2">
-              Have a Coupon Code?
-            </h3>
-
-            <div className="flex items-center gap-3 mt-4">
-              <input
-                value={coupon}
-                onChange={(e) => setCoupon(e.target.value)}
-                placeholder="Enter coupon code"
-                className="flex-1 border text-defined-black placeholder:text-defined-black border-gray-200 rounded-full px-4 py-2 text-sm outline-none"
-              />
-
+          <div className="flex flex-wrap gap-2 mt-3">
+            {availableCoupons.filter(c => c.status  !== false && c.usageLimit > 0 && c.expirationDate < new Date().toDateString()).map((c) => (
               <button
-                onClick={handleApplyCoupon}
-                className="border border-green-500 text-defined-green rounded-full px-6 py-2 text-sm font-medium hover:bg-green-50 transition whitespace-nowrap"
+                key={c.code}
+                onClick={() => handleCouponSelect(c)}
+                className="border border-green-500 text-defined-green rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap hover:bg-green-50 cursor-pointer transition"
               >
-                Apply
+                {c.code}
               </button>
-            </div>
+            ))}
           </div>
         )}
 

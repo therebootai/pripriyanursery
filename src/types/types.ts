@@ -24,8 +24,15 @@ export interface CouponType {
   minOrderAmount: number;
   maxDiscountAmount: number;
   startDate: string;
-  expirationDate : string;
-  usageLimit : number;
+  status: boolean;
+  expirationDate: string;
+  usageLimit: number;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface WishlistType {
+  _id: string;
+  product: ProductType;
+  status: boolean;  
 }

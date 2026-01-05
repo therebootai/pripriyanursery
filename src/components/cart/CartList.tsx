@@ -80,7 +80,12 @@ export default function CartList() {
   return (
     <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
-      <div className="lg:col-span-2 space-y-4">
+      <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="py-4">
+          <h2 className="text-lg font-semibold text-gray-800">
+            Cart ({customer?.cart.length || 0})
+          </h2>
+        </div>
         {cart
           .slice()
           .reverse()
@@ -137,7 +142,7 @@ export default function CartList() {
                   <p
                     className="mt-2 text-sm text-defined-black"
                     dangerouslySetInnerHTML={{
-                      __html: (item.productId as ProductType).shortDescription
+                      __html: (item.productId as ProductType).shortDescription,
                     }}
                   ></p>
 
@@ -212,7 +217,7 @@ export default function CartList() {
         </div>
 
         <button
-          onClick={() => (router.push("/checkout"))}
+          onClick={() => router.push("/checkout")}
           className="mt-6 w-full rounded-full bg-gradient-to-r from-green-500 to-emerald-600 py-2 text-white font-semibold hover:scale-[1.03] transition"
         >
           Proceed To Checkout
