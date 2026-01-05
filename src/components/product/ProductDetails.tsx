@@ -11,23 +11,6 @@ import { addOrder } from "@/lib/order";
 import { useRouter } from "next/navigation";
 import { ProductType } from "./ProductSection";
 
-// type ProductType = {
-//   id: number;
-//   name: string;
-//   price: number;
-//   image: string;
-//   gallery?: string[];
-//   category?: string;
-//   des: string;
-
-//   description?: {
-//     full?: string;
-//     benefits?: string[];
-//     care?: string[];
-//     extra?: string;
-//   };
-// };
-
 type TrustProps = {
   icon: React.ReactNode;
   label: string;
@@ -43,6 +26,16 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
   const [activeImage, setActiveImage] = useState(images[0]);
   const [open, setOpen] = useState(false);
+  const [pincode, setPincode] = useState("");
+  const [checking, setChecking] = useState(false);
+  const [deliveryInfo, setDeliveryInfo] = useState<null | {
+    charge: number;
+    courier: string;
+    deliveryDate: string;
+  }>(null);
+
+  const [error, setError] = useState<string | null>(null);
+  const [hasChecked, setHasChecked] = useState(false);
 
   const router = useRouter();
 
@@ -67,9 +60,75 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
       ],
     };
 
-    addOrder(order);
+    addOrder(order as any);
 
     router.push("/my-account?tab=orders");
+  };
+
+  const getDeliveryDate = (estimated: string): string => {
+    const days = parseInt(estimated); // "2 Days" → 2
+
+    if (isNaN(days)) return "";
+
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + days);
+
+    return deliveryDate.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      weekday: "long",
+    });
+  };
+
+  const handleCheckPincode = async () => {
+    if (pincode.length !== 6) {
+      setError("Please enter a valid 6 digit pincode");
+      return;
+    }
+
+    setChecking(true);
+    setError(null);
+    setDeliveryInfo(null);
+
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/shipping/rate-calculator`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: product.productId,
+            deliveryPincode: pincode,
+            paymentType: "PREPAID",
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (data.result !== "1" || !data.data?.length) {
+        setError("Delivery not available to this pincode");
+        return;
+      }
+
+      const cheapest = data.data.reduce((min: any, curr: any) =>
+        curr.total_charges < min.total_charges ? curr : min
+      );
+
+      const deliveryDate = getDeliveryDate(cheapest.estimated_delivery);
+
+      setDeliveryInfo({
+        charge: cheapest.total_charges,
+        courier: cheapest.name,
+        deliveryDate,
+      });
+      setHasChecked(true);
+    } catch (err) {
+      setError("Something went wrong while checking delivery");
+    } finally {
+      setChecking(false);
+    }
   };
 
   return (
@@ -166,11 +225,15 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 Special price
               </p>
               <div className="flex items-center gap-3">
-                <span className="text-3xl font-semibold text-defined-green">₹{product.price}</span>
+                <span className="text-3xl font-semibold text-defined-green">
+                  ₹{product.price}
+                </span>
                 <span className="line-through text-gray-400">
                   ₹{Math.round(product.price * 1.8)}
                 </span>
-                <span className="text-green-600 font-medium">{product.discount}% Off</span>
+                <span className="text-green-600 font-medium">
+                  {product.discount}% Off
+                </span>
               </div>
             </div>
 
@@ -178,16 +241,43 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             <div className="flex items-center gap-2 mb-4">
               <input
                 type="text"
+                value={pincode}
+                onChange={(e) => setPincode(e.target.value.replace(/\D/g, ""))}
                 placeholder="Enter pin code"
+                maxLength={6}
                 className="border border-gray-200 outline-none placeholder:text-gray-400 text-defined-black rounded-md px-3 py-2 text-sm w-40"
               />
-              <button className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded-md text-sm font-medium">
-                Check
+              <button
+                type="button"
+                onClick={handleCheckPincode}
+                disabled={checking}
+                className="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded-md text-sm font-medium"
+              >
+                {checking ? "Checking..." : "Check"}
               </button>
             </div>
 
             <p className="text-sm text-gray-600 mb-4">
-              Delivery by <b>21 Dec 2026, Sunday</b>
+              {!hasChecked && (
+                <span className="italic text-gray-400">
+                  Check delivery date
+                </span>
+              )}
+
+              {hasChecked && deliveryInfo && (
+                <>
+                  Delivery by{" "}
+                  <b className="text-defined-black">
+                    {deliveryInfo.deliveryDate}
+                  </b>
+                </>
+              )}
+
+              {hasChecked && !deliveryInfo && (
+                <span className="text-red-600">
+                  Delivery not available for this pincode
+                </span>
+              )}
             </p>
 
             {/* Offers */}
@@ -212,7 +302,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                   Product Description
                 </h2>
 
-                <p className="text-sm text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: product.shortDescription }}>
+                <p
+                  className="text-sm text-gray-700 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: product.shortDescription }}
+                >
                   {/* {open
                     ? product.shortDescription
                     : truncateWords(product.shortDescription, 10)} */}
@@ -232,43 +325,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                     {product.shortDescription.split("\n").map((item, i) => (
                       <p key={i}>{item}</p>
                     ))}
-
-                    {/* {product.description.benefits?.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-2">
-                          Key Benefits
-                        </h3>
-                        <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
-                          {product.description.benefits.map((item, i) => (
-                            <li key={i}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {product.description.care?.length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-2">
-                          Care Instructions
-                        </h3>
-                        <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">
-                          {product.description.care.map((item, i) => (
-                            <li key={i}>{item}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    {product.description.extra && (
-                      <div>
-                        <h3 className="font-semibold mb-2">
-                          Additional Information
-                        </h3>
-                        <p className="text-sm text-gray-700">
-                          {product.description.extra}
-                        </p>
-                      </div>
-                    )} */}
                   </div>
                 )}
               </div>
