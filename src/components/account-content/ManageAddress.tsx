@@ -5,7 +5,7 @@ import { Trash2, Pencil } from "lucide-react";
 import { useCustomer } from "@/context/CustomerContext";
 import toast from "react-hot-toast";
 
-type AddressType = "home" | "office" | "others";
+type AddressType = "Home" | "Office" | "Others";
 const isValidMobile = (v: string) => /^91\d{10}$/.test(v);
 
 const isValidPin = (v: string) => /^\d{6}$/.test(v);
@@ -19,7 +19,7 @@ export type Address = {
   area: string;
   city: string;
   state: string;
-  country?: string;
+  landmark?: string;  
   type: AddressType;
 };
 
@@ -31,8 +31,8 @@ const emptyForm: Address = {
   area: "",
   city: "",
   state: "",
-  country: "",
-  type: "home",
+  landmark: "",  
+  type: "Home",
 };
 
 export default function ManageAddress() {
@@ -79,14 +79,21 @@ export default function ManageAddress() {
        toast.error("Please fill all required address fields");
        return;
      }
+     if (!f.mobile.startsWith("91")) {
+       f.mobile = `91${f.mobile}`;
+     }
+
+     if (f.alternateMobile && !f.alternateMobile.startsWith("91")) {
+       f.alternateMobile = `91${f.alternateMobile}`;
+     }
 
      if (!isValidMobile(f.mobile)) {
-       toast.error("Mobile must start with 91 and be 12 digits");
+       toast.error("Mobile must be 10 of digits");
        return;
      }
 
      if (f.alternateMobile && !isValidMobile(f.alternateMobile)) {
-       toast.error("Alternate mobile must start with 91 and be 12 digits");
+       toast.error("Alternate mobile must be of 10 digits");
        return;
      }
 
@@ -218,7 +225,7 @@ function AddressForm({
 
   return (
     <>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">        
         <Input
           placeholder="Name"
           value={form.name}
@@ -250,6 +257,11 @@ function AddressForm({
           onChange={(v) => update("state", v)}
         />
         <Input
+          placeholder="LandMark"
+          value={form.landmark}
+          onChange={(v) => update("landmark", v)}
+        />
+        <Input
           placeholder="Alternative Phone"
           value={form.alternateMobile}
           onChange={(v) => update("alternateMobile", v)}
@@ -257,7 +269,7 @@ function AddressForm({
       </div>
 
       <div className="mt-4 flex gap-6 text-sm text-defined-green">
-        {(["home", "office", "others"] as AddressType[]).map((t) => (
+        {(["Home", "Office", "Others"] as AddressType[]).map((t) => (
           <label key={t} className="flex items-center gap-2 cursor-pointer">
             <input
               type="radio"
@@ -288,7 +300,7 @@ function Input({
       value={value}
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
-      className="border-[0.3px] border-gray-200 rounded-md px-4 py-3 text-sm w-full"
+      className="border-[0.3px] border-gray-200 outline-none rounded-md px-4 py-3 text-sm w-full"
     />
   );
 }

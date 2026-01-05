@@ -84,11 +84,14 @@ useEffect(() => {
   if (!customer || !customer.wishlist) return;
 
   const exists = customer.wishlist.some(
-    (pid: any) => String(pid) === String(id)
+    (item: any) =>
+      String(item.product?._id || item.product) === String(id) &&
+      item.status === true
   );
 
   setIsWishlisted(exists);
 }, [customer, id]);
+
 
 useEffect(() => {
   if (!customer || !customer.cart) return;
