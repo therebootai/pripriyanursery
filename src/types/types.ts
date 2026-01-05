@@ -30,3 +30,9 @@ export interface CouponType {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface WishlistType {
+  _id: string;
+  product: ProductType;
+  status: boolean;  
+}
