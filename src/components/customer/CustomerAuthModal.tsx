@@ -16,6 +16,10 @@ interface Props {
 }
 
 export default function CustomerLoginModal({ isOpen, onClose }: Props) {
+  const OTP_COOLDOWN = 50; // 10 minutes in seconds
+
+  const [cooldown, setCooldown] = useState(0);
+
   const router = useRouter();
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
 const { refreshCustomer } = useCustomer();
@@ -23,6 +27,35 @@ const { refreshCustomer } = useCustomer();
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const stored = localStorage.getItem("otpCooldownUntil");
+
+    if (stored) {
+      const diff = Math.floor((Number(stored) - Date.now()) / 1000);
+      if (diff > 0) setCooldown(diff);
+      else localStorage.removeItem("otpCooldownUntil");
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (cooldown <= 0) return;
+
+    const timer = setInterval(() => {
+      setCooldown((prev) => {
+        if (prev <= 1) {
+          localStorage.removeItem("otpCooldownUntil");
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
+
 
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
@@ -36,19 +69,29 @@ const { refreshCustomer } = useCustomer();
   // ------------------ HANDLERS ------------------
 
   const handleSendOtp = async () => {
-    if (loading || mobile.length !== 10) return;
+    if (loading || mobile.length !== 10 || cooldown > 0) return;
 
     try {
       setLoading(true);
       const res = await sendOtp(mobile);
       if(res.success) toast.success(res.message);
       setStep("OTP");
+       const expiry = Date.now() + OTP_COOLDOWN * 1000;
+       localStorage.setItem("otpCooldownUntil", String(expiry));
+       setCooldown(OTP_COOLDOWN);
     } catch {
       toast.error("Failed to send OTP");
     } finally {
       setLoading(false);
     }
   };
+
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, "0")}`;
+  };
+
 
  const handleVerifyOtp = async () => {
    if (loading || otp.length !== 6) return;
@@ -64,7 +107,11 @@ const { refreshCustomer } = useCustomer();
      setStep("MOBILE");
 
      onClose();
-     router.push("/my-account");
+     const redirect = localStorage.getItem("redirectAfterLogin") || "/";
+
+     localStorage.removeItem("redirectAfterLogin");
+     router.replace(redirect);
+
    } catch {
      toast.error("Invalid or expired OTP");
    } finally {
@@ -245,11 +292,13 @@ const { refreshCustomer } = useCustomer();
 
                 <button
                   onClick={handleSendOtp}
-                  disabled={loading || mobile.length !== 10}
+                  disabled={loading || mobile.length !== 10 || cooldown > 0}
                   className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60 shadow-md"
                 >
                   {loading
                     ? "Sending OTP..."
+                    : cooldown > 0
+                    ? `Resend in ${formatTime(cooldown)}`
                     : authMode === "login"
                     ? "Request OTP"
                     : "Continue"}
@@ -310,6 +359,21 @@ const { refreshCustomer } = useCustomer();
                 >
                   Change mobile number
                 </button>
+                {cooldown > 0 ? (
+                  <p className="text-center text-sm text-gray-500 mt-3">
+                    Resend OTP in{" "}
+                    <span className="font-semibold">
+                      {formatTime(cooldown)}
+                    </span>
+                  </p>
+                ) : (
+                  <button
+                    onClick={handleSendOtp}
+                    className="block w-full mt-3 text-sm text-green-600 underline"
+                  >
+                    Resend OTP
+                  </button>
+                )}
               </>
             )}
           </div>

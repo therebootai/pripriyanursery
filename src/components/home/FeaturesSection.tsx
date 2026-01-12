@@ -36,9 +36,9 @@ const features = [
 
 export default function FeaturesSection() {
   return (
-    <section className=" py-12">
-      <div className="mx-auto max-w-[1300px] px-4">
-        <div className="grid grid-cols-1 md:grid-cols-5 items-center">
+    <section className="">
+      <div className="self-padding">
+        <div className="grid grid-cols-2 md:grid-cols-5 items-center gap-4">
 
           {features.map((item, index) => {
             const Icon = item.icon

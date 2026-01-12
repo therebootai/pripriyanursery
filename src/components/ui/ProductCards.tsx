@@ -9,6 +9,7 @@ import { toggleWishlistApi } from "@/library/wishlist";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { ProductType } from "@/types/types";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 
 
@@ -35,6 +36,7 @@ export default function ProductCards({
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
+  const router = useRouter()
 
   const customerId = customer?._id;
 
@@ -63,7 +65,8 @@ const handleCart = async () => {
 
   try {
     if (isInCart) {
-       await removeFromCartApi(customerId, _id);
+       router.push('/cart');
+       return
     } else {
       await addToCartApi(customerId, _id, undefined, 1, price);
     }
@@ -161,15 +164,15 @@ useEffect(() => {
 
           <button
             onClick={handleCart}
-            disabled={isInCart}
-            className={`relative z-20 
+            // disabled={isInCart}
+            className={`cursor-pointer relative z-20 
               md:hidden group flex items-center justify-center gap-2
                font-semibold
               p-2
               rounded-full
               transition-all duration-300 ease-in-out
               ${
-                isInCart
+                !isInCart
                   ? "bg-green-100 text-green-700 cursor-default shadow-inner"
                   : "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
               }
@@ -180,13 +183,12 @@ useEffect(() => {
                 <ShoppingCart
                   size={10}
                   className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-                <span>Go to Cart</span>
+                />                
               </>
             ) : (
               <>
                 <ShoppingCart
-                  size={14}
+                  size={10}
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
               </>
@@ -221,15 +223,15 @@ useEffect(() => {
 
           <button
             onClick={handleCart}
-            disabled={isInCart}
-            className={`relative z-20 
+            // disabled={isInCart}
+            className={`cursor-pointer relative z-20 
              group flex items-center justify-center gap-2
               text-xs sm:text-sm font-semibold
               px-4 sm:px-5 py-2
               rounded-full
               transition-all duration-300 ease-in-out
               ${
-                isInCart
+                !isInCart
                   ? "bg-green-100 text-green-700 cursor-default shadow-inner"
                   : "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
               }
