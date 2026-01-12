@@ -5,8 +5,8 @@ import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
 import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { CartType, ProductType } from "@/types/types";
+import { useParams, useRouter } from "next/navigation";
+import { ProductType } from "@/types/types";
 import { useInView } from "react-intersection-observer";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi } from "@/library/cart";
@@ -17,6 +17,12 @@ type TrustProps = {
   icon: React.ReactNode;
   label: string;
 };
+
+
+export interface ProductVariantResponse {
+  selectedProduct: ProductType;
+  variants: ProductType[];
+}
 
 const ProductDetails = ({ product }: { product: ProductType }) => {
   const { customer, refreshCustomer } = useCustomer();
@@ -44,6 +50,56 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
   const [error, setError] = useState<string | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
+
+  const [currentProduct, setCurrentProduct] = useState<ProductType>(product);
+
+  const params = useParams<{ slug: string }>();
+const slug = params.slug;
+
+
+const getAttributeValue = (
+  product: ProductType,
+  attrName: string
+): string | null => {
+  const attr = product.variables?.find(v => v.name === attrName);
+
+  if (attr?.values?.length) return attr.values[0];
+
+  if (!product.isVariant) {
+    if (attrName === "Color") return `${" "}`;
+    if (attrName === "Size") return "";
+  }
+
+  return null;
+};
+
+
+const groupByAttribute = (
+  variants: ProductType[],
+  attrName: string
+) => {
+  return variants.reduce<Record<string, ProductType[]>>((acc, v) => {
+    const value = getAttributeValue(v, attrName);
+    if (!value) return acc;
+
+    if (!acc[value]) acc[value] = [];
+    acc[value].push(v);
+    return acc;
+  }, {});
+};
+
+
+
+const variants = currentProduct.variants || [];
+
+const showVariants = variants.length > 1;
+
+const colorGroups = groupByAttribute(variants, "Color");
+const sizeGroups = groupByAttribute(variants, "Size");
+
+const hasColor = Object.keys(colorGroups).length > 0;
+const hasSize = Object.keys(sizeGroups).length > 0;
+
 
   const router = useRouter();
 
@@ -167,6 +223,57 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     }
   };
 
+const  fetchProductWithVariants = async  (
+  slug: string
+): Promise<ProductVariantResponse> =>{
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/product/variants/${slug}`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!res.ok) {
+    throw new Error("Failed to fetch product");
+  }
+
+  const data = await res.json();
+    return {
+    selectedProduct: data.data.selectedProduct,
+    variants: data.data.variants,
+  };
+}
+
+
+useEffect(() => {
+  if (!slug) return;
+
+  const loadVariants = async () => {
+    try {
+      setVariantLoading(true);
+
+      const { selectedProduct, variants } =
+        await fetchProductWithVariants(slug);
+
+      setCurrentProduct({
+        ...selectedProduct,
+        variants,
+      });
+      setActiveImage(
+        selectedProduct.images?.[0] ?? selectedProduct.coverImage
+      );
+    } catch (err) {
+      console.error("Variant fetch failed", err);
+    } finally {
+      setVariantLoading(false);
+    }
+  };
+
+  loadVariants();
+}, [slug]);
+
+
+  
   return (
     <>
       {variantLoading && (
@@ -283,6 +390,71 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             </div>
 
+{showVariants && (
+  <div className="space-y-6 mb-4">
+    {hasColor && (
+      <div>
+        <p className="font-medium mb-2">Color</p>
+
+        <div className="flex gap-3">
+          {Object.entries(colorGroups).map(([color, products]) => {
+            const variant = products[0]; // representative
+
+            return (
+              <Link
+                key={variant._id}
+                href={`/product/${variant.slug}`}
+                className={`border rounded-md p-1 size-20 text-center ${
+                  variant._id === currentProduct._id
+                    ? "border-green-600"
+                    : "border-gray-200 hover:border-green-600"
+                }`}
+              >
+                <Image
+                  src={variant.coverImage.url}
+                  alt={color}
+                  width={60}
+                  height={60}
+                  className="object-cover mx-auto w-full h-full"
+                />
+                <p className="text-xs mt-1">{color}</p>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    )}
+    {hasSize && (
+      <div>
+        <p className="font-medium mb-2">Size</p>
+
+        <div className="flex gap-2">
+          {Object.entries(sizeGroups).map(([size, products]) => {
+            const variant = products[0];
+
+            return (
+              <Link
+                key={variant._id}
+                href={`/product/${variant.slug}`}
+                className={`px-4 py-2 border rounded-md text-sm ${
+                  variant._id === currentProduct._id
+                    ? "border-green-600 text-green-600"
+                    : "border-gray-300 hover:border-green-600"
+                }`}
+              >
+                {size}
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+  </div>
+)}
+
+
+
             {/* Pincode */}
             <div className="flex items-center gap-2 w-full">
               <input
@@ -338,31 +510,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </ul>
             </div>
 
-            {/* {product.isVariant && <p className="text-sm text-gray-600 mb-6">Select Colour</p>} */}
-
-            {product.variants && product.variants.length > 0 && (
-              <div className="flex items-center gap-3 mb-3">
-                {product.variants.map((variant: ProductType) => (
-                  <Link
-                    href={`/product/${variant.slug}`}
-                    key={variant._id}
-                    className={`${
-                      variant._id === product._id
-                        ? "border-green-600"
-                        : "border-gray-200 hover:border-green-600"
-                    } border-2 rounded-md p-1 size-20`}
-                  >
-                    <Image
-                      src={variant.coverImage.url}
-                      alt={variant.name}
-                      width={50}
-                      height={50}
-                      className="object-cover w-full h-full"
-                    />
-                  </Link>
-                ))}
-              </div>
-            )}
 
             {/* Trust Icons */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center mb-6">

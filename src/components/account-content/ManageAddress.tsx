@@ -6,8 +6,8 @@ import { useCustomer } from "@/context/CustomerContext";
 import toast from "react-hot-toast";
 
 type AddressType = "Home" | "Office" | "Others";
-const isValidMobile = (v: string) => /^91\d{10}$/.test(v);
 
+const isValidMobile = (v: string) => /^\d{10}$/.test(v)
 const isValidPin = (v: string) => /^\d{6}$/.test(v);
 
 export type Address = {
@@ -79,23 +79,18 @@ export default function ManageAddress() {
        toast.error("Please fill all required address fields");
        return;
      }
-     if (!f.mobile.startsWith("91")) {
-       f.mobile = `91${f.mobile}`;
-     }
 
-     if (f.alternateMobile && !f.alternateMobile.startsWith("91")) {
-       f.alternateMobile = `91${f.alternateMobile}`;
-     }
 
-     if (!isValidMobile(f.mobile)) {
-       toast.error("Mobile must be 10 of digits");
-       return;
-     }
+  if (!isValidMobile(f.mobile)) {
+    toast.error("Mobile must be 10 digits");
+    return;
+  }
 
-     if (f.alternateMobile && !isValidMobile(f.alternateMobile)) {
-       toast.error("Alternate mobile must be of 10 digits");
-       return;
-     }
+  if (f.alternateMobile && !isValidMobile(f.alternateMobile)) {
+    toast.error("Alternate mobile must be 10 digits");
+    return;
+  }
+
 
      if (!isValidPin(f.pin)) {
        toast.error("Pin code must be 6 digits");
