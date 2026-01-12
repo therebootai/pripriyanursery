@@ -4,63 +4,7 @@ import ProductCards from '@/components/ui/ProductCards'
 import { useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import CardSkeleton from '../ui/CardSkeleton';
-
-export type ImageType = {
-  public_id: string;
-  url: string;
-}
-
-export type SpecificationType = {   
-    name: string;
-    details: string;
-}
-
-export type ProductType = {
-  id: string;
-  productId: string;
-  slug: string;  
-
-  parentProduct?:string | null;
-  isVariant?: boolean;
-  variants?:string[];
-
-  name: string;
-  shortDescription: string;
-  longDescription: string;
-
-  coverImage: ImageType;
-  images?: ImageType[];
-  video?: ImageType;
-
-  categoryLevels:string[];
-  brand:string;
-  attributes:string[];
-  variables?: {
-    name: string;
-    values: string[];
-  }[];
-  pickup?: string;
-  averageRating: number;
-  ratingCount: number;
-  ratingBreakdown: {
-    1: number;
-    2: number;
-    3: number;
-    4: number;
-    5: number;
-  };
-
-  specifications: SpecificationType[];
-
-  mrp: number;
-  price: number;
-  discount: number;
-  stock: number;
-
-  status: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-};
+import { ProductType } from "@/types/types";
 
 export default function ProductSection({
   title,
@@ -82,7 +26,7 @@ export default function ProductSection({
   const { ref, inView } = useInView({ threshold: 0.1 });
   const [allProducts, setAllProducts] = useState<ProductType[]>([]);
   const displayProducts = allProducts;
-
+  const limit = 2;
 
   useEffect(() => {
     if (!query) return;
@@ -90,7 +34,7 @@ export default function ProductSection({
     const fetchSearchResults = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/product?q=${query}&page=1&limit=${pagination.limit}`
+          `${process.env.NEXT_PUBLIC_API_URL}/product?q=${query}&page=1&limit=${limit}`
         );
 
         const products = await res.json();
@@ -121,7 +65,7 @@ useEffect(() => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       const nextPage = page + 1;
       const newProducts = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${pagination.limit}&page=${nextPage}`
+        `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${limit}&page=${nextPage}`
       ).then((res) => res.json());
       if (newProducts?.success) {
         setAllProducts((prev) => [...prev, ...newProducts.data]);
@@ -138,13 +82,16 @@ useEffect(() => {
 
   return (
     <section className="pt-2 pb-6">
-      <div className="mx-auto max-w-[1300px] px-4">
-        <h2 className="mb-8 text-2xl font-bold text-defined-black">{title}</h2>
-        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3 lg:grid-cols-4">
+      <div className="self-padding flex flex-col gap-6">
+        <h2 className=" md:text-2xl font-bold text-defined-black">{title}</h2>
+        <div className="grid gap-1 md:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {displayProducts.map((p) => (
             <ProductCards
-              key={p.id}
-              id={p._id}
+              key={p.productId}
+              _id={p._id}
+              productId={p.productId}
+              attributes={p.attributes}
+              variables={p.variables}
               name={p.name}
               price={p.price}
               coverImage={p.coverImage}
@@ -155,15 +102,21 @@ useEffect(() => {
               mrp={p.mrp}
               discount={p.discount}
               stock={p.stock}
-              // averageRating={p.averageRating}
-              // ratingCount={p.ratingCount}
-              // ratingBreakdown={p.ratingBreakdown}
-              // pickup={p.pickup}
-              // specification={p.specification}
-              // video={p.video}
-              // category={p.category}
-              // tag={p.tag}
-              slug={p.slug} // 🔹 pass href to ProductCards
+              averageRating={p.averageRating}
+              ratingCount={p.ratingCount}
+              ratingBreakdown={p.ratingBreakdown}
+              pickup={p.pickup}
+              specifications={p.specifications}
+              video={p.video}
+              status={p.status}
+              category={p.category}
+              subCategory={p.subCategory}
+              createdAt={p.createdAt}
+              updatedAt={p.updatedAt}
+              isVariant={p.isVariant}
+              parentProduct={p.parentProduct}
+              variants={p.variants}              
+              slug={p.slug}
             />
           ))}
         </div>

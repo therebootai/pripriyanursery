@@ -1,8 +1,7 @@
 import MainTemplates from "@/templates/MainTemplates";
 import ProductDetails from "@/components/product/ProductDetails";
-import ProductCards from "@/components/ui/ProductCards";
 import { fetchProducts } from "@/app/page";
-import { ProductType } from "@/components/product/ProductSection";
+import { ProductType } from "@/types/types";
 
 
 export default async function ProductDetailsPage({
@@ -33,14 +32,14 @@ export default async function ProductDetailsPage({
 
   return (
     <MainTemplates>
-      <ProductDetails product={product} />
-
-      <div className="max-w-[1300px] mx-auto px-4 py-10">
-        <h2 className="font-semibold text-[#0047BB] mb-6 text-[24px]">
-          Related Products
-        </h2>
-        <div className="grid md:grid-cols-4 gap-6">
-          {/* {relatedProducts.map((item) => (
+      <section className="self-padding md:py-10  flex flex-col gap-8">
+        <ProductDetails product={product} />
+        <div className="flex flex-col gap-4">
+          <div className="grid md:grid-cols-4 gap-6">
+            <h2 className="font-semibold text-[#0047BB] mb-6 text-[24px]">
+              Related Products
+            </h2>
+            {/* {relatedProducts.map((item) => (
             <ProductCards
               key={item.href}
               id={item.id}
@@ -51,8 +50,9 @@ export default async function ProductDetailsPage({
               href={item.href}
             />
           ))} */}
+          </div>
         </div>
-      </div>
+      </section>
     </MainTemplates>
   );
 }
