@@ -56,14 +56,15 @@ export interface Customer {
 }
 
 export interface SendOtpResponse {
-  success: true;
+  success: boolean;
   message: string;
 }
 
 export interface VerifyOtpResponse {
-  success: true;
+  success: boolean;
   customer: Customer;
-  token?: string; // return JWT later
+  message: string;
+  isNewUser: boolean;
 }
 
 export type ApiErrorResponse = {
@@ -100,7 +101,7 @@ export const verifyOtp = async (
       mobile,
       otp,
     });
-    console.log("verify otp wala data",data);
+    // console.log("verify otp wala data",data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;

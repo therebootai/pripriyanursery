@@ -5,13 +5,7 @@ import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
 
-type Props = {
-  onItemClick?: () => void;
-};
-
-
-
-export default function AccountMenu({ onItemClick }: Props) {
+export default function AccountMenu() {
   const pathname = usePathname();
 
   const items = [
@@ -73,7 +67,7 @@ export default function AccountMenu({ onItemClick }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onItemClick}
+                // onClick={onItemClick}
                 className={itemClass(item.href)}
               >
                 {item.label}
@@ -106,7 +100,7 @@ export default function AccountMenu({ onItemClick }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onItemClick}
+                // onClick={onItemClick}
                 className={itemClass(item.href)}
               >
                 {item.label}
@@ -138,7 +132,7 @@ export default function AccountMenu({ onItemClick }: Props) {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={onItemClick}
+                // onClick={onItemClick}
                 className={itemClass(item.href)}
               >
                 {item.label}

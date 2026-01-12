@@ -1,156 +1,82 @@
 "use client";
 
-import { CategoryUI } from "@/lib/api/category";
-import { AttributeType } from "@/library/attribute";
-import { BrandType } from "@/library/brand";
-import { ChevronDown } from "lucide-react";
+import { CategoryUI } from "@/library/category";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
 
-export default function CategorySidebar({  
+export default function CategorySidebar({
   categories,
-  brands,
-  attributes
-}: {  
-  categories: CategoryUI[];
-  brands: BrandType[];
-  attributes: AttributeType[]
+}: {
+  categories: CategoryUI[] | null;
 }) {
   const router = useRouter();
-
   const searchParams = useSearchParams();
+  const activeCategory = searchParams.get("category");
 
-  const [openCategory, setOpenCategory] = useState(true);
-  const [openBrand, setOpenBrand] = useState(true);
-  const [openAttribute, setOpenAttribute] = useState(true);
-
-
-  const toggleParam = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const values = params.getAll(key);
-
-    if (values.includes(value)) {
-      params.delete(key);
-      values.filter((v) => v !== value).forEach((v) => params.append(key, v));
-    } else {
-      params.append(key, value);
-    }
-
-    router.push(`/products?${params.toString()}`);
+  const handleClick = (name: string) => {
+    router.push(`/products?category=${encodeURIComponent(name)}`);
   };
 
-const handleCategoryClick = (name: string) => toggleParam("category", name);
-
-const handleBrand = (name: string) => toggleParam("brand", name);
-
-const handleAttribute = (name: string) => toggleParam("attribute", name);
-
-
   return (
-    <aside className="sticky top-24 space-y-4">
-      <FilterBox
-        title="Choose Category"
-        open={openCategory}
-        onToggle={() => setOpenCategory(!openCategory)}
-      >
-        {categories.map((item) => (
-          <label
-            key={item.name}
-            className="flex items-center gap-2 text-sm cursor-pointer"
-            onClick={() => handleCategoryClick(item.name)}
-          >
-            <input
-              type="checkbox"
-              checked={searchParams.getAll("category").includes(item.name)}
-              readOnly
-            />
-            {item.name}
-          </label>
+    <aside className="sticky top-24 h-[calc(100vh-6rem)] overflow-hidden">
+      <div className="h-full overflow-y-auto pr-2 custom-scroll space-y-6">
+        {categories?.map((group) => (
+          <div key={group.parent.id} className="space-y-4">
+            {/* Parent Category */}
+            <button
+              onClick={() => handleClick(group.parent.name)}
+              className={`w-fit flex flex-col md:flex-row items-center md:gap-3 gap-1 rounded-md p-1 text-left
+              ${
+                activeCategory === group.parent.name
+                  ? "bg-defined-green/30"
+                  : "hover:bg-gray-100"
+              }
+            `}
+            >
+              <div className="relative size-10 md:size-12 shrink-0">
+                <Image
+                  src={group.parent.image}
+                  alt={group.parent.name}
+                  fill
+                  className="object-cover rounded"
+                />
+              </div>
+              <span className="text-xs md:text-sm text-center md:text-left md:font-semibold text-gray-800">
+                {group.parent.name}
+              </span>
+            </button>
+
+            {/* Subcategories */}
+            <div className="space-y-2 md:pl-4">
+              {group.subCategories.map((sub) => (
+                <button
+                  key={sub.id ?? sub.name}
+                  onClick={() => handleClick(sub.name)}
+                  className={`w-fit flex flex-col md:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
+                  ${
+                    activeCategory === sub.name
+                      ? "bg-defined-green/10"
+                      : "hover:bg-gray-100"
+                  }
+                `}
+                >
+                  <div className="relative size-10 shrink-0">
+                    <Image
+                      src={sub.image}
+                      alt={sub.name}
+                      fill
+                      className="object-cover rounded"
+                    />
+                  </div>
+                  <span className="text-xs md:text-sm text-center md:text-left md:font-semibold text-gray-700">
+                    {sub.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
         ))}
-      </FilterBox>
-      <FilterBox
-        title="Choose Brand"
-        open={openBrand}
-        onToggle={() => setOpenBrand(!openBrand)}
-      >
-        {brands?.map((b) => (
-          <label
-            key={b.name}
-            className="flex items-center gap-2 text-sm cursor-pointer"
-            onClick={() => handleBrand(b.name)}
-          >
-            <input
-              type="checkbox"
-              checked={searchParams.getAll("brand").includes(b.name)}
-              readOnly
-            />
-            {b.name}
-          </label>
-        ))}
-      </FilterBox>
-      <FilterBox
-        title="Choose Attribute"
-        open={openAttribute}
-        onToggle={() => setOpenAttribute(!openAttribute)}
-      >
-        {attributes?.map((a) => (
-          <label
-            key={a.name}
-            className="flex items-center gap-2 text-sm cursor-pointer"
-            onClick={() => handleAttribute(a.name)}
-          >
-            <input
-              type="checkbox"
-              checked={searchParams.getAll("attribute").includes(a.name)}
-              readOnly
-            />
-            {a.name}
-          </label>
-        ))}
-      </FilterBox>
-      <div className="h-90">
-        <Image
-          src="/assets/home/category/plant2.png"
-          alt="img"
-          height={100}
-          width={300}
-          className="h-full"
-        />
       </div>
     </aside>
   );
 }
-
-function FilterBox({ title, open, onToggle, children } : {
-  title: string;
-  open: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="overflow-hidden bg-white">
-      <button
-        onClick={onToggle}
-        className={`
-          flex w-full items-center justify-between
-          px-4 py-3 text-sm font-semibold
-          ${open ? "bg-defined-green text-white" : "bg-[#DAFFE4]"}
-        `}
-      >
-        {title}
-        <ChevronDown
-          size={16}
-          className={`transition ${open ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {open && (
-        <div className="space-y-5 px-4 py-4 text-gray-700">
-          {children}
-        </div>
-      )}
-    </div>
-  );
-}
-

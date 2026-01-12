@@ -13,8 +13,8 @@ export default function AccountShell({
 
   return (
     <MainTemplates>
-      <div className="bg-gray-50 min-h-screen">
-        <div className="mx-auto max-w-[1300px] px-4 py-6 flex flex-col md:flex-row gap-6">
+      <div className="bg-gray-50 min-h-screen px-4 md:px-8 lg:px-16 py-8">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Sidebar */}
           <AccountSidebar
             open={sidebarOpen}

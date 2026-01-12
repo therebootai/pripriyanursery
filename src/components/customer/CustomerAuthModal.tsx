@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { sendOtp, verifyOtp } from "@/library/api";
 import { useRouter } from "next/navigation";
 import { useCustomer } from "@/context/CustomerContext";
+import toast from "react-hot-toast";
 
 type Step = "MOBILE" | "OTP";
 
@@ -16,6 +17,7 @@ interface Props {
 
 export default function CustomerLoginModal({ isOpen, onClose }: Props) {
   const router = useRouter();
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login");
 const { refreshCustomer } = useCustomer();
   const [step, setStep] = useState<Step>("MOBILE");
   const [mobile, setMobile] = useState("");
@@ -38,10 +40,11 @@ const { refreshCustomer } = useCustomer();
 
     try {
       setLoading(true);
-      await sendOtp(mobile);
+      const res = await sendOtp(mobile);
+      if(res.success) toast.success(res.message);
       setStep("OTP");
     } catch {
-      alert("Failed to send OTP");
+      toast.error("Failed to send OTP");
     } finally {
       setLoading(false);
     }
@@ -52,10 +55,10 @@ const { refreshCustomer } = useCustomer();
 
    try {
      setLoading(true);
-     const res = await verifyOtp(mobile, otp);
+    const res = await verifyOtp(mobile, otp);
+    await refreshCustomer(); 
 
-     await refreshCustomer(); 
-
+    if (res.success) toast.success(res.message);
      setMobile("");
      setOtp("");
      setStep("MOBILE");
@@ -63,7 +66,7 @@ const { refreshCustomer } = useCustomer();
      onClose();
      router.push("/my-account");
    } catch {
-     alert("Invalid or expired OTP");
+     toast.error("Invalid or expired OTP");
    } finally {
      setLoading(false);
    }
@@ -71,14 +74,26 @@ const { refreshCustomer } = useCustomer();
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <div
+        className="absolute inset-0 bg-black/50"
+        onClick={() => {
+          setMobile("");
+          setOtp("");
+          setStep("MOBILE");
+          setAuthMode("login");
+          onClose();
+        }}
+      />
 
-      {/* Modal */}
       <div className="relative w-full max-w-[700px] mx-4">
-        {/* Close */}
         <button
-          onClick={onClose}
+          onClick={() => {
+            setMobile("");
+            setOtp("");
+            setStep("MOBILE");
+            setAuthMode("login");
+            onClose();
+          }}
           className="absolute top-3 right-3 md:-top-4 md:-right-10 text-white z-10"
         >
           <X size={22} />
@@ -89,16 +104,23 @@ const { refreshCustomer } = useCustomer();
           <div className="hidden md:flex bg-defined-green text-white p-10 flex-col justify-between">
             <div>
               <h2 className="text-2xl font-semibold mb-3">
-                {step === "MOBILE" ? "Welcome Back" : "Verify OTP"}
+                {step === "OTP"
+                  ? "Verify OTP"
+                  : authMode === "login"
+                  ? "Welcome Back"
+                  : "Looks like you're new here!"}
               </h2>
-              <p className="text-sm opacity-90 leading-relaxed">
-                {step === "MOBILE"
-                  ? "Login or sign up instantly using your mobile number"
-                  : `OTP sent to +91 ${mobile}`}
+
+              <p className=" opacity-90 leading-relaxed font-medium">
+                {step === "OTP"
+                  ? `OTP sent to +91 ${mobile}`
+                  : authMode === "login"
+                  ? "Get access to your Orders, Wishlist and Recommendations"
+                  : "Sign up instantly using your mobile number to get started"}
               </p>
             </div>
 
-            <div className="relative w-full h-[260px] mt-6">
+            <div className="relative w-full max-h-[250px] overflow-hidden mt-6">
               <svg
                 width="280"
                 height="277"
@@ -206,8 +228,7 @@ const { refreshCustomer } = useCustomer();
           {/* RIGHT */}
           <div className="p-8">
             {step === "MOBILE" && (
-              <>                
-
+              <>
                 <input
                   type="tel"
                   inputMode="numeric"
@@ -218,18 +239,45 @@ const { refreshCustomer } = useCustomer();
                   className="w-full border text-defined-green placeholder:text-defined-green border-gray-300 rounded-md px-4 py-3 mt-5 outline-none"
                 />
 
-                <p className="text-xs text-gray-500 mt-3">
+                <p className="text-sm text-center text-gray-500 mt-3">
                   You’ll receive an OTP on WhatsApp
                 </p>
 
                 <button
                   onClick={handleSendOtp}
                   disabled={loading || mobile.length !== 10}
-                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60"
+                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60 shadow-md"
                 >
-                  {loading ? "Sending OTP..." : "Continue"}
+                  {loading
+                    ? "Sending OTP..."
+                    : authMode === "login"
+                    ? "Request OTP"
+                    : "Continue"}
                 </button>
               </>
+            )}
+
+            {/* LOGIN MODE */}
+            {step !== "OTP" && authMode === "login" && (
+              <p className="text-sm text-center text-gray-600 mt-4">
+                New to Pri Priya Nursery?{" "}
+                <button
+                  onClick={() => setAuthMode("signup")}
+                  className="text-defined-green font-medium underline cursor-pointer"
+                >
+                  Create an account
+                </button>
+              </p>
+            )}
+
+            {/* SIGNUP MODE */}
+            {step !== "OTP" && authMode === "signup" && (
+              <button
+                onClick={() => setAuthMode("login")}
+                className="w-full mt-3 text-sm text-defined-green bg-[#f5f5f5] py-3 rounded-md font-bold text-center cursor-pointer shadow-md"
+              >
+                Existing User? Log in
+              </button>
             )}
 
             {step === "OTP" && (
