@@ -6,7 +6,7 @@ import { ShoppingCart } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
 import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { ProductType } from "@/types/types";
+import { CartType, ProductType } from "@/types/types";
 import { useInView } from "react-intersection-observer";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi } from "@/library/cart";
@@ -19,14 +19,13 @@ type TrustProps = {
 };
 
 const ProductDetails = ({ product }: { product: ProductType }) => {
-  const {customer, refreshCustomer} = useCustomer();
+  const { customer, refreshCustomer } = useCustomer();
   const isInCart = customer?.cart?.some(
-    (item) => item.productId?._id === product._id
+    (item: CartType) => item.productId?._id === product._id
   );
 
-  const [variantLoading, setVariantLoading] = useState(false);  
+  const [variantLoading, setVariantLoading] = useState(false);
   const [variantProducts, setVariantProducts] = useState<ProductType[]>([]);
-
 
   const images = product.images || [];
   const [activeImage, setActiveImage] = useState(images[0]);
@@ -43,66 +42,64 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     threshold: 0.3,
   });
 
-
   const [error, setError] = useState<string | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
 
   const router = useRouter();
 
-    const handleCart = async () => {
+  const handleCart = async () => {
+    if (!customer) {
+      toast.error("Please login to add items to cart");
+      return;
+    }
+    if (isInCart) {
+      router.push("/cart");
+      return;
+    }
+
+    try {
+      await addToCartApi(
+        customer._id,
+        product._id,
+        undefined,
+        1,
+        product.price
+      );
+      await refreshCustomer();
+      toast.success("Added to cart");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to add to cart");
+    }
+  };
+
+  const handleBuyNow = async () => {
+    try {
       if (!customer) {
-        toast.error("Please login to add items to cart");
+        toast.error("Please login to proceed");
         return;
       }
+
       if (isInCart) {
-        router.push("/cart");
+        router.push("/checkout");
         return;
       }
 
-      try {
-        await addToCartApi(
-          customer._id,
-          product._id,
-          undefined,
-          1,
-          product.price
-        );
-        await refreshCustomer();        
-        toast.success("Added to cart");
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to add to cart");
-      }
-    };
+      await addToCartApi(
+        customer._id,
+        product._id,
+        undefined,
+        1,
+        product.price
+      );
 
- const handleBuyNow = async () => {
-   try {
-     if (!customer) {
-       toast.error("Please login to proceed");
-       return;
-     }
-
-     if (isInCart) {
-       router.push("/checkout");
-       return;
-     }
-
-     await addToCartApi(
-       customer._id,
-       product._id,
-       undefined,
-       1,
-       product.price
-     );
-
-     await refreshCustomer();
-     router.push("/checkout");
-   } catch (err) {
-     console.error(err);
-     toast.error("Failed to proceed");
-   }
- };
-
+      await refreshCustomer();
+      router.push("/checkout");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to proceed");
+    }
+  };
 
   const getDeliveryDate = (estimated: string): string => {
     const days = parseInt(estimated); // "2 Days" → 2
@@ -170,28 +167,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     }
   };
 
-  // const handleVariantClick = async (slug: string) => {
-  //   try {
-  //     if (!slug) return;
-
-  //     setVariantLoading(true);
-
-  //     const res = await fetch(
-  //       `${process.env.NEXT_PUBLIC_API_URL}/product/variants/${slug}`
-  //     );
-
-  //     const data = await res.json();      
-  //     console.log("Variant Data:", data);
-  //     setCurrentProduct(data.selectedProduct);
-  //     router.push(`/product/${slug}`, { scroll: false });
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Failed to load variant");
-  //   } finally {
-  //     setVariantLoading(false);
-  //   }
-  // };
-  
   return (
     <>
       {variantLoading && (
@@ -370,7 +345,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 {product.variants.map((variant: ProductType) => (
                   <Link
                     href={`/product/${variant.slug}`}
-                    key={variant._id}                    
+                    key={variant._id}
                     className={`${
                       variant._id === product._id
                         ? "border-green-600"
@@ -413,14 +388,14 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
 
-            <div className="pt-6">
-              {/* ================= MASKED CONTENT ================= */}
-              <div
-                className={`relative overflow-hidden transition-all duration-500 ${
-                  open ? "max-h-[5000px]" : "max-h-[120px]"
-                }`}
-              >
-                {product.specifications && (
+            {product.specifications && (
+              <div className="pt-6">
+                {/* ================= MASKED CONTENT ================= */}
+                <div
+                  className={`relative overflow-hidden transition-all duration-500 ${
+                    open ? "max-h-[5000px]" : "max-h-[120px]"
+                  }`}
+                >
                   <div className="w-full">
                     <h2 className="text-lg font-semibold text-defined-black mb-3">
                       Specifications
@@ -443,22 +418,22 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                       </tbody>
                     </table>
                   </div>
-                )}
 
-                {!open && (
-                  <div className="absolute bottom-0 left-0 w-full h-14 bg-linear-to-t from-white to-transparent pointer-events-none" />
-                )}
-              </div>
+                  {!open && (
+                    <div className="absolute bottom-0 left-0 w-full h-14 bg-linear-to-t from-white to-transparent pointer-events-none" />
+                  )}
+                </div>
 
-              <div className={`relative z-10 ${open ? "mt-3" : "-mt-3"}`}>
-                <button
-                  onClick={() => setOpen(!open)}
-                  className="pl-2 text-green-600 text-xs font-medium hover:underline cursor-pointer"
-                >
-                  {open ? "Read Less" : "Read More"}
-                </button>
+                <div className={`relative z-10 ${open ? "mt-3" : "-mt-3"}`}>
+                  <button
+                    onClick={() => setOpen(!open)}
+                    className="pl-2 text-green-600 text-xs font-medium hover:underline cursor-pointer"
+                  >
+                    {open ? "Read Less" : "Read More"}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             {product.longDescription && (
               <div className="pt-6">

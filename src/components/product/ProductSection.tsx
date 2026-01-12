@@ -16,40 +16,39 @@ export default function ProductSection({
   pagination: {
     totalCount: number;
     currentPage: number;
-    limit: number;
     totalPages: number;
   }
 }) {
   const searchParams = useSearchParams();
-  const query = searchParams.get("q")?.toLowerCase() || "";
+  // const query = searchParams.get("q")?.toLowerCase() || "";
   const [page, setPage] = useState(1);
   const { ref, inView } = useInView({ threshold: 0.1 });
   const [allProducts, setAllProducts] = useState<ProductType[]>([]);
   const displayProducts = allProducts;
   const limit = 2;
 
-  useEffect(() => {
-    if (!query) return;
+  // useEffect(() => {
+  //   if (!query) return;
 
-    const fetchSearchResults = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/product?q=${query}&page=1&limit=${limit}`
-        );
+  //   const fetchSearchResults = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/product?q=${query}&page=1&limit=${limit}`
+  //       );
 
-        const products = await res.json();
+  //       const products = await res.json();
 
-        if (products?.success) {
-          setAllProducts(products.data);
-          setPage(1);
-        }
-      } catch (err) {
-        console.error("Search failed", err);
-      }
-    };
+  //       if (products?.success) {
+  //         setAllProducts(products.data);
+  //         setPage(1);
+  //       }
+  //     } catch (err) {
+  //       console.error("Search failed", err);
+  //     }
+  //   };
 
-    fetchSearchResults();
-  }, [query]);
+  //   fetchSearchResults();
+  // }, [query]);
 
 
 useEffect(() => {
@@ -59,7 +58,7 @@ useEffect(() => {
 
 
   const loadMore = async () => {
-    if (query) return;
+    // if (query) return;
     if (pagination.totalPages <= page) return;
     try {
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -122,7 +121,7 @@ useEffect(() => {
         </div>
 
         {/* Infinite Scroll Loader */}
-        {!query && pagination.totalPages > page && (
+        {pagination.totalPages > page && (
           <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4 gap-6"
             ref={ref}
