@@ -3,7 +3,7 @@
 import { useCustomer } from "@/context/CustomerContext";
 import Image from "next/image";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
-import { ProductType } from "../product/ProductSection";
+import { ProductType } from "@/types/types";
 import { useRouter } from "next/navigation";
 
 export interface CartItemProps {  
@@ -25,8 +25,8 @@ export default function CartList() {
     try {
       await addToCartApi(
         customerId,
-        item.productId?._id || item.productId,
-        item.variantId?._id || item.variantId,
+        (item.productId as ProductType)?._id,
+        (item.variantId as ProductType)?._id,
         qty - item.quantity, // 🔥 delta logic
         item.priceAtTime
       );
@@ -43,8 +43,8 @@ export default function CartList() {
     try {
       await removeFromCartApi(
         customerId,
-        item.productId?._id || item.productId,
-        item.variantId?._id || item.variantId
+        (item.productId as ProductType)?._id,
+        (item.variantId as ProductType)?._id
       );
 
       await refreshCustomer();
@@ -61,16 +61,6 @@ export default function CartList() {
     );
   }
 
-  const getItemDiscount = (item: CartItemProps) => {
-    const product = item.productId as ProductType;
-
-    if (!product || !item.priceAtTime) return 0;
-
-    return Math.round(
-      ((item.priceAtTime - product.price) / item.priceAtTime) * 100
-    );
-  };
-
 
   const total = cart.reduce(
     (acc, item) => acc + (item.priceAtTime || 0) * item.quantity,
@@ -78,7 +68,7 @@ export default function CartList() {
   );
 
   return (
-    <div className="max-w-[1300px] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
       <div className="lg:col-span-2 flex flex-col gap-4">
         <div className="py-4">
@@ -86,92 +76,92 @@ export default function CartList() {
             Cart ({customer?.cart.length || 0})
           </h2>
         </div>
-        {cart
-          .slice()
-          .reverse()
-          .map((item) => (
-            <div
-              key={(item.productId as ProductType).id}
-              className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
-            >
-              {/* IMAGE + QTY */}
-              <div className="flex flex-col items-center w-full md:w-40">
-                <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
-                  <Image
-                    src={(item.productId as ProductType).coverImage.url || ""}
-                    alt={(item.productId as ProductType).name || ""}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-
-                <div className="flex items-center mt-2">
-                  <button
-                    onClick={() => handleQty(item, item.quantity - 1)}
-                    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
-                  >
-                    −
-                  </button>
-
-                  <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
-                    {item.quantity}
-                  </span>
-
-                  <button
-                    onClick={() => handleQty(item, item.quantity + 1)}
-                    className="px-4 py-2 border border-gray-200 text-defined-black rounded-full hover:bg-gray-100"
-                  >
-                    +
-                  </button>
-                </div>
+        {cart.reverse().map((item) => (
+          <div
+            key={(item.productId as ProductType)._id}
+            className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
+          >
+            {/* IMAGE + QTY */}
+            <div className="flex flex-col items-center w-full md:w-40">
+              <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
+                <Image
+                  src={(item.productId as ProductType).coverImage.url || ""}
+                  alt={(item.productId as ProductType).name || ""}
+                  fill
+                  className="object-cover"
+                />
               </div>
 
-              {/* INFO */}
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-semibold text-[18px] text-defined-green">
-                    {(item.productId as ProductType).name}
-                  </h3>
+              <div className="flex items-center mt-2">
+                <button
+                  onClick={() => handleQty(item, item.quantity - 1)}
+                  className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
+                >
+                  −
+                </button>
 
-                  <p className="mt-2 text-sm text-defined-black">
-                    {(item.productId as ProductType).variables
-                      ?.map((v) => `${v.name}: ${v.values.join(", ")}`)
-                      .join(" | ")}
-                  </p>
+                <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
+                  {item.quantity}
+                </span>
 
-                  <p
-                    className="mt-2 text-sm text-defined-black"
-                    dangerouslySetInnerHTML={{
-                      __html: (item.productId as ProductType).shortDescription,
-                    }}
-                  ></p>
-
-                  <p className="mt-2 font-bold text-green-600 text-lg">
-                    ₹{(item.productId as ProductType).price}
-                    <span className="line-through text-gray-400 text-sm ml-3">
-                      ₹{(item.productId as ProductType).mrp}
-                    </span>
-                    <span className="text-define-green text-[13px] ml-2 font-normal">
-                      {(item.productId as ProductType).discount}% OFF
-                    </span>
-                  </p>
-                </div>
-
-                <div className="flex gap-4 pt-4">
-                  <button className="font-bold hover:text-defined-green text-defined-black px-6 py-2">
-                    MOVE TO WISHLIST
-                  </button>
-
-                  <button
-                    onClick={() => handleRemove(item)}
-                    className="font-semibold text-defined-black hover:text-red-500 px-6 py-2"
-                  >
-                    REMOVE
-                  </button>
-                </div>
+                <button
+                  onClick={() => handleQty(item, item.quantity + 1)}
+                  className="px-4 py-2 border border-gray-200 text-defined-black rounded-full hover:bg-gray-100"
+                >
+                  +
+                </button>
               </div>
             </div>
-          ))}
+
+            {/* INFO */}
+            <div className="flex-1 flex flex-col justify-between">
+              <div>
+                <h3 className="font-semibold text-[18px] text-defined-green">
+                  {(item.productId as ProductType).name}
+                </h3>
+
+                <p className="mt-2 text-sm text-defined-black">
+                  {(item.productId as ProductType).variables
+                    ?.map(
+                      (v: { name: string; values: string[] }) =>
+                        `${v.name}: ${v.values.join(", ")}`
+                    )
+                    .join(" | ")}
+                </p>
+
+                <p
+                  className="mt-2 text-sm text-defined-black"
+                  dangerouslySetInnerHTML={{
+                    __html: (item.productId as ProductType).shortDescription,
+                  }}
+                ></p>
+
+                <p className="mt-2 font-bold text-green-600 text-lg">
+                  ₹{(item.productId as ProductType).price}
+                  <span className="line-through text-gray-400 text-sm ml-3">
+                    ₹{(item.productId as ProductType).mrp}
+                  </span>
+                  <span className="text-define-green text-[13px] ml-2 font-normal">
+                    {(item.productId as ProductType).discount}% OFF
+                  </span>
+                </p>
+              </div>
+
+              <div className="flex gap-4 justify-evenly lg:justify-start pt-4">
+                <button className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2">
+                  MOVE TO WISHLIST
+                </button>
+
+                <button
+                  onClick={() => handleRemove(item)}
+                  className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-base lg:px-6 lg:py-2"
+                >
+                  REMOVE
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* RIGHT */}

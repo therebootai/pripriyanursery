@@ -39,7 +39,7 @@ export default function AccountSidebar({
         />
 
         {/* Menu (URL based) */}
-        <AccountMenu onItemClick={onToggle} />
+        <AccountMenu />
       </div>
     </aside>
   );

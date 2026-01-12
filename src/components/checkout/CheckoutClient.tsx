@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
-import { ProductType } from "../product/ProductSection";
+import { ProductType } from "@/types/types";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
@@ -285,17 +285,17 @@ const selectedAddress =
   }
 
   return (
-    <div className="max-w-[1300px] mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
       <div className="lg:col-span-2 space-y-2">
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4">
           <div className="flex justify-between items-center">
-            <p className="font-medium">Login ✓</p>
+            <p className="font-medium text-sm lg:text-base">Login ✓</p>
 
             {!changeAccountMode ? (
               <button
                 onClick={() => setChangeAccountMode(true)}
-                className="text-white p-2 bg-defined-green rounded"
+                className="text-white text-xs lg:text-base p-1 lg:p-2 bg-defined-green rounded"
               >
                 Change Account
               </button>
@@ -304,8 +304,10 @@ const selectedAddress =
 
           {!changeAccountMode ? (
             <>
-              <p className="font-semibold">{customer?.name}</p>
-              <p>
+              <p className="font-semibold text-sm lg:text-base">
+                {customer?.name}
+              </p>
+              <p className="text-xs lg:text-base">
                 +{customer?.mobile} | {customer?.email}
               </p>
             </>
@@ -313,14 +315,14 @@ const selectedAddress =
             <div className="mt-3 flex justify-between items-center">
               <button
                 onClick={handleLogoutAndRedirect}
-                className="text-red-500 text-sm underline"
+                className="text-red-500 lg:text-sm text-xs underline"
               >
                 Logout & sign in to different account
               </button>
 
               <button
                 onClick={() => setChangeAccountMode(false)}
-                className="px-4 py-2 bg-defined-green text-white rounded"
+                className="text-xs lg:text-base p-1 lg:p-2 bg-defined-green text-white rounded"
               >
                 Continue Checkout
               </button>
@@ -329,12 +331,14 @@ const selectedAddress =
         </div>
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4 mt-2">
           <div className="flex justify-between items-center">
-            <p className="font-medium">Delivery Address ✓</p>
+            <p className="font-medium text-sm lg:text-base">
+              Delivery Address ✓
+            </p>
 
             {!changeAddressMode && (
               <button
                 onClick={() => setChangeAddressMode(true)}
-                className="text-white p-2 bg-defined-green rounded"
+                className="text-white text-xs lg:text-base p-1 lg:p-2 bg-defined-green rounded"
               >
                 Change Address
               </button>
@@ -343,7 +347,7 @@ const selectedAddress =
 
           {/* DEFAULT VIEW */}
           {!changeAddressMode && selectedAddress && (
-            <div className="mt-2 text-sm">
+            <div className="mt-2 text-xs lg:text-base">
               <p className="font-semibold flex gap-2 items-center">
                 {selectedAddress.name}
                 <span className="bg-gray-200 text-gray-400 ml-1 px-1 text-xs">
@@ -361,7 +365,7 @@ const selectedAddress =
 
           {/* CHANGE MODE */}
           {changeAddressMode && (
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 space-y-3 text-xs lg:text-base">
               {addresses.map((address: any) => (
                 <label
                   key={address._id}
@@ -375,7 +379,7 @@ const selectedAddress =
                     className="mt-1"
                   />
 
-                  <div className="text-sm">
+                  <div className="text-xs lg:text-base">
                     <p className="font-semibold">
                       {address.name} ({address.type})
                     </p>
@@ -391,7 +395,7 @@ const selectedAddress =
               <div className="flex justify-end">
                 <button
                   onClick={() => setChangeAddressMode(false)}
-                  className="px-5 py-2 bg-defined-green text-white rounded"
+                  className="text-xs lg:text-base p-1 lg:p-2 bg-defined-green text-white rounded"
                 >
                   Deliver Here
                 </button>
@@ -405,7 +409,7 @@ const selectedAddress =
           .reverse()
           .map((item) => (
             <div
-              key={(item.productId as ProductType).id}
+              key={(item.productId as ProductType)._id}
               className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
             >
               {/* IMAGE + QTY */}
@@ -471,13 +475,13 @@ const selectedAddress =
                   </p>
                 </div>
 
-                <div className="flex gap-4 md:mb-2 md:ml-[-5px] mt-2 md:mt-0">
-                  <button className="font-bold hover:text-defined-green text-defined-black px-6 py-2 ">
+                <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
+                  <button className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 ">
                     MOVE TO WISHLIST
                   </button>
                   <button
                     onClick={() => handleRemove(item)}
-                    className="font-semibold text-defined-black hover:text-red-500 px-6 py-2"
+                    className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-base lg:px-6 lg:py-2"
                   >
                     REMOVE
                   </button>
@@ -526,15 +530,22 @@ const selectedAddress =
         </div>
         {availableCoupons.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-3">
-            {availableCoupons.filter(c => c.status  !== false && c.usageLimit > 0 && c.expirationDate < new Date().toDateString()).map((c) => (
-              <button
-                key={c.code}
-                onClick={() => handleCouponSelect(c)}
-                className="border border-green-500 text-defined-green rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap hover:bg-green-50 cursor-pointer transition"
-              >
-                {c.code}
-              </button>
-            ))}
+            {availableCoupons
+              .filter(
+                (c) =>
+                  c.status !== false &&
+                  c.usageLimit > 0 &&
+                  c.expirationDate < new Date().toDateString()
+              )
+              .map((c) => (
+                <button
+                  key={c.code}
+                  onClick={() => handleCouponSelect(c)}
+                  className="border border-green-500 text-defined-green rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap hover:bg-green-50 cursor-pointer transition"
+                >
+                  {c.code}
+                </button>
+              ))}
           </div>
         )}
 

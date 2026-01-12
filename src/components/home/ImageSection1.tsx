@@ -10,18 +10,18 @@ export default function ImageSection1() {
 
   return (
     <section className="w-full py-12">
-      <div className="mx-auto max-w-[1300px] px-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mx-auto max-w-[1200px] md:px-8 px-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {images.map((src, index) => (
             <div
               key={index}
-              className="relative h-[180px] sm:h-[220px] lg:h-[260px] overflow-hidden rounded-lg"
+              className="relative h-[7rem] md:h-[12rem] w-full rounded-lg"
             >
               <Image
                 src={src}
                 alt={`Image ${index + 1}`}
                 fill
-                className="object-cover"
+                className="object-cover rounded-lg"
               />
             </div>
           ))}
