@@ -3,8 +3,10 @@
 import { useCustomer } from "@/context/CustomerContext";
 import Image from "next/image";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
-import { ProductType } from "@/types/types";
+import { CartType, ProductType } from "@/types/types";
 import { useRouter } from "next/navigation";
+import { toggleWishlistApi } from "@/library/wishlist";
+import toast from "react-hot-toast";
 
 export interface CartItemProps {  
   productId: string | ProductType;
@@ -63,9 +65,26 @@ export default function CartList() {
 
 
   const total = cart.reduce(
-    (acc, item) => acc + (item.priceAtTime || 0) * item.quantity,
+    (acc : number, item : CartType) => acc + (item.priceAtTime || 0) * item.quantity,
     0
   );
+
+   const handleMoveToWishlist = async (item: CartType) => {
+      if (!customerId) return;
+  try {
+      await toggleWishlistApi(customerId, (item.productId as ProductType)._id);
+      await removeFromCartApi(
+        customerId,
+        (item.productId as ProductType)?._id,
+        (item.variantId as ProductType)?._id
+      );
+      await refreshCustomer();
+      toast.success("Moved to wishlist");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to move to wishlist");
+    }
+    };
 
   return (
     <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -76,7 +95,7 @@ export default function CartList() {
             Cart ({customer?.cart.length || 0})
           </h2>
         </div>
-        {cart.reverse().map((item) => (
+        {cart.reverse().map((item: CartType) => (
           <div
             key={(item.productId as ProductType)._id}
             className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
@@ -148,7 +167,10 @@ export default function CartList() {
               </div>
 
               <div className="flex gap-4 justify-evenly lg:justify-start pt-4">
-                <button className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2">
+                <button
+                  className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2"
+                  onClick={() => handleMoveToWishlist(item)}
+                >
                   MOVE TO WISHLIST
                 </button>
 
@@ -173,31 +195,19 @@ export default function CartList() {
         <div className="text-sm space-y-3 mt-3 text-defined-black">
           <div className="flex justify-between">
             <span>
-              Price ({customer?.cart.reduce((a, b) => a + b.quantity, 0)} items)
+              Price (
+              {customer?.cart.reduce(
+                (a: number, b: CartType) => a + b.quantity,
+                0
+              )}{" "}
+              items)
             </span>
             <span>₹{total}</span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-3">
             <span>Discount</span>
-            <span>
-              ₹
-              {cart.reduce((total, item) => {
-                const product = item.productId as ProductType;
-
-                if (
-                  typeof item.priceAtTime !== "number" ||
-                  typeof product?.price !== "number"
-                ) {
-                  return total;
-                }
-
-                const discount =
-                  (item.priceAtTime - product.price) * item.quantity;
-
-                return discount > 0 ? total + discount : total;
-              }, 0)}
-            </span>
+            <span className="text-green-600">-₹0</span>
           </div>
 
           <div className="flex justify-between font-semibold">

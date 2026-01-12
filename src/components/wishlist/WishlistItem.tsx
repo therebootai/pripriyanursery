@@ -1,18 +1,20 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
-import { Trash2, ShoppingCart } from "lucide-react";
-import { ProductType } from "../product/ProductSection";
+import { ShoppingCart } from "lucide-react";
+import { ProductType } from "@/types/types";
 import { toggleWishlistApi } from "@/library/wishlist";
 import { useCustomer } from "@/context/CustomerContext";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { toast } from "react-hot-toast";
+import { addToCartApi } from "@/library/cart";
 
-export default function WishlistItem({ id, name, price, mrp, discount, coverImage, variables, slug }: ProductType) {
+export default function WishlistItem({item} : {item: ProductType}) {
 
    const { customer, refreshCustomer} = useCustomer();
    const customerId = customer?._id;
     const [loading, setLoading] = useState(false);
-    console.log(name)
+    console.log(item.name)
 
   const handleWishlist = async () => {
     if (!customerId || loading) return;
@@ -21,16 +23,41 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
 
   
     try {
-      await toggleWishlistApi(customerId, id);
-  
+      await toggleWishlistApi(customerId, item._id);
      await refreshCustomer();
+      toast.success("Removed from wishlist");
     } catch (err) {
       console.log(err);
+      toast.error("Failed to remove from wishlist");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleMoveToCart = async () => {
+    // Implement move to cart functionality here
+    if (!customerId || loading) return;
+  
+    setLoading(true);
+  
+    try {
+      await addToCartApi(
+        customerId,
+        item._id,
+        undefined,
+        1,
+        item.price
+      );
+      await toggleWishlistApi(customerId, item._id);
+      await refreshCustomer();
+      toast.success("Moved to cart");
+    } catch (err) {
+      console.log(err);
+      toast.error("Failed to move to cart");
+    } finally {
+      setLoading(false);
+    }
+  }
 
 
   return (
@@ -40,8 +67,8 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
         {/* Image */}
         <div className="relative h-36 w-full sm:h-40 sm:w-40 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
           <Image
-            src={coverImage?.url}
-            alt={coverImage?.public_id}
+            src={item.coverImage?.url}
+            alt={item.coverImage?.public_id}
             fill
             className="object-cover"
           />
@@ -52,23 +79,23 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
           {/* Top content */}
           <div>
             <h4 className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-snug">
-              {name}
+              {item.name}
             </h4>
 
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              {variables?.map((v) => v.name).join(", ")}
+              {item.variables?.map((v) => v.name).join(", ")}
             </p>
 
-            {price && (
+            {item.price && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-                  ₹{price}
+                  ₹{item.price}
                 </span>
                 <span className="line-through text-gray-500 text-xs sm:text-sm">
-                  ₹{mrp}
+                  ₹{item.mrp}
                 </span>
                 <span className="text-xs text-green-600 font-medium">
-                  {discount}% OFF
+                  {item.discount}% OFF
                 </span>
               </div>
             )}
@@ -82,7 +109,7 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
               text-xs sm:text-sm md:text-[15px]
               px-3 py-1.5 sm:px-4 sm:py-2 md:px-5
               rounded-full
-              bg-gradient-to-r from-green-500 to-emerald-600
+              bg-linear-to-r from-green-500 to-emerald-600
               shadow-md shadow-green-500/30
               transition-all duration-300
               hover:from-emerald-600 hover:to-green-500
@@ -90,7 +117,9 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
               active:scale-95
               w-full sm:w-fit
             "
+            onClick={handleMoveToCart}
           >
+            
             <ShoppingCart size={14} className="sm:size-[16px]" />
             <span className="whitespace-nowrap">Add to Cart</span>
           </button>
@@ -100,7 +129,7 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
       {/* RIGHT: Actions */}
       <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 justify-between lg:justify-center">
         <Link
-          href={`/product/${slug}`}
+          href={`/${item.slug}`}
           className="
             inline-flex items-center justify-center
             text-xs sm:text-sm
@@ -137,7 +166,7 @@ export default function WishlistItem({ id, name, price, mrp, discount, coverImag
     active:scale-95
     w-full lg:w-auto
   "
-          // onClick={handleWishlist}
+          onClick={handleWishlist}
         >
           Delete
         </button>

@@ -1,15 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
+// import Link from "next/link";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
-import { ProductType } from "@/types/types";
+import { AddressType, CartType, ProductType } from "@/types/types";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { logout } from "@/library/api";
 import { CouponType } from "@/types/types";
+import { toggleWishlistApi } from "@/library/wishlist";
 
 interface RazorpayInstance {
   open: () => void;
@@ -74,9 +75,9 @@ export default function CheckoutClient() {
 
   const addresses = customer?.addresses || [];
 const defaultAddress =
-  addresses.find((a: any) => a.type === "home") || addresses[0];
+  addresses.find((a: AddressType) => a.type === "home") || addresses[0];
 const selectedAddress =
-  addresses.find((a: any) => a._id === selectedAddressId) || defaultAddress;
+  addresses.find((a: AddressType) => a._id === selectedAddressId) || defaultAddress;
 
   const handlePayment = async () => {
     try {
@@ -125,7 +126,7 @@ const selectedAddress =
                 customer: customerId,
                 mobile: customer?.mobile,
                 address: selectedAddress,
-                items: cart.map((i) => ({
+                items: cart.map((i : CartType) => ({
                   product: (i.productId as ProductType)._id,
                   quantity: i.quantity,
                 })),
@@ -166,7 +167,7 @@ const selectedAddress =
 
 
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-  const handleQty = async (item: any, qty: number) => {
+  const handleQty = async (item: CartType, qty: number) => {
     if (!customerId || qty < 1) return;
 
     await addToCartApi(
@@ -180,8 +181,24 @@ const selectedAddress =
     await refreshCustomer();
   };
 
+  const handleMoveToWishlist = async (item: CartType) => {
+    if (!customerId) return;
+    try {
+      await toggleWishlistApi(customerId, (item.productId as ProductType)._id);
+      await removeFromCartApi(
+        customerId,
+        (item.productId as ProductType)?._id,
+        (item.variantId as ProductType)?._id
+      );
+      await refreshCustomer();
+      toast.success("Moved to wishlist");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to move to wishlist");
+    }
+  };
   /* ------------------ REMOVE ------------------ */
-  const handleRemove = async (item: any) => {
+  const handleRemove = async (item: CartType) => {
     if (!customerId) return;
 
     await removeFromCartApi(
@@ -195,7 +212,7 @@ const selectedAddress =
 
   /* ------------------ TOTAL PRICE ------------------ */
   const total = cart.reduce(
-    (acc, item) =>
+    (acc : number, item : CartType) =>
       acc + ((item.productId as ProductType).price || 0) * item.quantity,
     0
   );
@@ -207,18 +224,18 @@ const selectedAddress =
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
       const data = await res.json();
       console.log(data);
-      const validCoupons = data.coupons.filter((c: CouponType) => {
-        const now = new Date();
-        return (
-          total >= c.minOrderAmount &&
-          new Date(c.startDate) <= now &&
-          new Date(c.expirationDate) >= now &&
-          c.usageLimit > 0
-        );
-      });
+      // const validCoupons = data.coupons.filter((c: CouponType) => {
+      //   const now = new Date();
+      //   return (
+      //     total >= c.minOrderAmount &&
+      //     new Date(c.startDate) <= now &&
+      //     new Date(c.expirationDate) >= now &&
+      //     c.usageLimit > 0
+      //   );
+      // });
 
-      setAvailableCoupons(validCoupons);
-      console.log(validCoupons);
+      setAvailableCoupons(data.coupons);
+      console.log(data.coupons);
     };
 
     fetchCoupons();
@@ -407,17 +424,17 @@ const selectedAddress =
         {cart
           .slice()
           .reverse()
-          .map((item) => (
+          .map((item: CartType) => (
             <div
-              key={(item.productId as ProductType)._id}
+              key={item.productId._id}
               className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
             >
               {/* IMAGE + QTY */}
               <div className="flex flex-col items-center w-full md:w-40">
                 <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
                   <Image
-                    src={(item.productId as ProductType).coverImage.url}
-                    alt={(item.productId as ProductType).name}
+                    src={item.productId.coverImage.url}
+                    alt={item.productId.name}
                     fill
                     className="object-cover"
                   />
@@ -476,7 +493,10 @@ const selectedAddress =
                 </div>
 
                 <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
-                  <button className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 ">
+                  <button
+                    className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 "
+                    onClick={() => handleMoveToWishlist(item)}
+                  >
                     MOVE TO WISHLIST
                   </button>
                   <button
@@ -529,23 +549,25 @@ const selectedAddress =
           </div>
         </div>
         {availableCoupons.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-3">
-            {availableCoupons
-              .filter(
-                (c) =>
-                  c.status !== false &&
-                  c.usageLimit > 0 &&
-                  c.expirationDate < new Date().toDateString()
-              )
-              .map((c) => (
-                <button
-                  key={c.code}
-                  onClick={() => handleCouponSelect(c)}
-                  className="border border-green-500 text-defined-green rounded-full px-2 py-1 text-xs font-medium whitespace-nowrap hover:bg-green-50 cursor-pointer transition"
-                >
-                  {c.code}
-                </button>
-              ))}
+          <div className="relative mt-3">
+            <div className="flex overflow-x-auto scroll-smooth snap-x snap-mandatory custom-scroll py-2 gap-2">
+              {availableCoupons
+                .filter((c) => c.status !== false && c.usageLimit > 0)
+                .map((c) => (
+                  <div key={c.code} className="min-w-full snap-center px-1">
+                    <button
+                      onClick={() => handleCouponSelect(c)}
+                      className="w-full border  flex flex-col gap-2 justify-between border-green-500 text-defined-green rounded-xl px-4 py-3 text-sm font-medium hover:bg-green-50 transition text-center"
+                    >
+                      <span>{c.name}</span>
+                      {/* {c.code} */}
+                      <span className="text-xs text-gray-500 ml-2">
+                        Tap to apply
+                      </span>
+                    </button>
+                  </div>
+                ))}
+            </div>
           </div>
         )}
 
@@ -553,7 +575,9 @@ const selectedAddress =
           <h2 className="font-semibold text-lg">Order Summary</h2>
           <div className="flex justify-between">
             <span>
-              Price ({cart.reduce((a, b) => a + b.quantity, 0)} items)
+              Price (
+              {cart.reduce((a: number, b: CartType) => a + b.quantity, 0)}{" "}
+              items)
             </span>
             <span>₹{total}</span>
           </div>
@@ -581,7 +605,7 @@ const selectedAddress =
 
         <button
           onClick={handlePayment}
-          className="mt-6 w-full rounded-full bg-gradient-to-r from-green-500 to-emerald-600 py-2 text-white font-semibold hover:scale-[1.03]"
+          className="mt-6 w-full rounded-full bg-linear-to-r from-green-500 to-emerald-600 py-2 text-white font-semibold hover:scale-[1.03]"
         >
           ₹ Pay Now
         </button>

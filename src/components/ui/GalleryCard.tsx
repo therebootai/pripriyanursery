@@ -25,11 +25,12 @@ export default function GalleryCard({
       <Image
         src={image}
         alt={title}
-        fill
+        width={500}
+        height={500}
         className="
           object-cover
           transition-transform duration-700 ease-in-out
-          group-hover:scale-110
+          group-hover:scale-110 size-full 
         "
       />
 

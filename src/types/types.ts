@@ -1,3 +1,55 @@
+export interface Customer {
+  _id: string;
+  customerId: string;
+  name: string;
+  email: string;
+  gender: string;
+  mobile: string;
+  avatar: {
+    public_id: string;
+    url: string;
+  };
+  addresses: Array<{
+    _id: string;
+    type: string;
+    name: string;
+    mobile: string;
+    area: string;
+    city: string;
+    state: string;
+    pin: string;
+    alternateMobile: string;
+  }>;
+  cart: Array<{
+    productId: string | ProductType;
+    variantId?: string | ProductType;
+    quantity: number;
+    priceAtTime: number;
+  }>;
+  wishlist: ProductType[];
+  totalOrders: number;
+  totalSpent: number;
+  rewards: {
+    points: number;
+    tier: string;
+  };
+  giftCards: Array<{
+    code: string;
+    balance: number;
+    expiry: Date;
+  }>;
+  // recentlyViewed: mongoose.Types.ObjectId[];
+  notifications: Array<{
+    title: string;
+    message: string;
+    createdAt: Date;
+  }>;
+
+  status: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface CouponType {
   _id: string;
   couponId: string;
@@ -18,12 +70,12 @@ export interface CouponType {
 export type ImageType = {
   public_id: string;
   url: string;
-}
+};
 
-export type SpecificationType = {   
-    name: string;
-    details: string;
-}
+export type SpecificationType = {
+  name: string;
+  details: string;
+};
 
 export type ProductType = {
   _id: string;
@@ -41,7 +93,7 @@ export type ProductType = {
   coverImage: ImageType;
   images?: ImageType[];
   video?: ImageType;
-  
+
   category: string;
   subCategory: string;
   brand: string;
@@ -85,7 +137,14 @@ export interface Level {
 export interface WishlistType {
   _id: string;
   product: ProductType;
-  status: boolean;  
+  status: boolean;
+}
+
+export interface CartType {
+  productId: ProductType;
+  variantId?: ProductType;
+  quantity: number;
+  priceAtTime: number;
 }
 
 export interface CategoryType {
@@ -94,6 +153,61 @@ export interface CategoryType {
   image: ImageType;
   status: boolean;
   children: Level[];
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface AddressType {
+  _id: string;
+  type: string;
+  name: string;
+  mobile: string;
+  area: string;
+  city: string;
+  state: string;
+  pin: string;
+  landmark: string;
+  alternateMobile: string;
+}
+
+export interface OrderType {
+  orderId: string;
+  customer: Customer;
+  mobile: string;
+  address: AddressType;
+  couponCode: string;
+  couponDiscount: number;
+  razorPayPaymentId: string;
+  razorPayOrderId: string;
+  razorPaySignature: string;
+  paymentMethod: string;
+  orderValue: number;
+  items: Array<{
+    product: ProductType;
+    quantity: number;
+  }>;
+  status: string;
+  paymentStatus: string;
+  shipping: {
+    shipmozoOrderId?: string;
+    courierId?: number;
+    courierName?: string;
+    awbNumber?: string;
+    trackingUrl?: string;
+    labelGenerated?: boolean;
+    currentStatus?: string;
+    expectedDeliveryDate?: string;
+    lastStatusTime?: string;
+
+    trackingHistory?: [
+      {
+        date: string;
+        status: string;
+        location: string;
+      }
+    ];
+  };
+
   createdAt: Date;
   updatedAt: Date;
 }

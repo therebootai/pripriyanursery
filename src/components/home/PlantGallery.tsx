@@ -11,25 +11,42 @@ export default function PlantsGallery() {
   const limitedGallery = galleryData.slice(0, 5)
 
   return (
-    <section className="py-16">
-      <div className="mx-auto max-w-[1300px] px-4">
-
+    <section className="py-12">
+      <div className="self-padding">
         <h2 className="mb-10 text-3xl font-bold">
           Plants <span className="text-green-600">Gallery</span>
         </h2>
 
-        <div className="flex gap-3">
+        <div
+          className="max-w-screen
+    flex gap-3
+    md:overflow-visible
+    overflow-x-auto
+    snap-x snap-mandatory
+    scrollbar-hide
+    md:snap-none
+  "
+        >
           {limitedGallery.map((item, index) => (
             <div
               key={item.id}
               onMouseEnter={() => setActiveIndex(index)}
               onClick={() => setActiveIndex(index)}
               className={`
-                transition-[flex-grow]
-                duration-700
-                ease-in-out
-                ${index === activeIndex ? 'flex-[3]' : 'flex-[1]'}
-              `}
+    transition-[flex-grow]
+    duration-700
+    ease-in-out
+
+    md:${index === activeIndex ? "flex-[3]" : "flex-[1]"}
+
+    md:flex-shrink
+    md:w-auto
+
+    flex-shrink-0
+    w-[80vw]
+
+    snap-center
+  `}
             >
               <GalleryCard
                 image={item.image}
@@ -40,8 +57,7 @@ export default function PlantsGallery() {
             </div>
           ))}
         </div>
-
       </div>
     </section>
-  )
+  );
 }

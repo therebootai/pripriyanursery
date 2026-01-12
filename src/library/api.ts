@@ -1,59 +1,7 @@
-import { ProductType } from "@/components/product/ProductSection";
+import { Customer } from "@/types/types";
 import axios, { AxiosError } from "axios";
 
 const API = process.env.NEXT_PUBLIC_API_URL;
-
-export interface Customer {
-  _id: string;
-  customerId: string;
-  name: string;
-  email: string;
-  gender: string;
-  mobile: string;
-  avatar: {
-    public_id: string;
-    url: string;
-  };
-  addresses: Array<{
-    _id: string;
-    type: string;
-    name: string;
-    mobile: string;
-    area: string;
-    city: string;
-    state: string;
-    pin: string;
-    alternateMobile: string;
-  }>;
-  cart: Array<{
-    productId: string | ProductType;
-    variantId?: string | ProductType;
-    quantity: number;
-    priceAtTime: number;
-  }>;
-  wishlist: ProductType[];
-  totalOrders: number;
-  totalSpent: number;
-  rewards: {
-    points: number;
-    tier: string;
-  };
-  giftCards: Array<{
-    code: string;
-    balance: number;
-    expiry: Date;
-  }>;
-  // recentlyViewed: mongoose.Types.ObjectId[];
-  notifications: Array<{
-    title: string;
-    message: string;
-    createdAt: Date;
-  }>;
-
-  status: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-}
 
 export interface SendOtpResponse {
   success: boolean;

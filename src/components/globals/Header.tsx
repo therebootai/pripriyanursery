@@ -17,7 +17,7 @@ import Image from "next/image";
 import { ChevronDown } from "lucide-react";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { useCustomer } from "@/context/CustomerContext";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 
 type SearchItem = {
@@ -28,6 +28,9 @@ type SearchItem = {
 };
 
 export default function Header() {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 400);
   const [results, setResults] = useState<any[]>([]);
@@ -52,6 +55,16 @@ const dropdownRef = useRef<HTMLDivElement>(null);
     { label: "Bengali", code: "BEN" },
     { label: "Hindi", code: "HIN" },
   ];
+
+  
+const openLogin = () => {
+  const fullPath =
+    pathname + (searchParams.toString() ? `?${searchParams}` : "");
+
+  localStorage.setItem("redirectAfterLogin", fullPath);
+
+  setIsSignupOpen(true); // this opens CustomerLoginModal
+};
 
   useEffect(() => {
     if (!debouncedQuery) {
@@ -335,7 +348,10 @@ function getName(name = "") {
             {/* AUTH */}
             {!customer ? (
               <button
-                onClick={() => setIsSignupOpen(true)}
+                onClick={() => {
+                  setIsSignupOpen(true)
+                  openLogin()
+                }}
                 className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green  flex gap-1 cursor-pointer"
               >
                 Login <User size={16} />
@@ -348,7 +364,8 @@ function getName(name = "") {
                 >
                   {customer ? (
                     <>
-                      <div className="size-12 rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
+                      <div className="p-1 rounded-md text-white bg-defined-green font-bold flex items-center justify-center gap-1">
+                    <User size={16} />
                         {getName(customer.name)}
                         <ChevronDown size={16} />
                       </div>
@@ -480,11 +497,11 @@ function getName(name = "") {
                 {customer ? (
                   <>
                     <div className="size-7 text-xs rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
-                      {getName(customer.name)}                      
+                      {getName(customer.name)}
                     </div>
                   </>
                 ) : (
-                    <UserIcon size={18} />                    
+                  <UserIcon size={18} />
                 )}
               </button>
             )}

@@ -39,7 +39,7 @@ const {categories, loading} = useCategories();
 
             <Link
               href="/categories"
-              className="text-xs rounded-full bg-green-600 p-1 md:px-6 md:py-3 md:text-sm text-white hover:bg-green-700 transition"
+              className="text-xs rounded-full bg-green-600 py-1 px-2 md:px-6 md:py-3 md:text-sm text-white hover:bg-green-700 transition"
             >
               Explore More
             </Link>
