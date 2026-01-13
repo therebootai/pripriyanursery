@@ -7,7 +7,7 @@ import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { AddressType, CartType, ProductType } from "@/types/types";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { logout } from "@/library/api";
 import { CouponType } from "@/types/types";
 import { toggleWishlistApi } from "@/library/wishlist";
@@ -22,7 +22,6 @@ interface RazorpayResponse {
   razorpay_order_id: string;
   razorpay_signature: string;
 }
-
 
 interface RazorpayOptions {
   key: string;
@@ -69,15 +68,72 @@ export default function CheckoutClient() {
   );
   const router = useRouter();
   const { customer, refreshCustomer } = useCustomer();
-  const cart = customer?.cart ?? [];
+ 
   const customerId = customer?._id;
   const [coupon, setCoupon] = useState("");
 
+const searchParams = useSearchParams();
+const checkoutMode = searchParams.get("mode");
+
   const addresses = customer?.addresses || [];
-const defaultAddress =
-  addresses.find((a: AddressType) => a.type === "home") || addresses[0];
-const selectedAddress =
-  addresses.find((a: AddressType) => a._id === selectedAddressId) || defaultAddress;
+  const defaultAddress =
+    addresses.find((a: AddressType) => a.type === "home") || addresses[0];
+  const selectedAddress =
+    addresses.find((a: AddressType) => a._id === selectedAddressId) ||
+    defaultAddress;
+
+    const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
+
+useEffect(() => {
+  if (!customer) return;
+
+  if (checkoutMode === "buy-now") {
+    const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+
+    if (!stored) {
+      setCheckoutItems([]);
+      return;
+    }
+
+    const buyNowItem = JSON.parse(stored);
+
+    setCheckoutItems([
+      {
+        productId: buyNowItem.productId,
+        variantId: buyNowItem.variantId,
+        quantity: buyNowItem.quantity,
+        priceAtTime: buyNowItem.price,
+      },
+    ]);
+  } else {
+    setCheckoutItems(customer.cart ?? []);
+  }
+}, [checkoutMode, customer]);
+
+
+const removeBuyNowItemFromCart = async () => {
+  if (!customerId) return;
+
+  const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+  if (!stored) return;
+
+  const item = JSON.parse(stored);
+
+  try {
+    await removeFromCartApi(
+      customerId,
+      item.productId,
+      item.variantId
+    );
+
+    sessionStorage.removeItem("BUY_NOW_ITEM");
+    await refreshCustomer();
+  } catch (err) {
+    console.error("Failed to remove buy-now item from cart", err);
+  }
+};
+
+
 
   const handlePayment = async () => {
     try {
@@ -126,10 +182,12 @@ const selectedAddress =
                 customer: customerId,
                 mobile: customer?.mobile,
                 address: selectedAddress,
-                items: cart.map((i : CartType) => ({
+                items: checkoutItems.map((i: CartType) => ({
                   product: (i.productId as ProductType)._id,
                   quantity: i.quantity,
+                  price: (i.productId as ProductType).price,
                 })),
+
                 couponCode: appliedCoupon?.code,
                 couponDiscount: couponDiscount,
                 orderValue: total - couponDiscount,
@@ -140,8 +198,13 @@ const selectedAddress =
           const verifyData = await verifyRes.json();
 
           if (verifyData.success) {
-             toast.success("Payment successful & verified!");
-             router.replace(`/thank-you?payment_id=${response.razorpay_payment_id}&order_id=${verifyData.orderId}`);            
+            toast.success("Payment successful & verified!");
+              if (checkoutMode === "buy-now") {
+    await removeBuyNowItemFromCart();
+  }
+            router.replace(
+              `/thank-you?payment=${verifyData.paymentGroupId}`
+            );
           } else {
             toast.error("Payment verification failed");
           }
@@ -155,31 +218,60 @@ const selectedAddress =
         theme: { color: "#16a34a" },
       };
 
-       const razorpay = new (window as unknown as RazorpayWindow).Razorpay(
-         options
-       );
-       razorpay.open();
+      const razorpay = new (window as unknown as RazorpayWindow).Razorpay(
+        options
+      );
+      razorpay.open();
     } catch (err) {
       console.error(err);
       alert("Payment failed");
     }
   };
 
-
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-  const handleQty = async (item: CartType, qty: number) => {
-    if (!customerId || qty < 1) return;
+const handleQty = async (index: number, qty: number) => {
+  if (qty < 1) return;
 
-    await addToCartApi(
-      customerId,
-      item.productId._id,
-      item.variantId?._id,
-      qty - item.quantity,
-      item.priceAtTime
+  const item = checkoutItems[index];
+
+  /* ================= BUY NOW ================= */
+  if (checkoutMode === "buy-now") {
+    setCheckoutItems((prev) =>
+      prev.map((it, i) =>
+        i === index ? { ...it, quantity: qty } : it
+      )
     );
 
-    await refreshCustomer();
-  };
+    sessionStorage.setItem(
+      "BUY_NOW_ITEM",
+      JSON.stringify({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: qty,
+        price: item.priceAtTime,
+      })
+    );
+
+    return;
+  }
+
+  /* ================= CART CHECKOUT ================= */
+  if (!customerId) return;
+
+  const delta = qty - item.quantity;
+
+  if (delta === 0) return;
+
+  await addToCartApi(
+    customerId,
+    item.productId._id,
+    item.variantId?._id,
+    delta,
+    item.priceAtTime
+  );
+
+  await refreshCustomer(); // cart → checkoutItems syncs automatically
+};
 
   const handleMoveToWishlist = async (item: CartType) => {
     if (!customerId) return;
@@ -211,8 +303,8 @@ const selectedAddress =
   };
 
   /* ------------------ TOTAL PRICE ------------------ */
-  const total = cart.reduce(
-    (acc : number, item : CartType) =>
+  const total = checkoutItems.reduce(
+    (acc: number, item: CartType) =>
       acc + ((item.productId as ProductType).price || 0) * item.quantity,
     0
   );
@@ -241,13 +333,11 @@ const selectedAddress =
     fetchCoupons();
   }, [total]);
 
-
   const handleLogoutAndRedirect = async () => {
     await logout();
     router.replace("/");
   };
 
-  
   useEffect(() => {
     if (selectedAddress && !selectedAddressId) {
       setSelectedAddressId(selectedAddress._id);
@@ -277,23 +367,22 @@ const selectedAddress =
     setCouponMessage(`Coupon ${found.code} applied`);
   };
 
+  const handleApplyCoupon = () => {
+    const found = availableCoupons.find(
+      (c) => c.code.toLowerCase() === coupon.toLowerCase()
+    );
 
- const handleApplyCoupon = () => {
-   const found = availableCoupons.find(
-     (c) => c.code.toLowerCase() === coupon.toLowerCase()
-   );
+    if (!found) {
+      setCouponMessage("Invalid or ineligible coupon");
+      setCouponDiscount(0);
+      setAppliedCoupon(null);
+      return;
+    }
 
-   if (!found) {
-     setCouponMessage("Invalid or ineligible coupon");
-     setCouponDiscount(0);
-     setAppliedCoupon(null);
-     return;
-   }
+    applyCoupon(found);
+  };
 
-   applyCoupon(found);
- };
-
-  if (!cart.length) {
+  if (!checkoutItems.length) {
     return (
       <div className="bg-white p-6 rounded-md text-center text-gray-500">
         Your cart is empty
@@ -421,7 +510,7 @@ const selectedAddress =
           )}
         </div>
 
-        {cart
+        {checkoutItems
           .slice()
           .reverse()
           .map((item: CartType) => (
@@ -440,25 +529,17 @@ const selectedAddress =
                   />
                 </div>
 
-                <div className="flex items-center mt-2">
-                  <button
-                    onClick={() => handleQty(item, item.quantity - 1)}
-                    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
-                  >
-                    −
-                  </button>
+               
 
-                  <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
-                    {item.quantity}
-                  </span>
+                {checkoutItems.map((item, index) => (
+  <div className="flex items-center mt-2" key={item.productId._id}>
+    <button onClick={() => handleQty(index, item.quantity - 1)}  className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100">−</button>
 
-                  <button
-                    onClick={() => handleQty(item, item.quantity + 1)}
-                    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
-                  >
-                    +
-                  </button>
-                </div>
+    <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">{item.quantity}</span>
+
+    <button onClick={() => handleQty(index, item.quantity + 1)} className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100">+</button>
+  </div>
+))}
               </div>
 
               {/* INFO */}
@@ -493,7 +574,7 @@ const selectedAddress =
                 </div>
 
                 <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
-                  <button
+                  {/* <button
                     className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 "
                     onClick={() => handleMoveToWishlist(item)}
                   >
@@ -504,7 +585,7 @@ const selectedAddress =
                     className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-base lg:px-6 lg:py-2"
                   >
                     REMOVE
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </div>
@@ -576,7 +657,7 @@ const selectedAddress =
           <div className="flex justify-between">
             <span>
               Price (
-              {cart.reduce((a: number, b: CartType) => a + b.quantity, 0)}{" "}
+              {checkoutItems.reduce((a: number, b: CartType) => a + b.quantity, 0)}{" "}
               items)
             </span>
             <span>₹{total}</span>
