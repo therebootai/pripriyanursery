@@ -6,7 +6,7 @@ import { ShoppingCart } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
 import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { ProductType } from "@/types/types";
+import { CartType, ProductType } from "@/types/types";
 import { useInView } from "react-intersection-observer";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi } from "@/library/cart";
@@ -129,33 +129,31 @@ const hasSize = Object.keys(sizeGroups).length > 0;
     }
   };
 
-  const handleBuyNow = async () => {
-    try {
-      if (!customer) {
-        toast.error("Please login to proceed");
-        return;
-      }
-
-      if (isInCart) {
-        router.push("/checkout");
-        return;
-      }
-
-      await addToCartApi(
-        customer._id,
-        product._id,
-        undefined,
-        1,
-        product.price
-      );
-
-      await refreshCustomer();
-      router.push("/checkout");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to proceed");
+const handleBuyNow = async () => {
+  try {
+    if (!customer) {
+      toast.error("Please login to proceed");
+      return;
     }
-  };
+
+    // ✅ STORE BUY NOW ITEM
+    sessionStorage.setItem(
+      "BUY_NOW_ITEM",
+      JSON.stringify({
+        productId: product,
+        variantId: undefined,
+        quantity: 1,
+        price: product.price,
+      })
+    );
+
+    router.push("/checkout?mode=buy-now");
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to proceed");
+  }
+};
+
 
   const getDeliveryDate = (estimated: string): string => {
     const days = parseInt(estimated); // "2 Days" → 2
