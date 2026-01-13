@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
+import AccountPageRenderer from "./AccountPageRenderer";
 
 export default function AccountMenu() {
   const pathname = usePathname();
@@ -35,17 +36,24 @@ export default function AccountMenu() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
+useEffect(() => {
+  if (isMobile) {
+    setActivePage(pathname);
+  }
+}, [pathname, isMobile]);
 
 
-  const itemClass = (href: string) =>
-    `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
-     ${
-       pathname.startsWith(href)
-         ? "bg-green-50 text-defined-green font-semibold"
-         : "hover:bg-green-50 text-gray-700"
-     }`;
+const itemClass = (href: string) => {
+  const isActive = isMobile ? activePage === href : pathname.startsWith(href);
 
-  
+  return `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
+    ${
+      isActive
+        ? "bg-green-50 text-defined-green font-semibold"
+        : "hover:bg-green-50 text-gray-700"
+    }`;
+};
+
   useEffect(() => {
     if (pathname.startsWith("/account")) {
       setOpen((prev) => ({ ...prev, account: true }));
@@ -72,20 +80,41 @@ export default function AccountMenu() {
 
         {open.account && (
           <ul className="bg-white text-gray-600">
-            
             {items.slice(0, 2).map((item) => (
-              
-              <div
-                key={item.href}
-                onClick={() => {
-                  if (isMobile) {
-                    setActivePage(item.href);
-                  }
-                }}
-                className={itemClass(item.href) + " cursor-pointer"}
-              >
-                {item.label}
-              </div>
+              <li key={item.href}>
+                {/* Menu Row */}
+                {!isMobile ? (
+                  <Link href={item.href} className={itemClass(item.href)}>
+                    {item.label}
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() =>
+                      setActivePage(activePage === item.href ? null : item.href)
+                    }
+                    className={itemClass(item.href) + " cursor-pointer"}
+                  >
+                    {item.label}
+                  </div>
+                )}
+
+                {/* Mobile Inline Page */}
+                {isMobile && activePage === item.href && (
+                  <div
+                    className="
+      bg-gray-50
+      mt-2
+      rounded-md
+      p-3
+      max-h-[70vh]
+      overflow-y-auto
+      animate-slideDown
+    "
+                  >
+                    <AccountPageRenderer route={item.href} />
+                  </div>
+                )}
+              </li>
             ))}
           </ul>
         )}
@@ -108,17 +137,40 @@ export default function AccountMenu() {
         {open.orders && (
           <ul className="bg-white text-gray-600">
             {items.slice(2, 6).map((item) => (
-              <div
-                key={item.href}
-                onClick={() => {
-                  if (isMobile) {
-                    setActivePage(item.href);
-                  }
-                }}
-                className={itemClass(item.href) + " cursor-pointer"}
-              >
-                {item.label}
-              </div>
+              <li key={item.href}>
+                {/* Menu Row */}
+                {!isMobile ? (
+                  <Link href={item.href} className={itemClass(item.href)}>
+                    {item.label}
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() =>
+                      setActivePage(activePage === item.href ? null : item.href)
+                    }
+                    className={itemClass(item.href) + " cursor-pointer"}
+                  >
+                    {item.label}
+                  </div>
+                )}
+
+                {/* Mobile Inline Page */}
+                {isMobile && activePage === item.href && (
+                  <div
+                    className="
+      bg-gray-50
+      mt-2
+      rounded-md
+      p-3
+      max-h-[70vh]
+      overflow-y-auto
+      animate-slideDown
+    "
+                  >
+                    <AccountPageRenderer route={item.href} />
+                  </div>
+                )}
+              </li>
             ))}
           </ul>
         )}
@@ -141,19 +193,42 @@ export default function AccountMenu() {
         </button>
 
         {open.payments && (
-          <ul className="bg-white">
-            {items.slice(6).map((item) => (
-              <div
-                key={item.href}
-                onClick={() => {
-                  if (isMobile) {
-                    setActivePage(item.href);
-                  }
-                }}
-                className={itemClass(item.href) + " cursor-pointer"}
-              >
-                {item.label}
-              </div>
+          <ul className="bg-white text-gray-600">
+            {items.slice(6, 8).map((item) => (
+              <li key={item.href}>
+                {/* Menu Row */}
+                {!isMobile ? (
+                  <Link href={item.href} className={itemClass(item.href)}>
+                    {item.label}
+                  </Link>
+                ) : (
+                  <div
+                    onClick={() =>
+                      setActivePage(activePage === item.href ? null : item.href)
+                    }
+                    className={itemClass(item.href) + " cursor-pointer"}
+                  >
+                    {item.label}
+                  </div>
+                )}
+
+                {/* Mobile Inline Page */}
+                {isMobile && activePage === item.href && (
+                  <div
+                    className="
+      bg-gray-50
+      mt-2
+      rounded-md
+      p-3
+      max-h-[70vh]
+      overflow-y-auto
+      animate-slideDown
+    "
+                  >
+                    <AccountPageRenderer route={item.href} />
+                  </div>
+                )}
+              </li>
             ))}
           </ul>
         )}
