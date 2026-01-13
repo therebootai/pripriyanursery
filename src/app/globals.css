@@ -42,6 +42,22 @@
   scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
 }
 
+@keyframes slideDown {
+  from {
+    max-height: 0;
+    opacity: 0;
+  }
+  to {
+    max-height: 1000px;
+    opacity: 1;
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.4s ease-out forwards;
+}
+
+
 
 
 body {

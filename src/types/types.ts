@@ -170,24 +170,54 @@ export interface AddressType {
   alternateMobile: string;
 }
 
+export interface PaymentType {
+  paymentGroupId: string; // internal payment reference (PG-001)
+
+  customer: Customer
+
+  razorpayOrderId: string;
+  razorpayPaymentId: string;
+  razorpaySignature: string;
+
+  amount: string;
+  currency: string;
+
+  method: string;
+  status: "Created" | "Paid" | "Failed" | "Refunded";
+
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 export interface OrderType {
   orderId: string;
+
+  payment:PaymentType// 🔗 link to Payment
   customer: Customer;
+
   mobile: string;
-  address: AddressType;
-  couponCode: string;
-  couponDiscount: number;
-  razorPayPaymentId: string;
-  razorPayOrderId: string;
-  razorPaySignature: string;
-  paymentMethod: string;
+  address: AddressType
+
+  product: ProductType // 🔥 FINAL SKU
+  quantity: number;
+  price: number;
   orderValue: number;
-  items: Array<{
-    product: ProductType;
-    quantity: number;
-  }>;
-  status: string;
-  paymentStatus: string;
+
+  couponCode?: string;
+  couponDiscount?: number;
+
+  status:
+    | "Processing"
+    | "Confirmed"
+    | "Shipped"
+    | "InTransit"
+    | "OutForDelivery"
+    | "Delivered"
+    | "Cancelled"
+    | "RTO";
+
+  paymentStatus: "Paid" | "Unpaid" | "Refunded";
+
   shipping: {
     shipmozoOrderId?: string;
     courierId?: number;
@@ -198,14 +228,11 @@ export interface OrderType {
     currentStatus?: string;
     expectedDeliveryDate?: string;
     lastStatusTime?: string;
-
-    trackingHistory?: [
-      {
-        date: string;
-        status: string;
-        location: string;
-      }
-    ];
+    trackingHistory?: {
+      date: string;
+      status: string;
+      location: string;
+    }[];
   };
 
   createdAt: Date;
