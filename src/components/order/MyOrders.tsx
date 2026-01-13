@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import OrderTracker from "./OrderTracker";
@@ -21,7 +21,7 @@ useEffect(() => {
     const res = await axios(
       `${process.env.NEXT_PUBLIC_API_URL}/order/customers/${customer._id}`
     );
-
+    console.log("Fetched Orders Response:", res.data);
     if (res.data.success) {
       setOrders(res.data.data);
     }
@@ -45,7 +45,7 @@ useEffect(() => {
     );
   }
 
-  if (orders.length === 0) {
+  if (orders?.length === 0) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         You have no orders yet
@@ -56,7 +56,7 @@ useEffect(() => {
 
   return (
     <div className="space-y-6">
-      {orders.map((order) => (
+      {orders?.map((order) => (
         <div
           key={order.orderId}
           className="border border-gray-200 rounded-md bg-white"
@@ -97,17 +97,17 @@ useEffect(() => {
           </div>
 
           {/* ITEMS */}
-          {order.items.map((item) => (
+
             <div
-              key={item.product._id}
+              key={order.product._id}
               className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-t border-gray-200"
             >
               {/* LEFT */}
               <div className="flex flex-col lg:flex-row items-center justify-center gap-4">
                 <div className="flex items-center justify-center border border-gray-200 rounded ">
                   <Image
-                    src={item.product.coverImage.url}
-                    alt={item.product.name}
+                    src={order.product.coverImage.url}
+                    alt={order.product.name}
                     width={120}
                     height={120}
                     className="object-cover w-full h-full"
@@ -116,7 +116,7 @@ useEffect(() => {
 
                 <div>
                   <p className="font-medium text-gray-800 max-w-md">
-                    {item.product.name}
+                    {order.product.name}
                   </p>
                   <p className="text-sm text-gray-600 mt-1">
                     Delivered on {order.shipping?.expectedDeliveryDate || "N/A"}
@@ -134,7 +134,7 @@ useEffect(() => {
                     </Link>
 
                     <Link
-                      href={`/product/${item.product.slug}`}
+                      href={`/product/${order.product.slug}`}
                       className="lg:px-4 lg:py-2 p-2 text-xs lg:text-sm  bg-yellow-400 rounded hover:bg-yellow-500 w-full text-center"
                     >
                       View Your Item
@@ -170,7 +170,7 @@ useEffect(() => {
                 </Link>
               </div>
             </div>
-          ))}
+
         </div>
       ))}
 

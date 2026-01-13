@@ -104,7 +104,7 @@ export default function ManageAddress() {
 
 
   const removeAddress = async (id?: string) => {
-    const updated = addresses.filter((a) => a._id !== id) as Address[];
+    const updated = addresses.filter((a : Address) => a._id !== id) as Address[];
     await updateAddresses(updated);
   };
 
@@ -122,7 +122,7 @@ useEffect(() => {
 
 
   return (
-    <div className="bg-white rounded-md p-6 space-y-8">
+    <div className="bg-white rounded-md lg:p-6 space-y-8">
       <button
         onClick={addNewForm}
         className="text-sm font-medium text-white rounded-xl bg-defined-green py-2 px-4 mb-4"
@@ -156,7 +156,7 @@ useEffect(() => {
 
       {/* SAVED ADDRESSES */}
       <div className="space-y-4">
-        {addresses.map((addr) => (
+        {addresses.map((addr : Address) => (
           <div
             key={addr._id}
             className="border-[0.3px] border-gray-200 rounded-md p-4 flex justify-between gap-4"
