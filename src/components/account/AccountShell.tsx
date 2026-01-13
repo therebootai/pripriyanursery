@@ -17,8 +17,7 @@ export default function AccountShell({
         <div className="flex flex-col md:flex-row gap-4">
           {/* Sidebar */}
           <AccountSidebar
-            open={sidebarOpen}
-            onToggle={() => setSidebarOpen(!sidebarOpen)}
+           
           />
 
           {/* Content */}

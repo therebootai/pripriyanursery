@@ -11,14 +11,14 @@ export default function PlantsGallery() {
   const limitedGallery = galleryData.slice(0, 5)
 
   return (
-    <section className="py-12">
+    <section >
       <div className="self-padding">
-        <h2 className="mb-10 text-3xl font-bold">
+        <h2 className="mb-10 text-xl lg:text-3xl font-bold">
           Plants <span className="text-green-600">Gallery</span>
         </h2>
 
         <div
-          className="max-w-screen
+          className="md:hidden max-w-screen
     flex gap-3
     md:overflow-visible
     overflow-x-auto
@@ -57,6 +57,23 @@ export default function PlantsGallery() {
             </div>
           ))}
         </div>
+
+        <div className="hidden md:flex gap-3 overflow-hidden"> 
+          {limitedGallery.map((item, index) => ( 
+            <div key={item.id} 
+            onMouseEnter={() => setActiveIndex(index)} 
+            onClick={() => setActiveIndex(index)} 
+            className={` transition-[flex-grow] duration-700 ease-in-out ${index === activeIndex ? 'flex-[3]' : 'flex-[1]'} `} > 
+            <GalleryCard 
+            image={item.image} 
+            title={item.title} 
+            active={index === activeIndex} 
+            onClick={() => {}} 
+            /> 
+
+            </div>
+           ))} 
+           </div>
       </div>
     </section>
   );
