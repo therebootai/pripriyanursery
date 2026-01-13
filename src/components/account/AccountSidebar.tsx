@@ -10,27 +10,24 @@ type Props = {
   onToggle: () => void;
 };
 
-export default function AccountSidebar({
-  open,
-  onToggle,
-}: Props) {
+export default function AccountSidebar() {
   const {customer} = useCustomer();
   return (
     <aside className="w-full md:w-[300px] bg-white rounded-md p-3 shadow-sm">
       {/* Mobile Header */}
-      <div className="flex items-center justify-between md:hidden mb-2">
+      {/* <div className="flex items-center justify-between md:hidden mb-2">
         <span className="font-medium text-gray-800">
           My Account
         </span>
         <button onClick={onToggle}>
           <Menu size={20} />
         </button>
-      </div>
+      </div> */}
 
       {/* Sidebar Content */}
       <div
         className={`transition-all duration-300 overflow-hidden
-        ${open ? "max-h-[1000px]" : "max-h-0 md:max-h-none"}`}
+      `}
       >
         {/* Profile */}
         <AccountProfile

@@ -25,6 +25,16 @@ export default function AccountMenu() {
     account: true,
     payments: true,
   });
+  const [activePage, setActivePage] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
 
 
   const itemClass = (href: string) =>
@@ -44,7 +54,6 @@ export default function AccountMenu() {
 
   return (
     <div className="mt-4 space-y-3">
-     
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
@@ -63,26 +72,28 @@ export default function AccountMenu() {
 
         {open.account && (
           <ul className="bg-white text-gray-600">
+            
             {items.slice(0, 2).map((item) => (
-              <Link
+              
+              <div
                 key={item.href}
-                href={item.href}
-                // onClick={onItemClick}
-                className={itemClass(item.href)}
+                onClick={() => {
+                  if (isMobile) {
+                    setActivePage(item.href);
+                  }
+                }}
+                className={itemClass(item.href) + " cursor-pointer"}
               >
                 {item.label}
-              </Link>
-            ))}           
+              </div>
+            ))}
           </ul>
         )}
       </div>
 
-
-       <div className="rounded-md overflow-hidden ">
+      <div className="rounded-md overflow-hidden ">
         <button
-          onClick={() =>
-            setOpen((prev) => ({ ...prev, orders: !prev.orders }))
-          }
+          onClick={() => setOpen((prev) => ({ ...prev, orders: !prev.orders }))}
           className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Your Orders
@@ -96,16 +107,19 @@ export default function AccountMenu() {
 
         {open.orders && (
           <ul className="bg-white text-gray-600">
-            {items.slice(2,6).map((item) => (
-              <Link
+            {items.slice(2, 6).map((item) => (
+              <div
                 key={item.href}
-                href={item.href}
-                // onClick={onItemClick}
-                className={itemClass(item.href)}
+                onClick={() => {
+                  if (isMobile) {
+                    setActivePage(item.href);
+                  }
+                }}
+                className={itemClass(item.href) + " cursor-pointer"}
               >
                 {item.label}
-              </Link>
-            ))}           
+              </div>
+            ))}
           </ul>
         )}
       </div>
@@ -129,14 +143,17 @@ export default function AccountMenu() {
         {open.payments && (
           <ul className="bg-white">
             {items.slice(6).map((item) => (
-              <Link
+              <div
                 key={item.href}
-                href={item.href}
-                // onClick={onItemClick}
-                className={itemClass(item.href)}
+                onClick={() => {
+                  if (isMobile) {
+                    setActivePage(item.href);
+                  }
+                }}
+                className={itemClass(item.href) + " cursor-pointer"}
               >
                 {item.label}
-              </Link>
+              </div>
             ))}
           </ul>
         )}
