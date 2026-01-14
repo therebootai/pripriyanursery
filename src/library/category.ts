@@ -14,7 +14,7 @@ export type CategoryUI = {
 };
 
 export async function fetchCategories(): Promise<CategoryUI[]> {
-  const res = await fetch("http://localhost:8000/api/category?limit=10&page=1", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/category?limit=10&page=1`, {
     cache: "no-store",
   });
 

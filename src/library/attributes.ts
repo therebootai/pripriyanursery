@@ -9,7 +9,7 @@ export interface BrandType {
 
 export async function getBrandsApi() {
   try {
-    const res = await fetch("http://localhost:8000/api/brand", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/brand`, {
       cache: "no-store",
     });
 
