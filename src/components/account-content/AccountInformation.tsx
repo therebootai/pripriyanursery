@@ -144,7 +144,7 @@ export default function AccountInformation() {
 
     toast.success("Account deleted");
     await logout();
-    router.replace("/");
+    router.push("/");
   };
 
   const deactivateAccount = async () => {
@@ -152,7 +152,7 @@ export default function AccountInformation() {
       await updateField("status", "false");
       toast.success("Account deactivated");
       await logout();
-      router.replace("/");
+      router.push("/");
     } catch {}
   };
 
