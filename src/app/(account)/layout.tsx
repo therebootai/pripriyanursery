@@ -11,7 +11,7 @@ export default async function AccountLayout({
 }) {
   const token = (await cookies()).get("token");
 
-  if (!token) {
+ if (!token?.value) {
     redirect("/");
   }
 
