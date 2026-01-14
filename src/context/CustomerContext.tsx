@@ -1,7 +1,8 @@
 "use client";
 
+import { Customer } from "@/types/types";
 import { createResourceContext } from "./createResourceContext";
-import { Customer, getMe, logout } from "@/library/api";
+import {  getMe, logout } from "@/library/api";
 
 const { Provider: CustomerProviderBase, useResource: useCustomerBase } =
   createResourceContext<Customer>(getMe, { clearable: true });

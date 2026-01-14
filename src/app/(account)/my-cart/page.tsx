@@ -1,10 +1,13 @@
 import CartList from '@/components/cart/CartList'
-import React from 'react'
+import React, { Suspense } from 'react'
 
 const page = () => {
   return (
     <>
-     <CartList/>    
+    <Suspense fallback={<div>Loading..</div>}>
+
+     <CartList/>  
+     </Suspense>  
     </>
   )
 }

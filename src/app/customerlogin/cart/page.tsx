@@ -1,8 +1,11 @@
 import React from 'react'
+export const dynamic = 'force-dynamic'; 
 
 const page = () => {
   return (
-    <div>page</div>
+    <div>
+      page
+    </div>
   )
 }
 

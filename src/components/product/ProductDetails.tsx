@@ -26,9 +26,9 @@ export interface ProductVariantResponse {
 
 const ProductDetails = ({ product }: { product: ProductType }) => {
   const { customer, refreshCustomer } = useCustomer();
-  const isInCart = customer?.cart?.some(
-    (item: CartType) => item.productId?._id === product._id
-  );
+const isInCart = (customer?.cart as CartType[] || []).some((item) => 
+  (item.productId as ProductType)._id === product._id
+);
 
   const [variantLoading, setVariantLoading] = useState(false);
   const [variantProducts, setVariantProducts] = useState<ProductType[]>([]);
@@ -55,6 +55,20 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
   const params = useParams<{ slug: string }>();
 const slug = params.slug;
+
+const [stockStatus, setStockStatus] = useState<'available' | 'low' | 'out'>('available');
+
+// Add this useEffect after the existing useEffect for variants
+useEffect(() => {
+  const stock = currentProduct.stock || 0;
+  if (stock === 0) {
+    setStockStatus('out');
+  } else if (stock <= 3) {
+    setStockStatus('low');
+  } else {
+    setStockStatus('available');
+  }
+}, [currentProduct.stock]);
 
 
 const getAttributeValue = (
@@ -130,6 +144,10 @@ const hasSize = Object.keys(sizeGroups).length > 0;
   };
 
 const handleBuyNow = async () => {
+    if (stockStatus === 'out') {
+    toast.error("This product is out of stock");
+    return;
+  }
   try {
     if (!customer) {
       toast.error("Please login to proceed");
@@ -328,6 +346,7 @@ useEffect(() => {
                   <button
                     className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-2 rounded font-medium flex items-center justify-center gap-2"
                     onClick={handleCart}
+                    
                   >
                     <ShoppingCart size={16} />
                     {isInCart ? "Go to Cart" : "Add to Cart"}
@@ -335,7 +354,12 @@ useEffect(() => {
 
                   <button
                     onClick={handleBuyNow}
-                    className="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded font-medium flex items-center justify-center gap-2"
+                    disabled={stockStatus === 'out'}
+                    className={`flex-1 py-2 rounded font-medium flex items-center justify-center gap-2 transition-all ${
+      stockStatus === 'out'
+        ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+        : "bg-green-600 hover:bg-green-700 text-white"
+    }`}
                   >
                     <ShoppingBag size={18} />
                     Buy Now
@@ -371,7 +395,7 @@ useEffect(() => {
             </div>
 
             {/* Price */}
-            <div className="mb-4">
+            <div className="">
               <p className="text-sm text-green-600 font-medium">
                 Special price
               </p>
@@ -387,6 +411,26 @@ useEffect(() => {
                 </span>
               </div>
             </div>
+             <div className=" flex items-center gap-2">
+    {stockStatus === 'out' && (
+      <div className="flex items-center gap-1 bg-red-100 text-red-700 px-5 py-2 rounded-full text-sm font-medium">
+        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+        Out of Stock
+      </div>
+    )}
+    {stockStatus === 'low' && (
+      <div className="flex items-center gap-1 bg-orange-100 text-orange-700 px-5 py-2 rounded-full text-sm font-medium">
+        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+        Only {currentProduct.stock} left!
+      </div>
+    )}
+    {stockStatus === 'available' && (
+      <div className="flex items-center gap-1 bg-green-100 text-green-700 px-5 py-2 rounded-full text-sm font-medium">
+        <div className="w-2 h-2 bg-green-500 rounded-full" />
+        {currentProduct.stock} in stock
+      </div>
+    )}
+  </div>
 
 {showVariants && (
   <div className="space-y-6 mb-4">
@@ -610,7 +654,12 @@ useEffect(() => {
 
           <button
             onClick={handleBuyNow}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white py-3 rounded font-medium flex items-center justify-center gap-2"
+              disabled={stockStatus === 'out'}
+            className={`flex-1 py-3 rounded font-medium flex items-center justify-center gap-2 transition-all ${
+        stockStatus === 'out'
+          ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+          : "bg-green-600 hover:bg-green-700 text-white"
+      }`}
           >
             <ShoppingBag size={18} />
             Buy Now
