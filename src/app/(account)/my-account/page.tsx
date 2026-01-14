@@ -1,5 +1,6 @@
 import AccountInformation from "@/components/account-content/AccountInformation";
 import { Suspense } from "react";
+export const dynamic = 'force-dynamic'; 
 
 const page = () => {
   return (

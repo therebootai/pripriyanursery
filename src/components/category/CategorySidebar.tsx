@@ -21,11 +21,11 @@ export default function CategorySidebar({
     <aside className="sticky top-24 h-[calc(100vh-6rem)] overflow-hidden">
       <div className="h-full overflow-y-auto pr-2 custom-scroll space-y-6">
         {categories?.map((group) => (
-          <div key={group.parent.id} className="space-y-4">
+          <div key={group.parent.id} className="">
             {/* Parent Category */}
             <button
               onClick={() => handleClick(group.parent.name)}
-              className={`w-fit flex flex-col md:flex-row items-center md:gap-3 gap-1 rounded-md p-1 text-left
+              className={`w-full lg:w-fit flex flex-col md:flex-row max-md:justify-center items-center md:gap-3 gap-1 rounded-md p-1 text-left
               ${
                 activeCategory === group.parent.name
                   ? "bg-defined-green/30"
@@ -33,7 +33,7 @@ export default function CategorySidebar({
               }
             `}
             >
-              <div className="relative size-10 md:size-12 shrink-0">
+              <div className="relative size-12 md:size-12 shrink-0">
                 <Image
                   src={group.parent.image}
                   alt={group.parent.name}
@@ -47,12 +47,12 @@ export default function CategorySidebar({
             </button>
 
             {/* Subcategories */}
-            <div className="space-y-2 md:pl-4">
+            <div className=" md:pl-4">
               {group.subCategories.map((sub) => (
                 <button
                   key={sub.id ?? sub.name}
                   onClick={() => handleClick(sub.name)}
-                  className={`w-fit flex flex-col md:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
+                  className={`w-full lg:w-fit flex flex-col md:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
                   ${
                     activeCategory === sub.name
                       ? "bg-defined-green/10"
@@ -60,7 +60,7 @@ export default function CategorySidebar({
                   }
                 `}
                 >
-                  <div className="relative size-10 shrink-0">
+                  <div className="relative size-12 md:size-10 shrink-0">
                     <Image
                       src={sub.image}
                       alt={sub.name}
