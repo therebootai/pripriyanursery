@@ -9,7 +9,7 @@ export interface BrandType {
 
 export async function getBrandsApi() {
   try {
-    const res = await axios.get("http://localhost:8000/api/brand")
+    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/brand`)
 
     if (!res.status) return [];    
     return res.data?.brands || [];
