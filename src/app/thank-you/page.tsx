@@ -1,17 +1,20 @@
 import { CheckCircle } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
+export const dynamic = 'force-dynamic'; 
 export default async function page({
   searchParams,
 }: {
-  searchParams: Promise<{ payment_id?: string; order_id?: string }>;
+ searchParams: Promise<{
+    payment?: string;
+    orders?: string;
+  }>;
 }) {
-   const { payment_id, order_id } = await searchParams;
+   const { payment, orders } = await searchParams;
 
-   if (!payment_id || !order_id) {
-     redirect("/");
-   }
+  if (!payment || !orders) {
+    redirect("/");
+  }
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-10 sm:py-14">
@@ -44,11 +47,11 @@ export default async function page({
         <div className="mt-4 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 sm:p-4">
           <p className="text-xs sm:text-sm text-gray-500">Order ID</p>
           <p className="font-semibold text-green-600 text-base sm:text-lg tracking-wide">
-            {order_id || "ORD000000"}
+            {orders}
           </p>
           <p className="text-xs sm:text-sm text-gray-500">Payment ID</p>
           <p className="font-semibold text-green-600 text-base sm:text-lg tracking-wide">
-            {payment_id || "ORD000000"}
+            {payment}
           </p>
         </div>
 

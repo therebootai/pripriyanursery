@@ -103,10 +103,12 @@ export default function ManageAddress() {
  };
 
 
-  const removeAddress = async (id?: string) => {
-    const updated = addresses.filter((a : Address) => a._id !== id) as Address[];
-    await updateAddresses(updated);
-  };
+const removeAddress = async (id?: string) => {
+  // ✅ Cast addresses to Address[] with proper type guard
+  const updated = (addresses as Address[]).filter((a) => a._id !== id);
+  await updateAddresses(updated);
+};
+
 
 
   const editAddress = (addr: Address) => {
@@ -156,7 +158,7 @@ useEffect(() => {
 
       {/* SAVED ADDRESSES */}
       <div className="space-y-4">
-        {addresses.map((addr : Address) => (
+        {(addresses as Address[]).map((addr) => (
           <div
             key={addr._id}
             className="border-[0.3px] border-gray-200 rounded-md p-4 flex justify-between gap-4"

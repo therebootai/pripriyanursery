@@ -1,4 +1,4 @@
-import CategoryGrid from '@/components/category/CategoryGrid'
+
 import Link from 'next/link'
 
 export default function FilterCategory() {
@@ -21,7 +21,7 @@ export default function FilterCategory() {
         </div>
 
         {/* GRID */}
-        <CategoryGrid limit={7} />
+        {/* <CategoryGrid limit={7} /> */}
 
       </div>
     </section>

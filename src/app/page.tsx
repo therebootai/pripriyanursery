@@ -6,11 +6,13 @@ import Homebanner2 from "@/components/home/HomeBanner2";
 import PlantsGallery from "@/components/home/PlantGallery";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import MainTemplates from "@/templates/MainTemplates";
+export const dynamic = 'force-dynamic'; 
+const PRODUCT_LIMIT = 10;
 
 export async function fetchProducts() {  
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/product?limit=10`,
+      `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${PRODUCT_LIMIT}&page=1`,
       { cache: "no-store" } // or revalidate
     );
 
@@ -37,6 +39,7 @@ export default async function Home() {
           title="Newest Product in this Month"
           products={products.data}
           pagination={products.pagination}
+          limit={PRODUCT_LIMIT}
         />       
 
         <Homebanner2 />

@@ -77,7 +77,7 @@ useEffect(() => {
 
             <div>
               <p className="text-gray-500">Ship To</p>
-              <p className="font-medium">{customer.name}</p>
+              <p className="font-medium">{customer?.name || ""}</p>
             </div>
 
             <div className="text-right">

@@ -3,8 +3,7 @@ import MainTemplates from '@/templates/MainTemplates'
 import React from 'react'
 import ProductDetail from '@/components/product/DetailsProduct'
 import ProductSection from "@/components/product/ProductSection";
-import { productData } from "@/lib/productData";
-
+export const dynamic = 'force-dynamic'; 
 const page = () => {
   return (
     <>
@@ -15,11 +14,10 @@ const page = () => {
           <ProductDetail/>
 
            
-           <ProductSection
+           {/* <ProductSection
              title="Related Product"
-             products={productData.newest}
-             rows={1}
-           />
+             
+           /> */}
        </MainTemplates>
     
     

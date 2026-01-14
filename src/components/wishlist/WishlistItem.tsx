@@ -129,7 +129,7 @@ export default function WishlistItem({item} : {item: ProductType}) {
       {/* RIGHT: Actions */}
       <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 justify-between lg:justify-center">
         <Link
-          href={`/${item.slug}`}
+          href={`/product/${item.slug}`}
           className="
             inline-flex items-center justify-center
             text-xs sm:text-sm

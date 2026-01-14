@@ -75,12 +75,13 @@ export default function CheckoutClient() {
 const searchParams = useSearchParams();
 const checkoutMode = searchParams.get("mode");
 
-  const addresses = customer?.addresses || [];
-  const defaultAddress =
-    addresses.find((a: AddressType) => a.type === "home") || addresses[0];
-  const selectedAddress =
-    addresses.find((a: AddressType) => a._id === selectedAddressId) ||
-    defaultAddress;
+const addresses: any[] = customer?.addresses || [];
+const defaultAddress = addresses.find((a: any) => 
+  a.type?.toLowerCase() === "home"
+) || addresses[0];
+const selectedAddress = addresses.find((a: any) => 
+  a._id === selectedAddressId
+) || defaultAddress;
 
     const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
 
@@ -89,26 +90,56 @@ useEffect(() => {
 
   if (checkoutMode === "buy-now") {
     const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-
     if (!stored) {
       setCheckoutItems([]);
       return;
     }
-
     const buyNowItem = JSON.parse(stored);
-
-    setCheckoutItems([
-      {
-        productId: buyNowItem.productId,
-        variantId: buyNowItem.variantId,
-        quantity: buyNowItem.quantity,
-        priceAtTime: buyNowItem.price,
-      },
-    ]);
-  } else {
-    setCheckoutItems(customer.cart ?? []);
+    setCheckoutItems([{
+      productId: buyNowItem.productId,
+      variantId: buyNowItem.variantId,
+      quantity: buyNowItem.quantity,
+      priceAtTime: buyNowItem.price,
+    }]);
+  } else if (checkoutMode === "cart") {
+    // Get available items from URL params
+    const itemsParam = searchParams.get("items");
+    if (itemsParam) {
+      const parsedItems = JSON.parse(decodeURIComponent(itemsParam));
+      
+      // Filter out only available items with stock check
+      const availableItems: CartType[] = parsedItems
+        .map((itemData: any) => {
+          const product = (customer.cart as CartType[] || []).find((cartItem) => 
+            cartItem.productId._id === itemData.productId
+          );
+          if (!product) return null;
+          
+          const stock = (product.productId as ProductType).stock || 0;
+          if (stock === 0 || itemData.quantity > stock) return null;
+          
+          return {
+            productId: product.productId,
+            variantId: product.variantId,
+            quantity: itemData.quantity,
+            priceAtTime: itemData.priceAtTime
+          };
+        })
+        .filter(Boolean) as CartType[];
+        
+      setCheckoutItems(availableItems);
+      return;
+    }
+    
+    // Fallback to full cart (but filter out-of-stock)
+  const availableCartItems = (customer.cart as CartType[] || []).filter((item) => {
+  const stock = (item.productId as ProductType).stock || 0;
+  return stock > 0 && item.quantity <= stock;
+});
+    setCheckoutItems(availableCartItems);
   }
-}, [checkoutMode, customer]);
+}, [checkoutMode, customer, searchParams]);
+
 
 
 const removeBuyNowItemFromCart = async () => {
@@ -133,9 +164,31 @@ const removeBuyNowItemFromCart = async () => {
   }
 };
 
+  const getStockStatus = (item: CartType): 'available' | 'low' | 'out' => {
+  const stock = (item.productId as ProductType).stock || 0;
+  if (stock === 0) return 'out';
+  if (stock <= 3) return 'low';
+  return 'available';
+};
+
+
+const availableCheckoutItems = checkoutItems.filter((item: CartType) => 
+  getStockStatus(item) !== 'out'
+);
+
+const hasOutOfStockItems = checkoutItems.some(item => getStockStatus(item) === 'out');
+const totalAmount  = availableCheckoutItems.reduce(
+  (acc: number, item: CartType) =>
+    acc + ((item.productId as ProductType).price || 0) * item.quantity,
+  0
+);
 
 
   const handlePayment = async () => {
+     if (hasOutOfStockItems) {
+    toast.error("Please remove out-of-stock items before payment");
+    return;
+  }
     try {
       await loadRazorpayScript();
 
@@ -202,8 +255,11 @@ const removeBuyNowItemFromCart = async () => {
               if (checkoutMode === "buy-now") {
     await removeBuyNowItemFromCart();
   }
-            router.replace(
-              `/thank-you?payment=${verifyData.paymentGroupId}`
+
+    const paymentId = verifyData.paymentGroupId;
+  const orderIds = verifyData.orders.join(",");
+            router.push(
+              `/thank-you?payment=${paymentId}&orders=${orderIds}`
             );
           } else {
             toast.error("Payment verification failed");
@@ -228,49 +284,75 @@ const removeBuyNowItemFromCart = async () => {
     }
   };
 
+
+
+
+
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-const handleQty = async (index: number, qty: number) => {
+const handleQtyById = async (
+  productId: string,
+  variantId: string | undefined,
+  qty: number
+) => {
   if (qty < 1) return;
 
-  const item = checkoutItems[index];
+  // Find current item to check stock
+  const currentItem = checkoutItems.find(
+    (item) =>
+      item.productId._id === productId &&
+      item.variantId?._id === variantId
+  );
+
+  if (!currentItem) return;
+
+  // ✅ STOCK VALIDATION - Block if exceeding stock
+  const stock = (currentItem.productId as ProductType).stock || 0;
+  if (qty > stock) {
+    toast.error(`Only ${stock} products are in stock`);
+    return;
+  }
 
   /* ================= BUY NOW ================= */
   if (checkoutMode === "buy-now") {
     setCheckoutItems((prev) =>
-      prev.map((it, i) =>
-        i === index ? { ...it, quantity: qty } : it
+      prev.map((item) =>
+        item.productId._id === productId &&
+        item.variantId?._id === variantId
+          ? { ...item, quantity: qty }
+          : item
       )
     );
 
-    sessionStorage.setItem(
-      "BUY_NOW_ITEM",
-      JSON.stringify({
-        productId: item.productId,
-        variantId: item.variantId,
-        quantity: qty,
-        price: item.priceAtTime,
-      })
-    );
-
+    const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+    if (stored) {
+      const item = JSON.parse(stored);
+      sessionStorage.setItem(
+        "BUY_NOW_ITEM",
+        JSON.stringify({ ...item, quantity: qty })
+      );
+    }
     return;
   }
 
   /* ================= CART CHECKOUT ================= */
   if (!customerId) return;
 
-  const delta = qty - item.quantity;
-
+  const delta = qty - currentItem.quantity;
   if (delta === 0) return;
 
-  await addToCartApi(
-    customerId,
-    item.productId._id,
-    item.variantId?._id,
-    delta,
-    item.priceAtTime
-  );
-
-  await refreshCustomer(); // cart → checkoutItems syncs automatically
+  try {
+    await addToCartApi(
+      customerId,
+      productId,
+      variantId,
+      delta,
+      currentItem.priceAtTime
+    );
+    await refreshCustomer();
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to update quantity");
+  }
 };
 
   const handleMoveToWishlist = async (item: CartType) => {
@@ -513,8 +595,15 @@ const handleQty = async (index: number, qty: number) => {
         {checkoutItems
           .slice()
           .reverse()
-          .map((item: CartType) => (
-            <div
+          .map((item: CartType, index) => {
+
+             const stockStatus = getStockStatus(item);
+    const stock = (item.productId as ProductType).stock || 0;
+    const isOutOfStock = stockStatus === 'out';
+    const canIncrease = item.quantity < stock;
+
+            return(
+              <div
               key={item.productId._id}
               className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
             >
@@ -531,15 +620,38 @@ const handleQty = async (index: number, qty: number) => {
 
                
 
-                {checkoutItems.map((item, index) => (
-  <div className="flex items-center mt-2" key={item.productId._id}>
-    <button onClick={() => handleQty(index, item.quantity - 1)}  className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100">−</button>
+                <div className="flex items-center mt-2">
+  <button
+     onClick={() =>
+              handleQtyById(
+                item.productId._id,
+                item.variantId?._id,
+                item.quantity - 1
+              )
+            }
+    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
+  >
+    −
+  </button>
 
-    <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">{item.quantity}</span>
+  <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
+    {item.quantity}
+  </span>
 
-    <button onClick={() => handleQty(index, item.quantity + 1)} className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100">+</button>
-  </div>
-))}
+  <button
+     onClick={() =>
+              handleQtyById(
+                item.productId._id,
+                item.variantId?._id,
+                item.quantity + 1
+              )
+            }
+    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
+  >
+    +
+  </button>
+</div>
+
               </div>
 
               {/* INFO */}
@@ -571,6 +683,15 @@ const handleQty = async (index: number, qty: number) => {
                       {(item.productId as ProductType).discount}% OFF
                     </span>
                   </p>
+                   {isOutOfStock ? (
+            <div className="mt-2 px-3 w-fit py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+              Out of Stock
+            </div>
+          ) : stockStatus === 'low' ? (
+            <div className="mt-2 px-3 py-1 w-fit bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+              Only {stock} left
+            </div>
+          ) : null}
                 </div>
 
                 <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
@@ -589,7 +710,8 @@ const handleQty = async (index: number, qty: number) => {
                 </div>
               </div>
             </div>
-          ))}
+            )
+          })}
       </div>
 
       {/* RIGHT */}
@@ -684,12 +806,33 @@ const handleQty = async (index: number, qty: number) => {
           </div>
         </div>
 
-        <button
-          onClick={handlePayment}
-          className="mt-6 w-full rounded-full bg-linear-to-r from-green-500 to-emerald-600 py-2 text-white font-semibold hover:scale-[1.03]"
-        >
-          ₹ Pay Now
-        </button>
+       <button
+  onClick={handlePayment}
+  disabled={hasOutOfStockItems || total <= 0 || !selectedAddress}
+  className={`mt-6 w-full rounded-full py-3 text-white font-semibold hover:scale-[1.03] transition-all duration-200 flex items-center justify-center ${
+    hasOutOfStockItems || total <= 0 || !selectedAddress
+      ? 'bg-gray-400 cursor-not-allowed from-gray-400 to-gray-500'
+      : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+  }`}
+>
+  {hasOutOfStockItems ? (
+    <>
+      <span className="w-5 h-5 mr-2">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </span>
+      Remove out-of-stock items to pay
+    </>
+  ) : total <= 0 ? (
+    'Empty Cart'
+  ) : !selectedAddress ? (
+    'Select Address First'
+  ) : (
+    `₹${Math.max(total - couponDiscount, 0).toLocaleString()} Pay Now`
+  )}
+</button>
+
       </div>
     </div>
   );
