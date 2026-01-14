@@ -225,7 +225,7 @@ function getName(name = "") {
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Search for Products, Brands and More"
-                className="w-full rounded-full text-defined-green placeholder:text-defined-green bg-gray-100 py-4 pl-10 pr-4 outline-none"
+                className="w-full rounded-full text-defined-green text-xs placeholder:text-defined-green bg-gray-100 py-4 pl-10 pr-4 outline-none"
               />
             </div>
             {show && (
@@ -315,7 +315,7 @@ function getName(name = "") {
             <div className="relative">
               <button
                 onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-2 text-sm font-bold text-defined-green"
+                className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-3 text-sm font-bold text-defined-green"
               >
                 <Image
                   src="/assets/globals/indianflag.png"
@@ -364,7 +364,7 @@ function getName(name = "") {
                 >
                   {customer ? (
                     <>
-                      <div className="p-1 rounded-md text-white bg-defined-green font-bold flex items-center justify-center gap-1">
+                      <div className="px-6 py-3 text-sm rounded-full text-white bg-defined-green font-bold flex items-center justify-center gap-1">
                     <User size={16} />
                         {getName(customer.name)}
                         <ChevronDown size={16} />

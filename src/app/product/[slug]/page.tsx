@@ -2,7 +2,7 @@ import MainTemplates from "@/templates/MainTemplates";
 import ProductDetails from "@/components/product/ProductDetails";
 import { fetchProducts } from "@/app/page";
 import { ProductType } from "@/types/types";
-
+export const dynamic = 'force-dynamic'; 
 
 export default async function ProductDetailsPage({
   params,

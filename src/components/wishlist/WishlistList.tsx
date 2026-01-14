@@ -6,10 +6,17 @@ import { useCustomer } from "@/context/CustomerContext";
 
 export default function WishlistList() {
   const { customer } = useCustomer();
- const activeWishlist =
-   customer?.wishlist
-     ?.filter((item : WishlistType) => item.status === true)
-     .map((item : WishlistType) => item.product) ?? [];
+//  const activeWishlist =
+//    customer?.wishlist
+//      ?.filter((item : WishlistType) => item.status === true)
+//      .map((item : WishlistType) => item.product) ?? [];
+
+const activeWishlist =
+  ((customer?.wishlist as unknown as WishlistType[]) || [])
+    .filter((item) => (item as WishlistType).status === true)
+    .map((item) => (item as WishlistType).product) ?? [];
+
+
 
 
   return (

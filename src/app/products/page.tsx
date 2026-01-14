@@ -1,7 +1,7 @@
 import Subbanner from "@/components/globals/Subbanner";
 import MainTemplates from "@/templates/MainTemplates";
 import CategoryPage from "@/components/category/CategoryPage";
-
+export const dynamic = 'force-dynamic'; 
 const page = async ({
   searchParams,
 }: {
