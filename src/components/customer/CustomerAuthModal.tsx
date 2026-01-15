@@ -15,7 +15,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function CustomerLoginModal({ isOpen, onClose }: Props) {
+export default function CustomerAuthModal({ isOpen, onClose }: Props) {
   const OTP_COOLDOWN = 50; // 10 minutes in seconds
 
   const [cooldown, setCooldown] = useState(0);
