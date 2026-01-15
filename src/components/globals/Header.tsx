@@ -15,10 +15,10 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { ChevronDown } from "lucide-react";
-import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { useCustomer } from "@/context/CustomerContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
+import CustomerAuthModal from "../customer/CustomerAuthModal";
 
 type SearchItem = {
   type: "product" | "category" | "brand" | "attribute";
