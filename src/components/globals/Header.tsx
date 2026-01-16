@@ -107,23 +107,22 @@ const openLogin = () => {
     setShow(false);
     setQuery("");
 
+    setTimeout(() => {
     switch (item.type) {
       case "product":
         router.push(`/product/${item.slug}`);
         break;
-
       case "category":
         router.push(`/products?category=${encodeURIComponent(item.name)}`);
         break;
-
       case "brand":
         router.push(`/products?brand=${encodeURIComponent(item.name)}`);
         break;
-
       case "attribute":
         router.push(`/products?attribute=${encodeURIComponent(item.name)}`);
         break;
     }
+  }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -169,11 +168,13 @@ useEffect(() => {
     setActiveIndex(-1);
   };
 
-   document.addEventListener("pointerdown", handler, true); 
+  // ✅ Change to "click" (bubbling) + false (default)
+  document.addEventListener("click", handler, false);
   return () => {
-    document.removeEventListener("pointerdown", handler, true);
+    document.removeEventListener("click", handler, false);
   };
 }, []);
+
 
 function getName(name = "") {
   const parts = name.trim().split(/\s+/);
@@ -243,8 +244,8 @@ function getName(name = "") {
                     {suggestions.map((item, idx) => (
                       <button
                         key={`suggest-${idx}`}
-                        onClick={() => handleSearchClick(item)}
-                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
                           <Image
@@ -276,8 +277,8 @@ function getName(name = "") {
                     {results.map((item, idx) => (
                       <button
                         key={`result-${idx}`}
-                        onClick={() => handleSearchClick(item)}
-                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
                           <Image
