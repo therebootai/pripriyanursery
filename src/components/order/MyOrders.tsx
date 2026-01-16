@@ -21,7 +21,6 @@ useEffect(() => {
     const res = await axios(
       `${process.env.NEXT_PUBLIC_API_URL}/order/customers/${customer._id}`
     );
-    console.log("Fetched Orders Response:", res.data);
     if (res.data.success) {
       setOrders(res.data.data);
     }
@@ -32,7 +31,6 @@ useEffect(() => {
 
 
   useEffect(() => {
-    console.log("Orders:", orders);
   }, [orders]);
   // console.log("Orders:", orders);
 

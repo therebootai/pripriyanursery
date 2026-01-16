@@ -8,7 +8,6 @@ import CardSkeleton from "../ui/CardSkeleton";
 
 export default function HomeCategory() {
 const {categories, loading} = useCategories();
-  console.log("categories",categories);
   const pathname = usePathname();
 
   if(loading){

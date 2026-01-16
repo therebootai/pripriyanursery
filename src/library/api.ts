@@ -60,7 +60,6 @@ export const verifyOtp = async (
 export const getMe = async (): Promise<Customer> => {
   try {
     const { data } = await api.get<Customer>("/customer/me");
-    console.log("me data",data);
     return data;
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
@@ -80,7 +79,7 @@ export const getCustomer = async (): Promise<Customer> => {
 
 export const logout = async () => {
   try {
-    await api.post("/customer/logout");    
+    await api.post("/customer/logout",{}, { withCredentials: true });    
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
     throw new Error(err.response?.data?.message ?? "Failed to logout");

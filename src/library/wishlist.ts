@@ -6,6 +6,5 @@ export const toggleWishlistApi = async (customerId?: string, productId?: string)
     { productId },
     { withCredentials: true }
   );
-  console.log(res.data);
   return res.data; // { message, wishlist }
 };
