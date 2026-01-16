@@ -7,14 +7,26 @@ export const dynamic = 'force-dynamic';
 export default async function ProductDetailsPage({
   params,
 }: {
-  params: Promise<{
-    slug: string;
-  }>
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = await params;
-  const products = await fetchProducts();
+ 
 
-  const product = products.data.find((p : ProductType) => p.slug === slug);
+  const {slug} = await params;
+  let product: ProductType | null = null;
+  
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/product/${slug}`,
+      { cache: 'no-store' }
+    );
+    
+    if (!res.ok) throw new Error('Product not found');
+    
+    const data = await res.json();
+    product = data; 
+  } catch (error) {
+    console.error('Product fetch failed:', error);
+  }
 
   if (!product) {
     return (

@@ -26,9 +26,18 @@ export interface ProductVariantResponse {
 
 const ProductDetails = ({ product }: { product: ProductType }) => {
   const { customer, refreshCustomer } = useCustomer();
-const isInCart = (customer?.cart as CartType[] || []).some((item) => 
-  (item.productId as ProductType)._id === product._id
-);
+const isInCart = (customer?.cart ?? []).some((item) => {
+  if (!item.productId) return false;
+
+  const cartProductId =
+    typeof item.productId === "object"
+      ? item.productId._id
+      : item.productId;
+
+  return cartProductId === product._id;
+});
+
+
 
   const [variantLoading, setVariantLoading] = useState(false);
   const [variantProducts, setVariantProducts] = useState<ProductType[]>([]);
