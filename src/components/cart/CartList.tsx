@@ -4,7 +4,7 @@ import { useCustomer } from "@/context/CustomerContext";
 import Image from "next/image";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { CartType, ProductType } from "@/types/types";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toggleWishlistApi } from "@/library/wishlist";
 import toast from "react-hot-toast";
 
@@ -17,7 +17,6 @@ export interface CartItemProps {
 
 export default function CartList() {
   const router = useRouter();
-  const pathname = usePathname();
   const { customer, refreshCustomer} = useCustomer();
  const cart: CartType[] = (customer?.cart ?? []) as CartType[];
   const customerId = customer?._id;
@@ -148,7 +147,7 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
   };
 
   return (
-    <div className={`${pathname === '/cart' ? 'self-padding' : ''} grid grid-cols-1 lg:grid-cols-3 gap-6`}>
+    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
       <div className="lg:col-span-2 flex flex-col gap-4">
         <div className="py-4">
@@ -256,9 +255,9 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
                 ) : ("")}
                 </div>
 
-                <div className="flex justify-evenly lg:justify-start pt-4">
+                <div className="flex gap-4 justify-evenly lg:justify-start pt-4">
                   <button
-                    className={`font-bold text-sm lg:text-base text-nowrap lg:px-6 lg:py-2 ${
+                    className={`font-bold text-sm lg:text-base lg:px-6 lg:py-2 ${
                       isOutOfStock 
                         ? 'text-gray-400 cursor-not-allowed' 
                         : 'hover:text-defined-green text-defined-black'
@@ -312,7 +311,7 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
         <button
           onClick={handleCheckout}
           disabled={availableCartItems.length === 0}
-          className={`mt-6 w-full rounded-full py-2 text-sm font-semibold transition-all ${
+          className={`mt-6 w-full rounded-full py-2 font-semibold transition-all ${
             availableCartItems.length === 0
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] text-white'
