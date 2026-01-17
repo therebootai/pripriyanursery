@@ -28,7 +28,7 @@ export default function AccountShell({
 
   return (
     <MainTemplates>
-      <div className="min-h-screen md:px-8 lg:px-16 lg:py-4 max-w-300 w-full">
+      <div className="bg-gray-50 min-h-screen md:px-8 lg:px-16 lg:py-4 w-full">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Sidebar */}
           <AccountSidebar />

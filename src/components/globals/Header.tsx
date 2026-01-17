@@ -36,11 +36,8 @@ export default function Header() {
   const [results, setResults] = useState<any[]>([]);
   const [show, setShow] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-const searchRef = useRef<HTMLDivElement>(null);
 const inputRef = useRef<HTMLDivElement>(null);
 const dropdownRef = useRef<HTMLDivElement>(null);
-
-
 
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -158,18 +155,6 @@ const openLogin = () => {
 
 useEffect(() => {
   const handler = (e: MouseEvent) => {
-    if (!searchRef.current?.contains(e.target as Node)) {
-      setShow(false);
-      setActiveIndex(-1);
-    }
-  };
-
-  document.addEventListener("mousedown", handler);
-  return () => document.removeEventListener("mousedown", handler);
-}, []);
-
-useEffect(() => {
-  const handler = (e: MouseEvent) => {
     const target = e.target as Node;
 
     if (
@@ -183,13 +168,12 @@ useEffect(() => {
     setActiveIndex(-1);
   };
 
-  document.addEventListener("mousedown", handler);
+  // ✅ Change to "click" (bubbling) + false (default)
+  document.addEventListener("click", handler, false);
   return () => {
-    document.removeEventListener("mousedown", handler);
+    document.removeEventListener("click", handler, false);
   };
 }, []);
-
-
 
 
 function getName(name = "") {
@@ -225,35 +209,32 @@ function getName(name = "") {
           )}
 
           {/* SEARCH (always visible) */}
-          <div
-            ref={searchRef}
-            className="relative flex-1 max-w-md hidden sm:block"
-          >
+          <div ref={inputRef} className="flex-1 max-w-md hidden sm:block">
             <div className="relative">
               <Search
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-defined-green"
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-defined-green "
                 size={18}
               />
-
               <input
                 value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setShow(true);
-                }}
+                onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => {
-                  setShow(true);
-                  if (!query) fetchSuggestions();
+                  if (!query) {
+                    fetchSuggestions();
+                    setShow(true);
+                  }
                 }}
                 onKeyDown={handleKeyDown}
                 placeholder="Search for Products, Brands and More"
                 className="w-full rounded-full text-defined-green text-xs placeholder:text-defined-green bg-gray-100 py-4 pl-10 pr-4 outline-none"
               />
             </div>
-
             {show && (
-              <div className="absolute left-0 z-50 mt-2 w-[50rem] rounded-lg bg-white shadow-lg">
-                {/* Suggestions */}
+              <div
+                ref={dropdownRef}
+                className="absolute z-50 mt-2 w-[50rem] rounded-lg bg-white shadow-lg"
+              >
+                {/* 🔥 RANDOM / POPULAR SUGGESTIONS */}
                 {!query && suggestions.length > 0 && (
                   <>
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500">
@@ -263,8 +244,8 @@ function getName(name = "") {
                     {suggestions.map((item, idx) => (
                       <button
                         key={`suggest-${idx}`}
-                        onClick={() => handleSearchClick(item)}
-                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
                           <Image
@@ -274,6 +255,7 @@ function getName(name = "") {
                             height={32}
                           />
                         )}
+
                         <span className="text-sm text-gray-500">
                           <b>{item.name}</b>
                           <span className="ml-2 text-xs text-gray-500">
@@ -285,7 +267,7 @@ function getName(name = "") {
                   </>
                 )}
 
-                {/* Results */}
+                {/* 🔎 LIVE SEARCH RESULTS */}
                 {query && results.length > 0 && (
                   <>
                     <div className="px-4 py-2 text-xs font-semibold text-gray-500">
@@ -295,9 +277,18 @@ function getName(name = "") {
                     {results.map((item, idx) => (
                       <button
                         key={`result-${idx}`}
-                        onClick={() => handleSearchClick(item)}
-                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
+                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
+                        {item.type === "product" && item.image && (
+                          <Image
+                            src={item.image}
+                            alt=""
+                            width={32}
+                            height={32}
+                          />
+                        )}
+
                         <span className="text-sm text-gray-500">
                           <b>{item.name}</b>
                           <span className="ml-2 text-xs text-gray-500">
@@ -309,6 +300,7 @@ function getName(name = "") {
                   </>
                 )}
 
+                {/* ❌ NO RESULTS */}
                 {query && results.length === 0 && (
                   <div className="px-4 py-3 text-sm text-gray-400">
                     No results found
@@ -321,13 +313,11 @@ function getName(name = "") {
           {/* DESKTOP ACTIONS */}
           <div className="hidden md:flex items-center gap-4">
             {/* Language */}
-            <div
-              className="relative inline-block"
-              onMouseEnter={() => setLangOpen(true)}
-              onMouseLeave={() => setLangOpen(false)}
-            >
-              {/* TRIGGER */}
-              <button className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-3 text-sm font-bold text-defined-green">
+            <div className="relative">
+              <button
+                onClick={() => setLangOpen(!langOpen)}
+                className="flex items-center gap-2 rounded-full bg-gray-100 px-4 py-3 text-sm font-bold text-defined-green"
+              >
                 <Image
                   src="/assets/globals/indianflag.png"
                   alt="India"
@@ -338,9 +328,8 @@ function getName(name = "") {
                 <ChevronDown size={16} />
               </button>
 
-              {/* DROPDOWN */}
               {langOpen && (
-                <ul className="absolute left-0 top-full pt-2 w-40 rounded-md bg-white shadow-lg text-defined-green z-50">
+                <ul className="absolute mt-2 w-40 rounded-md text-defined-green  bg-white shadow-lg">
                   {languages.map((lang) => (
                     <li key={lang.code}>
                       <button
@@ -348,7 +337,7 @@ function getName(name = "") {
                           setLanguage(lang.code);
                           setLangOpen(false);
                         }}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100"
+                        className="w-full px-4 py-2 text-left text-defined-green  hover:bg-gray-100"
                       >
                         {lang.label}
                       </button>
@@ -357,39 +346,44 @@ function getName(name = "") {
                 </ul>
               )}
             </div>
-
             {/* AUTH */}
             {!customer ? (
               <button
                 onClick={() => {
-                  setIsSignupOpen(true);
-                  openLogin();
+                  setIsSignupOpen(true)
+                  openLogin()
                 }}
-                className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green flex gap-1 cursor-pointer"
+                className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green  flex gap-1 cursor-pointer"
               >
                 Login <User size={16} />
               </button>
             ) : (
-              <div
-                className="relative inline-block"
-                onMouseEnter={() => setAccountOpen(true)}
-                onMouseLeave={() => setAccountOpen(false)}
-              >
-                {/* TRIGGER */}
-                <button className="flex items-center gap-2">
-                  <div className="px-6 py-3 text-sm rounded-full text-white bg-defined-green font-bold flex items-center justify-center gap-1">
+              <div className="relative">
+                <button
+                  onClick={() => setAccountOpen(!accountOpen)}
+                  className="flex items-center gap-2"
+                >
+                  {customer ? (
+                    <>
+                      <div className="px-6 py-3 text-sm rounded-full text-white bg-defined-green font-bold flex items-center justify-center gap-1">
                     <User size={16} />
-                    {getName(customer.name)}
-                    <ChevronDown size={16} />
-                  </div>
+                        {getName(customer.name)}
+                        <ChevronDown size={16} />
+                      </div>
+                    </>
+                  ) : (
+                    <span className="text-sm font-semibold text-defined-green">
+                      User
+                      <ChevronDown size={16} />
+                    </span>
+                  )}
                 </button>
 
-                {/* DROPDOWN */}
                 {accountOpen && (
-                  <div className="absolute right-0 top-full pt-2 w-44 rounded-md bg-white shadow-lg border border-gray-200 z-50">
+                  <div className="absolute right-0 mt-2 w-44 rounded-md bg-white shadow-lg border border-gray-200">
                     <Link
                       href="/my-account"
-                      className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100"
+                      className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
                     >
                       <UserIcon size={16} /> My Account
                     </Link>
@@ -407,7 +401,6 @@ function getName(name = "") {
                 )}
               </div>
             )}
-
             <button
               onClick={() => {
                 if (!customer) {

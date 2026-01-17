@@ -13,6 +13,7 @@ export async function fetchProducts() {
   try {
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${PRODUCT_LIMIT}&page=1`,
+      { cache: "no-store" } // or revalidate
     );
 
     if (!res.ok) throw new Error("Failed to fetch");

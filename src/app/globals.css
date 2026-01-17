@@ -23,14 +23,6 @@
   width: 2px;
 }
 
-.no-scrollbar {
-  /* Firefox */
-  scrollbar-width: none;
-  
-  /* IE/Edge */
-  -ms-overflow-style: none;
-}
-
 .custom-scroll::-webkit-scrollbar-track {
   background: transparent;
 }
