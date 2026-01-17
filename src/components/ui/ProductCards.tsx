@@ -10,6 +10,7 @@ import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { ProductType } from "@/types/types";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { FaStar } from "react-icons/fa";
 
 
 
@@ -18,10 +19,7 @@ export default function ProductCards({
   name,
   price,
   coverImage,
-  images,
-  brand,
-  longDescription,
-  shortDescription,
+categoryLevels,
   mrp,
   discount,
   // averageRating,
@@ -105,6 +103,12 @@ useEffect(() => {
   setIsInCart(exists);
 }, [customer, _id]);
 
+const firstTwoNames = Array.isArray(categoryLevels)
+  ? categoryLevels
+      .map((c) => c?.name)
+      .filter(Boolean)
+  : [];
+
 
   return (
     <div className="relative rounded bg-white p-1 md:p-2 shadow-sm hover:shadow-md w-full h-auto flex flex-col justify-between">
@@ -115,12 +119,6 @@ useEffect(() => {
       ></Link>
       {/* IMAGE SECTION */}
       <div className="relative rounded bg-gray-100 overflow-hidden">
-        {/* {tag && (
-          <span className="absolute left-2 top-2 rounded-full bg-green-600 px-3 py-1 text-xs text-white">
-            {tag}
-          </span>
-        )} */}
-
         <button
           onClick={handleWishlist}
           className="absolute right-2 top-2 z-20 rounded-full bg-white/50 p-1 shadow"
@@ -150,12 +148,17 @@ useEffect(() => {
       </div>
 
       {/* CONTENT */}
-      <div className="md:p-2 pt-2 px-1 flex flex-col">
-        {/* {category && (
-          <span className="rounded-full bg-green-100 px-3 py-1 text-green-600 text-xs">
-            {category}
+      <div className="md:p-2 pt-2 px-1 flex flex-col gap-1">
+        <div className="w-full flex justify-between">
+          <span className="rounded-full w-fit bg-green-100 px-3 py-1 text-green-600 text-xs">
+            {firstTwoNames[0]}
           </span>
-        )} */}
+
+          <span className="rounded-full w-fit flex items-center px-3 py-1 gap-1 text-xs">
+            <FaStar size={12} className="text-yellow-500" />
+            <span>4.9</span>
+          </span>
+        </div>
 
         <div className="flex justify-between items-center">
           <h3 className="text-xs md:text-base font-semibold text-defined-black line-clamp-1">
@@ -183,7 +186,7 @@ useEffect(() => {
                 <ShoppingCart
                   size={10}
                   className="transition-transform duration-300 group-hover:translate-x-1"
-                />                
+                />
               </>
             ) : (
               <>

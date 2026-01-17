@@ -78,7 +78,7 @@ export type SpecificationType = {
 };
 
 export type ProductType = {
-  _id:  string ;
+  _id: string;
   productId: string;
   slug: string;
 
@@ -94,8 +94,15 @@ export type ProductType = {
   images?: ImageType[];
   video?: ImageType;
 
-  category: string;
-  subCategory: string;
+  categoryLevels: {
+    _id: string;
+    name: string;
+    type: "Main" | "Sub" | "SubSub" | string;
+    image?: {
+      public_id: string;
+      url: string;
+    };
+  }[];
   brand: string;
   attributes: string[];
   variables?: {

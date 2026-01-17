@@ -40,10 +40,17 @@ const isInCart = (customer?.cart ?? []).some((item) => {
 
 
   const [variantLoading, setVariantLoading] = useState(false);
-  const [variantProducts, setVariantProducts] = useState<ProductType[]>([]);
+  const safeCoverImage =
+    product.coverImage && product.coverImage.url ? product.coverImage : null;
 
-  const images = product.images || [];
-  const [activeImage, setActiveImage] = useState(images[0]);
+  const safeImages = Array.isArray(product.images)
+    ? product.images.filter((img) => img && typeof img === "object" && img.url)
+    : [];
+
+ const [activeImage, setActiveImage] = useState(
+   safeImages[0] ?? safeCoverImage,
+ );
+
   const [open, setOpen] = useState(false);
   const [pincode, setPincode] = useState("");
   const [checking, setChecking] = useState(false);
@@ -66,6 +73,12 @@ const isInCart = (customer?.cart ?? []).some((item) => {
 const slug = params.slug;
 
 const [stockStatus, setStockStatus] = useState<'available' | 'low' | 'out'>('available');
+
+useEffect(() => {
+  if (!activeImage?.url) {
+    setActiveImage(safeImages[0] ?? safeCoverImage);
+  }
+}, [safeImages, safeCoverImage]);
 
 // Add this useEffect after the existing useEffect for variants
 useEffect(() => {
@@ -297,6 +310,17 @@ useEffect(() => {
   loadVariants();
 }, [slug]);
 
+const validSpecifications = Array.isArray(product.specifications)
+  ? product.specifications.filter(
+      (spec) =>
+        spec &&
+        typeof spec === "object" &&
+        spec.name?.trim() &&
+        spec.details?.trim(),
+    )
+  : [];
+
+  const firstTwoNames = product.categoryLevels.map((item) => item.name);
 
   
   return (
@@ -312,50 +336,64 @@ useEffect(() => {
           <div className="lg:sticky lg:top-24 h-fit">
             <div className="flex flex-col-reverse lg:flex-row gap-4">
               {/* Thumbnails */}
-              <div className="flex flex-col gap-3">
-                <div>
-                  {images.length > 0 &&
-                    images.map((img, i) => (
+              {safeImages.length > 0 && (
+                <div className="flex flex-col gap-3">
+                  <div
+                    className="
+          flex lg:flex-col gap-3
+          max-w-2xl
+          overflow-x-auto lg:overflow-x-hidden
+          overflow-y-hidden lg:overflow-y-auto
+          max-h-none lg:max-h-[420px] no-scrollbar
+        "
+                  >
+                    {safeImages.map((img, i) => (
                       <button
                         key={i}
                         onClick={() => setActiveImage(img)}
                         className={`border rounded p-1 transition ${
-                          activeImage === img
+                          activeImage?.url === img.url
                             ? "border-green-600"
                             : "border-gray-200 hover:border-green-600"
                         }`}
                       >
                         <Image
                           src={img.url}
-                          alt={img.public_id}
+                          alt={product.name}
                           width={120}
                           height={120}
                           className="object-contain size-15 lg:size-20"
                         />
                       </button>
                     ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <div className="flex flex-col md:w-[480px] gap-2">
                 <div
                   ref={imageRef}
                   className="rounded flex justify-center items-center border border-gray-200 md:h-105 relative overflow-hidden"
                 >
-                  <Image
-                    src={activeImage?.url}
-                    alt={activeImage.public_id}
-                    width={500}
-                    height={500}
-                    className="object-cover"
-                  />
+                  {activeImage?.url ? (
+                    <Image
+                      src={activeImage.url}
+                      alt={product.name}
+                      width={500}
+                      height={500}
+                      className="object-cover"
+                    />
+                  ) : (
+                    <div className="text-gray-400 text-sm">
+                      No image available
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-4">
                   <button
                     className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-2 rounded font-medium flex items-center justify-center gap-2"
                     onClick={handleCart}
-                    
                   >
                     <ShoppingCart size={16} />
                     {isInCart ? "Go to Cart" : "Add to Cart"}
@@ -363,12 +401,12 @@ useEffect(() => {
 
                   <button
                     onClick={handleBuyNow}
-                    disabled={stockStatus === 'out'}
+                    disabled={stockStatus === "out"}
                     className={`flex-1 py-2 rounded font-medium flex items-center justify-center gap-2 transition-all ${
-      stockStatus === 'out'
-        ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
-        : "bg-green-600 hover:bg-green-700 text-white"
-    }`}
+                      stockStatus === "out"
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                        : "bg-green-600 hover:bg-green-700 text-white"
+                    }`}
                   >
                     <ShoppingBag size={18} />
                     Buy Now
@@ -383,7 +421,7 @@ useEffect(() => {
             <p className="text-sm text-green-600">
               Home ›{" "}
               <span className="text-black">
-                {/* {product.category ?? "Products"} › */}
+                {firstTwoNames[0]}, {firstTwoNames[1]} ›
               </span>{" "}
               <span className="text-gray-600"> {product.name}</span>
             </p>
@@ -420,91 +458,88 @@ useEffect(() => {
                 </span>
               </div>
             </div>
-             <div className=" flex items-center gap-2">
-    {stockStatus === 'out' && (
-      <div className="flex items-center gap-1 bg-red-100 text-red-700 px-5 py-2 rounded-full text-sm font-medium">
-        <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-        Out of Stock
-      </div>
-    )}
-    {stockStatus === 'low' && (
-      <div className="flex items-center gap-1 bg-orange-100 text-orange-700 px-5 py-2 rounded-full text-sm font-medium">
-        <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
-        Only {currentProduct.stock} left!
-      </div>
-    )}
-    {stockStatus === 'available' && (
-      <div className="flex items-center gap-1 bg-green-100 text-green-700 px-5 py-2 rounded-full text-sm font-medium">
-        <div className="w-2 h-2 bg-green-500 rounded-full" />
-        {currentProduct.stock} in stock
-      </div>
-    )}
-  </div>
+            <div className=" flex items-center gap-2">
+              {stockStatus === "out" && (
+                <div className="flex items-center gap-1 bg-red-100 text-red-700 px-5 py-2 rounded-full text-sm font-medium">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  Out of Stock
+                </div>
+              )}
+              {stockStatus === "low" && (
+                <div className="flex items-center gap-1 bg-orange-100 text-orange-700 px-5 py-2 rounded-full text-sm font-medium">
+                  <div className="w-2 h-2 bg-orange-500 rounded-full animate-pulse" />
+                  Only {currentProduct.stock} left!
+                </div>
+              )}
+              {stockStatus === "available" && (
+                <div className="flex items-center gap-1 bg-green-100 text-green-700 px-5 py-2 rounded-full text-sm font-medium">
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                  {currentProduct.stock} in stock
+                </div>
+              )}
+            </div>
 
-{showVariants && (
-  <div className="space-y-6 mb-4">
-    {hasColor && (
-      <div>
-        <p className="font-medium mb-2">Color</p>
+            {showVariants && (
+              <div className="space-y-6 mb-4">
+                {hasColor && (
+                  <div>
+                    <p className="font-medium mb-2">Color</p>
 
-        <div className="flex gap-3">
-          {Object.entries(colorGroups).map(([color, products]) => {
-            const variant = products[0]; // representative
+                    <div className="flex gap-3">
+                      {Object.entries(colorGroups).map(([color, products]) => {
+                        const variant = products[0]; // representative
 
-            return (
-              <Link
-                key={variant._id}
-                href={`/product/${variant.slug}`}
-                className={`border rounded-md p-1 size-20 text-center ${
-                  variant._id === currentProduct._id
-                    ? "border-green-600"
-                    : "border-gray-200 hover:border-green-600"
-                }`}
-              >
-                <Image
-                  src={variant.coverImage.url}
-                  alt={color}
-                  width={60}
-                  height={60}
-                  className="object-cover mx-auto w-full h-full"
-                />
-                <p className="text-xs mt-1">{color}</p>
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    )}
-    {hasSize && (
-      <div>
-        <p className="font-medium mb-2">Size</p>
+                        return (
+                          <Link
+                            key={variant._id}
+                            href={`/product/${variant.slug}`}
+                            className={`border rounded-md p-1 size-20 text-center ${
+                              variant._id === currentProduct._id
+                                ? "border-green-600"
+                                : "border-gray-200 hover:border-green-600"
+                            }`}
+                          >
+                            <Image
+                              src={variant.coverImage.url}
+                              alt={color}
+                              width={60}
+                              height={60}
+                              className="object-cover mx-auto w-full h-full"
+                            />
+                            <p className="text-xs mt-1">{color}</p>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+                {hasSize && (
+                  <div>
+                    <p className="font-medium mb-2">Size</p>
 
-        <div className="flex gap-2">
-          {Object.entries(sizeGroups).map(([size, products]) => {
-            const variant = products[0];
+                    <div className="flex gap-2">
+                      {Object.entries(sizeGroups).map(([size, products]) => {
+                        const variant = products[0];
 
-            return (
-              <Link
-                key={variant._id}
-                href={`/product/${variant.slug}`}
-                className={`px-4 py-2 border rounded-md text-sm ${
-                  variant._id === currentProduct._id
-                    ? "border-green-600 text-green-600"
-                    : "border-gray-300 hover:border-green-600"
-                }`}
-              >
-                {size}
-              </Link>
-            );
-          })}
-        </div>
-      </div>
-    )}
-
-  </div>
-)}
-
-
+                        return (
+                          <Link
+                            key={variant._id}
+                            href={`/product/${variant.slug}`}
+                            className={`px-4 py-2 border rounded-md text-sm ${
+                              variant._id === currentProduct._id
+                                ? "border-green-600 text-green-600"
+                                : "border-gray-300 hover:border-green-600"
+                            }`}
+                          >
+                            {size}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Pincode */}
             <div className="flex items-center gap-2 w-full">
@@ -561,7 +596,6 @@ useEffect(() => {
               </ul>
             </div>
 
-
             {/* Trust Icons */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center mb-6">
               <Trust icon={<Headphones />} label="24x7 Support" />
@@ -586,7 +620,7 @@ useEffect(() => {
               </div>
             )}
 
-            {product.specifications && (
+            {validSpecifications.length > 0 && (
               <div className="pt-6">
                 {/* ================= MASKED CONTENT ================= */}
                 <div
@@ -611,7 +645,7 @@ useEffect(() => {
                                 {spec.details}
                               </td>
                             </tr>
-                          )
+                          ),
                         )}
                       </tbody>
                     </table>
@@ -663,12 +697,12 @@ useEffect(() => {
 
           <button
             onClick={handleBuyNow}
-              disabled={stockStatus === 'out'}
+            disabled={stockStatus === "out"}
             className={`flex-1 py-3 rounded font-medium flex items-center justify-center gap-2 transition-all ${
-        stockStatus === 'out'
-          ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
-          : "bg-green-600 hover:bg-green-700 text-white"
-      }`}
+              stockStatus === "out"
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                : "bg-green-600 hover:bg-green-700 text-white"
+            }`}
           >
             <ShoppingBag size={18} />
             Buy Now

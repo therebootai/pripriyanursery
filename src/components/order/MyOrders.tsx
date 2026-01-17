@@ -54,8 +54,12 @@ useEffect(() => {
 
   return (
     <div className="space-y-6">
-      {orders?.map((order) => (
-        <div
+      {orders.map((order) => {
+        const product = order.product;
+
+        if (!product) return null; 
+        return (
+          <div
           key={order.orderId}
           className="border border-gray-200 rounded-md bg-white"
         >
@@ -96,81 +100,81 @@ useEffect(() => {
 
           {/* ITEMS */}
 
-            <div
-              key={order.product._id}
-              className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-t border-gray-200"
-            >
-              {/* LEFT */}
-              <div className="flex flex-col lg:flex-row items-center justify-center gap-4">
-                <div className="flex items-center justify-center border border-gray-200 rounded ">
-                  <Image
-                    src={order.product.coverImage.url}
-                    alt={order.product.name}
-                    width={120}
-                    height={120}
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-
-                <div>
-                  <p className="font-medium text-gray-800 max-w-md">
-                    {order.product.name}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    Delivered on {order.shipping?.expectedDeliveryDate || "N/A"}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    The package was handed over to the resident.
-                  </p>
-
-                  <div className="flex gap-3 justify-evenly mt-4">
-                    <Link
-                      href="/checkout"
-                      className="lg:px-4 lg:py-2 p-2 text-xs lg:text-sm bg-green-600 text-white rounded hover:bg-green-700 w-full text-center"
-                    >
-                      Buy Again
-                    </Link>
-
-                    <Link
-                      href={`/product/${order.product.slug}`}
-                      className="lg:px-4 lg:py-2 p-2 text-xs lg:text-sm  bg-yellow-400 rounded hover:bg-yellow-500 w-full text-center"
-                    >
-                      View Your Item
-                    </Link>
-                  </div>
-                </div>
+          <div
+            key={order.product._id}
+            className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-t border-gray-200"
+          >
+            {/* LEFT */}
+            <div className="flex flex-col lg:flex-row items-center justify-center gap-4">
+              <div className="flex flex-col items-center justify-center gap-4 rounded ">
+                 <p className="text-sm text-gray-600 mt-1">
+                  Delivered on {order.shipping?.expectedDeliveryDate || "N/A"}
+                </p>
+                <Image
+                  src={order.product?.coverImage?.url || "/placeholder.png"}
+                  alt={order.product?.name || "Product Image"}
+                  width={120}
+                  height={120}
+                  className="object-cover w-full h-full"
+                />
               </div>
 
-              {/* RIGHT ACTIONS */}
-              <div className="flex flex-col gap-2 w-full md:w-56">
-                <button
-                  // onClick={() => {
-                  //   setTrackStatus(order.status);
-                  //   setTrackerOpen(true);
-                  // }}
-                  className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                >
-                  Track Your Order
-                </button>
+              <div>
+                <p className="font-medium text-gray-800 max-w-md">
+                  {order.product.name}
+                </p>               
+                <p className="text-sm text-gray-500">
+                  The package was handed over to the resident.
+                </p>
 
-                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                  Get Support
-                </button>
+                <div className="flex gap-3 justify-evenly mt-4">
+                  <Link
+                    href="/checkout"
+                    className="lg:px-4 lg:py-2 p-2 text-xs lg:text-sm bg-green-600 text-white rounded hover:bg-green-700 w-full text-center"
+                  >
+                    Buy Again
+                  </Link>
 
-                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                  View Return / Replacement
-                </button>
-
-                <Link href="/review">
-                  <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                    Write a Review
-                  </button>
-                </Link>
+                  <Link
+                    href={`/product/${order.product.slug}`}
+                    className="lg:px-4 lg:py-2 p-2 text-xs lg:text-sm  bg-yellow-400 rounded hover:bg-yellow-500 w-full text-center"
+                  >
+                    View Your Item
+                  </Link>
+                </div>
               </div>
             </div>
 
+            {/* RIGHT ACTIONS */}
+            <div className="flex flex-col gap-2 w-full md:w-56">
+              <button
+                // onClick={() => {
+                //   setTrackStatus(order.status);
+                //   setTrackerOpen(true);
+                // }}
+                className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+              >
+                Track Your Order
+              </button>
+
+              <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                Get Support
+              </button>
+
+              <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                View Return / Replacement
+              </button>
+
+              <Link href="/review">
+                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                  Write a Review
+                </button>
+              </Link>
+            </div>
+          </div>
         </div>
-      ))}
+        )
+      })}    
 
       {/* TRACKER MODAL */}
       {/* <OrderTracker
