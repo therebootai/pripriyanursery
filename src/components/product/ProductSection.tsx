@@ -1,7 +1,7 @@
 "use client"
 import { useSearchParams } from "next/navigation";
 import ProductCards from '@/components/ui/ProductCards'
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useInView } from 'react-intersection-observer';
 import CardSkeleton from '../ui/CardSkeleton';
 import { ProductType } from "@/types/types";
@@ -21,16 +21,11 @@ export default function ProductSection({
     totalPages: number;
   }
 }) {
-  const searchParams = useSearchParams();
   const [page, setPage] = useState(1);
   const { ref, inView } = useInView({ threshold: 0.1 });
   const [allProducts, setAllProducts] = useState<ProductType[]>([]);
-  const displayProducts = allProducts;
   
-
-
-
-useEffect(() => {
+useCallback(() => {
   setAllProducts(products);
   setPage(1);
 }, [products]);
@@ -56,6 +51,7 @@ const loadMore = async () => {
     }
   };
 
+  
   useEffect(() => {
     if (inView) loadMore();
   }, [inView]);  
@@ -65,9 +61,9 @@ const loadMore = async () => {
       <div className="self-padding flex flex-col gap-6">
         <h2 className=" md:text-2xl font-bold text-defined-black">{title}</h2>
         <div className="grid gap-1 md:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {displayProducts.map((p,index) => (
+          {allProducts.map((p, index) => (
             <ProductCards
-               key={`${p._id}-${index}`}
+              key={`${p._id}-${index}`}
               _id={p._id}
               productId={p.productId}
               attributes={p.attributes}
@@ -89,28 +85,26 @@ const loadMore = async () => {
               specifications={p.specifications}
               video={p.video}
               status={p.status}
-              category={p.category}
-              subCategory={p.subCategory}
+              categoryLevels={p.categoryLevels}
               createdAt={p.createdAt}
               updatedAt={p.updatedAt}
               isVariant={p.isVariant}
               parentProduct={p.parentProduct}
-              variants={p.variants}              
+              variants={p.variants}
               slug={p.slug}
             />
           ))}
         </div>
 
         {/* Infinite Scroll Loader */}
-        {pagination.totalPages > page && (
+        {pagination?.totalPages > page && (
           <div
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4 gap-6"
             ref={ref}
           >
             <CardSkeleton />
             <CardSkeleton />
-            <CardSkeleton />            
-                        
+            <CardSkeleton />
           </div>
         )}
       </div>
