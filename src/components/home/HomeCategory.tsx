@@ -51,7 +51,8 @@ const {categories, loading} = useCategories();
             <React.Fragment key={cat.parent.id}>
               {/* Parent card */}
               <Link
-                href={`/products?category=${cat.parent.name}`}
+              
+                href={`/products?category=${encodeURIComponent(cat.parent.name)}`}
                 className="text-center group"
               >
                 <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
@@ -71,7 +72,7 @@ const {categories, loading} = useCategories();
               {cat.subCategories.map((subCat) => (
                 <Link
                   key={subCat.id ?? subCat.name}
-                  href={`/products?category=${subCat.name}`}
+                  href={`/products?category=${encodeURIComponent(subCat.name)}`}
                   className="text-center group"
                 >
                   <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">

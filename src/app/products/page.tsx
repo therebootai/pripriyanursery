@@ -7,14 +7,17 @@ const page = async ({
 }: {
   searchParams: Promise<{
     category?: string;
+       brand?: string;
+    attribute?: string;
   }>;
 }) => {
-  const { category } = await searchParams;
+  const { category , brand, attribute} = await searchParams;
 
   return (
     <MainTemplates>
-      <Subbanner />
-      <CategoryPage activeCategory={category || ""} />
+      <Subbanner /> 
+      <CategoryPage activeCategory={category || ""} activeBrand={brand || ""}
+        activeAttribute={attribute || ""} />
     </MainTemplates>
   );
 };

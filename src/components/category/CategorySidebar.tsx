@@ -19,13 +19,13 @@ export default function CategorySidebar({
 
   return (
     <aside className="sticky top-24 h-[calc(100vh-6rem)] overflow-hidden">
-      <div className="h-full overflow-y-auto pr-2 custom-scroll space-y-6">
+      <div className="h-full overflow-y-auto pr-2 custom-scroll flex flex-col gap-1 md:gap-3">
         {categories?.map((group) => (
           <div key={group.parent.id} className="">
             {/* Parent Category */}
             <button
               onClick={() => handleClick(group.parent.name)}
-              className={`w-full lg:w-fit flex flex-col md:flex-row max-md:justify-center items-center md:gap-3 gap-1 rounded-md p-1 text-left
+              className={`w-full lg:w-full flex flex-col md:flex-row max-md:justify-center items-center md:gap-3 gap-1 rounded-md p-1 text-left
               ${
                 activeCategory === group.parent.name
                   ? "bg-defined-green/30"
@@ -47,7 +47,7 @@ export default function CategorySidebar({
             </button>
 
             {/* Subcategories */}
-            <div className=" md:pl-4">
+            <div className=" ">
               {group.subCategories.map((sub) => (
                 <button
                   key={sub.id ?? sub.name}
@@ -60,7 +60,7 @@ export default function CategorySidebar({
                   }
                 `}
                 >
-                  <div className="relative size-12 md:size-10 shrink-0">
+                  <div className="relative size-12 md:size-12 shrink-0">
                     <Image
                       src={sub.image}
                       alt={sub.name}
