@@ -5,7 +5,7 @@ import { ShoppingCart, Heart,  } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCustomer } from "@/context/CustomerContext";
-import { toggleWishlistApi } from "@/library/wishlist";
+import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { ProductType } from "@/types/types";
 import toast from "react-hot-toast";
@@ -47,7 +47,15 @@ const handleWishlist = async () => {
   setIsWishlisted((prev) => !prev);
 
   try {
-    const res = await toggleWishlistApi(customerId, _id);
+      if (isWishlisted) {
+      // 🔴 Explicit remove
+      await removeWishlistApi(customerId, _id);
+      toast.success("Removed from wishlist");
+    } else {
+      // 🟢 Add
+      await toggleWishlistApi(customerId, _id);
+      toast.success("Added to wishlist");
+    }
 
     await refreshCustomer();
   } catch (err) {

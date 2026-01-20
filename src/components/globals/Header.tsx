@@ -168,10 +168,9 @@ useEffect(() => {
     setActiveIndex(-1);
   };
 
-  // ✅ Change to "click" (bubbling) + false (default)
-  document.addEventListener("click", handler, false);
+ document.addEventListener("mousedown", handler);
   return () => {
-    document.removeEventListener("click", handler, false);
+    document.removeEventListener("mousedown", handler);
   };
 }, []);
 
@@ -244,7 +243,7 @@ function getName(name = "") {
                     {suggestions.map((item, idx) => (
                       <button
                         key={`suggest-${idx}`}
-                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item)}}
                         className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
@@ -277,7 +276,7 @@ function getName(name = "") {
                     {results.map((item, idx) => (
                       <button
                         key={`result-${idx}`}
-                        onClick={(e) => { e.stopPropagation(); handleSearchClick(item)}}
+                        onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item)}}
                         className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (

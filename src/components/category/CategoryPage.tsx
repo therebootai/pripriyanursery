@@ -9,7 +9,15 @@ import { useInView } from "react-intersection-observer";
 import CardSkeleton from "@/components/ui/CardSkeleton";
 import { ListFilterPlus } from "lucide-react";
 
-export default function CategoryPage({ activeCategory }: { activeCategory: string }) {
+export default function CategoryPage({
+  activeCategory,
+  activeBrand,
+  activeAttribute,
+}: {
+  activeCategory: string;
+  activeBrand: string;
+  activeAttribute: string;
+}) {
    const { categories } = useCategories();
   const [sortBy, setSortBy] = useState<
     "popularity" | "low-high" | "high-low" | "newest"
@@ -20,6 +28,8 @@ export default function CategoryPage({ activeCategory }: { activeCategory: strin
    const [loading, setLoading] = useState(true);
   const { ref, inView } = useInView({ threshold: 0.1 });
   const LIMIT = 10;
+  const [hasMore, setHasMore] = useState(true);
+  const [fetchingMore, setFetchingMore] = useState(false);
 
   const sortArr = [
     {
@@ -40,30 +50,75 @@ export default function CategoryPage({ activeCategory }: { activeCategory: strin
     },
   ];
 
-    useEffect(() => {
-      const fetchProducts = async () => {
-        setLoading(true);
+const fetchProducts = async (pageNumber = 1) => {
+if (pageNumber === 1) {
+      setLoading(true);
+    } else {
+      setFetchingMore(true);
+    }
 
         try {
-          const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/product`);
+              const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/product`);
+    url.searchParams.set("page", String(pageNumber));
+    url.searchParams.set("limit", String(LIMIT));
+
 
           if (activeCategory) {
             url.searchParams.append("category", activeCategory);
           }
 
+                if (activeBrand) {
+        url.searchParams.append("brand", activeBrand);
+      }
+
+      if (activeAttribute) {
+        url.searchParams.append("attribute", activeAttribute);
+      }
+
+
+
           const res = await fetch(url.toString(), { cache: "no-store" });
           const data = await res.json();
+          const newProducts = data?.data || [];
+      const totalPages = data?.pagination?.totalPages || 1;
 
-          setProducts(data?.data || []);
-        } catch {
-          setProducts([]);
-        } finally {
-          setLoading(false);
-        }
+       if (pageNumber === 1) {
+        setProducts(newProducts);
+      } else {
+        setProducts((prev) => {
+          const existingIds = new Set(prev.map((p) => p._id));
+          const uniqueNew = newProducts.filter(
+            (p: ProductType) => !existingIds.has(p._id)
+          );
+          return [...prev, ...uniqueNew];
+        });
+      }
+
+      setHasMore(pageNumber < totalPages);
+    } catch (error) {
+      console.error(error);
+      if (pageNumber === 1) setProducts([]);
+    } finally {
+      setLoading(false);
+      setFetchingMore(false);}
       };
 
-      fetchProducts();
-    }, [activeCategory]);
+useEffect(() => {
+  setPage(1);
+setHasMore(true);
+setProducts([]);
+  fetchProducts(1);
+}, [activeCategory, activeBrand, activeAttribute]);
+
+
+useEffect(() => {
+    // Only fetch if looking at bottom, not currently loading, and has more data
+    if (inView && !loading && !fetchingMore && hasMore) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchProducts(nextPage);
+    }
+  }, [inView, loading, fetchingMore, hasMore]);
 
   const sortedProducts = useMemo(() => {
     const items = [...products];
@@ -96,24 +151,9 @@ export default function CategoryPage({ activeCategory }: { activeCategory: strin
         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
     }`;
 
-  useEffect(() => {
-    setDisplayProducts(sortedProducts.slice(0, LIMIT));
-    setPage(1);
-  }, [sortedProducts]);
 
-  const loadMore = () => {
-    const nextPage = page + 1;
-    const nextItems = sortedProducts.slice(page * LIMIT, nextPage * LIMIT);
 
-    if (nextItems.length === 0) return;
 
-    setDisplayProducts((prev) => [...prev, ...nextItems]);
-    setPage(nextPage);
-  };
-
-  useEffect(() => {
-    if (inView) loadMore();
-  }, [inView]);
 
   return (
     <section className="md:py-8 mx-auto max-w-300 md:px-8 flex flex-col md:gap-6">
@@ -169,27 +209,38 @@ export default function CategoryPage({ activeCategory }: { activeCategory: strin
               ))}
           </div>
 
-          <div className="grid grid-cols-2 gap-1 md:gap-4 md:grid-cols-3 lg:grid-cols-3">
-            {sortedProducts.length > 0 ? (
-              displayProducts.map((item) => (
-                <ProductCard key={item._id} {...item} _id={item._id} />
-              ))
-            ) : (
-              <p className="text-center py-20 text-gray-500 w-full">
-                No products found
-              </p>
+         <div className="grid grid-cols-2 gap-1 md:gap-4 md:grid-cols-3 lg:grid-cols-3">
+  {loading ? (
+    <>
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+    </>
+  ) : sortedProducts.length > 0 ? (
+    sortedProducts.map((item) => (
+      <ProductCard key={item._id} {...item} _id={item._id} />
+    ))
+  ) : (
+    <p className="col-span-full text-center py-20 text-gray-500">
+      No products found
+    </p>
+  )}
+
+
+</div>
+
+  {!loading && hasMore && (
+               <div ref={ref} className="grid grid-cols-3 gap-4">
+                 
+      <CardSkeleton />
+      <CardSkeleton />
+      <CardSkeleton />
+               </div>
             )}
-          </div>
-          {displayProducts.length < sortedProducts.length && (
-            <div
-              ref={ref}
-              className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
-            >
-              <CardSkeleton />
-              <CardSkeleton />
-              <CardSkeleton />
-            </div>
-          )}
+
         </div>
       </div>
     </section>

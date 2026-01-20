@@ -343,8 +343,8 @@ useEffect(() => {
                   className="rounded flex justify-center items-center border border-gray-200 md:h-105 relative overflow-hidden"
                 >
                   <Image
-                    src={activeImage?.url}
-                    alt={activeImage.public_id}
+                    src={activeImage.url}
+                    alt={activeImage?.public_id || "product details"}
                     width={500}
                     height={500}
                     className="object-cover"

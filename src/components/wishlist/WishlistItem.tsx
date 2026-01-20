@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 import { ProductType } from "@/types/types";
-import { toggleWishlistApi } from "@/library/wishlist";
+import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import { useCustomer } from "@/context/CustomerContext";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
@@ -23,7 +23,7 @@ export default function WishlistItem({item} : {item: ProductType}) {
 
   
     try {
-      await toggleWishlistApi(customerId, item._id);
+      await removeWishlistApi(customerId, item._id);
      await refreshCustomer();
       toast.success("Removed from wishlist");
     } catch (err) {
