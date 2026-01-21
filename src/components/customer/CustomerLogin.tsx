@@ -1,14 +1,20 @@
-'use client'
+"use client";
 
-import Image from 'next/image'
-import { X } from 'lucide-react'
+import Image from "next/image";
+import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { sendOtp, verifyOtp } from "@/library/api";
 import { useRouter } from "next/navigation";
 
-
-export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen: boolean, onClose: () => void, openSignup: () => void }) {
-  
+export default function CustomerLogin({
+  isOpen,
+  onClose,
+  openSignup,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  openSignup: () => void;
+}) {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"MOBILE" | "OTP">("OTP");
@@ -16,7 +22,6 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
 
   const router = useRouter();
 
- 
   const handleSendOtp = async () => {
     if (mobile.length !== 10) return;
 
@@ -59,9 +64,7 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
     };
   }, [isOpen]);
 
-  if (!isOpen) return null
-
-  
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
@@ -116,7 +119,7 @@ export default function CustomerLogin({ isOpen, onClose, openSignup } : { isOpen
                 <path
                   d="M145.87 218.82H76.5966C75.6843 218.825 74.8073 218.468 74.1579 217.827C73.5086 217.186 73.1399 216.313 73.1328 215.4V60.7233C73.1399 59.8108 73.5085 58.9383 74.1578 58.2972C74.8071 57.6562 75.684 57.2989 76.5963 57.3037H145.87C146.782 57.2989 147.659 57.6562 148.308 58.2972C148.958 58.9383 149.326 59.8108 149.333 60.7233V215.4C149.326 216.313 148.958 217.186 148.308 217.827C147.659 218.468 146.782 218.825 145.87 218.82Z"
                   fill="white"
-                  fill-opacity="0.66"
+                  fillOpacity="0.66"
                 />
                 <path
                   d="M149.334 107.352H73.1328V108.418H149.334V107.352Z"
