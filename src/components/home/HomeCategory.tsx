@@ -13,7 +13,7 @@ const {categories, loading} = useCategories();
   if(loading){
     return (
       <div className="py-5">
-        <div className="mx-auto max-w-[1200px] px-4 lg:px-8">
+        <div className="self-padding ">
           <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
             <CardSkeleton />
             <CardSkeleton />
@@ -27,7 +27,7 @@ const {categories, loading} = useCategories();
 
   return (
     <section className="py-2 md:py-5">
-      <div className="mx-auto max-w-[1200px] px-4 lg:px-8">
+      <div className="self-padding ">
         {/* HEADER ROW */}
 
         {pathname !== "/categories" && (

@@ -73,7 +73,7 @@ const handleCart = async () => {
 
   try {
     if (isInCart) {
-       router.push('/cart');
+       router.push('/my-cart');
        return
     } else {
       await addToCartApi(customerId, _id, undefined, 1, price);
@@ -146,7 +146,7 @@ useEffect(() => {
           />
         </button>
 
-        <div className="h-[8rem] lg:h-[14rem]">
+        <div className="h-[8rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem]">
           <Image
             src={coverImage.url}
             alt={coverImage.public_id}
@@ -158,7 +158,7 @@ useEffect(() => {
       </div>
 
       {/* CONTENT */}
-      <div className="md:p-2 pt-2 px-1 flex flex-col">
+      <div className=" pt-2 flex flex-col">
         {/* {category && (
           <span className="rounded-full bg-green-100 px-3 py-1 text-green-600 text-xs">
             {category}
@@ -166,7 +166,7 @@ useEffect(() => {
         )} */}
 
         <div className="flex justify-between items-center">
-          <h3 className="text-xs md:text-base font-semibold text-defined-black line-clamp-1">
+          <h3 className="text-xs md:text-sm  font-semibold text-defined-black line-clamp-1">
             {name}
           </h3>
 
@@ -221,10 +221,10 @@ useEffect(() => {
         </div>
 
         {/* BUTTONS */}
-        <div className="mt-4 hidden md:flex justify-between items-center">
+        <div className="mt-2 hidden md:flex justify-between items-center">
           <Link
             href={`/product/${slug}`}
-            className="text-xs  text-green-600 border rounded-full px-4 py-2 hover:bg-green-50"
+            className="text-xs  text-green-600 border rounded-full px-3 py-2 hover:bg-green-50"
           >
             More Info
           </Link>
@@ -234,8 +234,8 @@ useEffect(() => {
             // disabled={isInCart}
             className={`cursor-pointer relative z-20 
              group flex items-center justify-center gap-2
-              text-xs sm:text-sm font-semibold
-              px-4 sm:px-5 py-2
+              text-xs  font-semibold
+              px-3  py-2
               rounded-full
               transition-all duration-300 ease-in-out
               ${
@@ -248,7 +248,7 @@ useEffect(() => {
             {isInCart ? (
               <>
                 <ShoppingCart
-                  size={14}
+                  size={12}
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
                 <span>Go to Cart</span>
@@ -256,7 +256,7 @@ useEffect(() => {
             ) : (
               <>
                 <ShoppingCart
-                  size={14}
+                  size={12}
                   className="transition-transform duration-300 group-hover:translate-x-1"
                 />
                 <span>Add to Cart</span>

@@ -133,7 +133,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
       >
         <div
           ref={mainRef}
-          className="relative w-full h-[20rem] md:h-[30rem] lg:h-[28rem] overflow-hidden border border-gray-50"
+          className="relative w-full h-[20rem] md:h-[30rem] lg:h-[26rem] xl:h-[28rem] overflow-hidden border border-gray-50"
           onMouseEnter={() => setIsZoomed(true)}
           onMouseLeave={() => setIsZoomed(false)}
           onMouseMove={handleMouseMove}
@@ -165,7 +165,6 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
             alt="Main Image"
             fill
             priority
-            sizes="(max-width:768px) 100vw, 50vw"
             className="object-cover"
           />
         </div>
@@ -173,7 +172,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
         {/* ---------- Zoom Preview ---------- */}
         {isZoomed && (
           <div
-            className="hidden md:block absolute left-[105%] top-0 size-[34rem]  bg-white shadow-lg z-[500]"
+            className="hidden md:block absolute left-[105%] top-0 xlg:size-[30rem] lg:size-[28rem] xl:size-[34rem]  bg-white shadow-lg z-[500]"
             style={{
               backgroundImage: `url(${images[mainImageIndex]})`,
               backgroundRepeat: "no-repeat",
