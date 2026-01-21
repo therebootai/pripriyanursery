@@ -7,6 +7,7 @@ import { CartType, ProductType } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { toggleWishlistApi } from "@/library/wishlist";
 import toast from "react-hot-toast";
+import { useMemo } from "react";
 
 export interface CartItemProps {  
   productId: string | ProductType;
@@ -146,6 +147,11 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
     router.push("/checkout?mode=cart");
   };
 
+  
+const reversedCart = useMemo(() => {
+  return [...cart].reverse();
+}, [cart]);
+
   return (
     <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
@@ -161,7 +167,7 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
           )}
         </div>
         
-        {cart.reverse().map((item: CartType) => {
+        {reversedCart.map((item: CartType) => {
           const stockStatus = getStockStatus(item);
           const stock = (item.productId as ProductType).stock || 0;
           const isOutOfStock = stockStatus === 'out';
@@ -169,7 +175,7 @@ const totalItems = availableCartItems.reduce((a: number, b: CartType) => a + b.q
 
           return (
             <div
-              key={(item.productId as ProductType)._id}
+                key={`${(item.productId as ProductType)._id}-${(item.variantId as ProductType)?._id ?? "no-variant"}`}
               className={`flex flex-col md:flex-row bg-white border rounded-md p-4 gap-4 ${
                 isOutOfStock ? 'border-red-200 bg-red-50' : 'border-gray-200'
               }`}
