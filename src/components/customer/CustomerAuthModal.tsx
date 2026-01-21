@@ -119,6 +119,14 @@ const { refreshCustomer } = useCustomer();
    }
  };
 
+ const resetOtpFlow = () => {
+  setMobile("");
+  setOtp("");
+  setStep("MOBILE");
+  setCooldown(0);
+  localStorage.removeItem("otpCooldownUntil");
+};
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div
@@ -354,7 +362,7 @@ const { refreshCustomer } = useCustomer();
                 </button>
 
                 <button
-                  onClick={() => setStep("MOBILE")}
+                  onClick={resetOtpFlow}
                   className="block text-sm text-green-600 mt-4 underline text-center"
                 >
                   Change mobile number
