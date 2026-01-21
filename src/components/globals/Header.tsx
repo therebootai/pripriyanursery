@@ -191,7 +191,7 @@ function getName(name = "") {
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
-      <div className="mx-auto max-w-[1200px] md:px-8 px-4">
+      <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-4">
         {/* TOP BAR */}
         <div className="flex h-14 md:h-20 items-center justify-between gap-3">
           {/* Logo */}
@@ -442,7 +442,7 @@ function getName(name = "") {
                   setIsSignupOpen(true);
                   return;
                 }
-                router.push("/cart");
+                router.push("/my-cart");
               }}
               className="cursor-pointer rounded-full bg-gray-100 p-3 text-sm text-defined-green  font-bold flex gap-1"
             >
@@ -490,7 +490,7 @@ function getName(name = "") {
                     setIsSignupOpen(true);
                     return;
                   }
-                  router.push("/cart");
+                  router.push("/my-cart");
                 }}
                 className="relative text-defined-green"
               >
@@ -562,7 +562,7 @@ function getName(name = "") {
             )}
 
             <Link
-              href="/cart"
+              href="/my-cart"
               className="block rounded-lg bg-gray-100 py-3 text-center"
             >
               Cart

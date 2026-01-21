@@ -14,7 +14,7 @@ export default async function CategoriesPage() {
       <Suspense fallback={<div>loading...</div>}>
 
       <section className="py-6">
-        <div className="mx-auto max-w-[1200px] px-4">
+        <div className=" self-padding">
           <HomeCategory />
         </div>
       </section>

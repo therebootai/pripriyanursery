@@ -10,7 +10,7 @@ export default function ImageSection1() {
 
   return (
     <section className="w-full py-12">
-      <div className="mx-auto max-w-[1200px] md:px-8 px-4">
+      <div className=" self-padding">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {images.map((src, index) => (
             <div

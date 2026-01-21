@@ -64,7 +64,7 @@ const loadMore = async () => {
     <section className="pt-2 pb-6">
       <div className="self-padding flex flex-col gap-6">
         <h2 className=" md:text-2xl font-bold text-defined-black">{title}</h2>
-        <div className="grid gap-1 md:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className="grid gap-1 md:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 xxxl:grid-cols-6">
           {displayProducts.map((p,index) => (
             <ProductCards
                key={`${p._id}-${index}`}

@@ -126,7 +126,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
       return;
     }
     if (isInCart) {
-      router.push("/cart");
+      router.push("/my-cart");
       return;
     }
 
@@ -347,7 +347,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
       <section className="w-full">
         <div className=" flex flex-col lg:flex-row gap-4 md:gap-10">
-          <div className="lg:sticky lg:top-24 h-fit w-full lg:w-[50%] z-[10]">
+          <div className="lg:sticky lg:top-24 h-fit w-full lg:w-[50%] xl:w-[45%] xxl:w-[40%] z-[10]">
             <div className="flex flex-col w-full gap-2">
               <SinglePageImagesComponent
                 images={productImages}
@@ -381,7 +381,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 w-full lg:w-[50%]">
+          <div className="flex flex-col gap-3 w-full lg:w-[50%] xl:w-[55%] xxl:w-[60%]">
             {/* Breadcrumb */}
             <p className="text-sm text-green-600">
               Home ›{" "}
