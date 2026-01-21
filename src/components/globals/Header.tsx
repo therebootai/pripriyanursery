@@ -19,6 +19,7 @@ import { useCustomer } from "@/context/CustomerContext";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
+import { BsBoxSeam, BsBoxSeamFill } from "react-icons/bs";
 
 type SearchItem = {
   type: "product" | "category" | "brand" | "attribute";
@@ -386,6 +387,24 @@ function getName(name = "") {
                     >
                       <UserIcon size={16} /> My Account
                     </Link>
+                      <Link
+                  href="/my-orders"
+                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                >
+                 <BsBoxSeam  size={16} /> My Orders
+                </Link>
+                 <Link
+                  href="/my-wishlist"
+                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                >
+                 <Heart size={16} /> My Wishlist
+                </Link>
+                  <Link
+                  href="/my-cart"
+                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                >
+                <ShoppingCart size={16} />  My Cart
+                </Link>
 
                     <button
                       onClick={async () => {
@@ -528,6 +547,7 @@ function getName(name = "") {
                 >
                   My Account
                 </Link>
+               
 
                 <button
                   onClick={async () => {
