@@ -153,7 +153,7 @@ const reversedCart = useMemo(() => {
 }, [cart]);
 
   return (
-    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className=" grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* LEFT */}
       <div className="lg:col-span-2 flex flex-col gap-4">
         <div className="py-4">
@@ -196,19 +196,19 @@ const reversedCart = useMemo(() => {
                 <div className="flex items-center mt-3">
                   <button
                     onClick={() => handleQty(item, item.quantity - 1)}
-                    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="size-[2rem] border text-defined-black border-gray-200 rounded-full hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                     disabled={item.quantity <= 1 || isOutOfStock}
                   >
                     −
                   </button>
 
-                  <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2 min-w-[40px] text-center">
+                  <span className=" h-[2rem] w-fit px-4 flex justify-center items-center border text-defined-black border-gray-200 mx-2 min-w-[40px] text-center">
                     {item.quantity}
                   </span>
 
                   <button
                     onClick={() => handleQty(item, item.quantity + 1)}
-                    className={`px-4 py-2 border rounded-full disabled:opacity-50 disabled:cursor-not-allowed ${
+                    className={`size-[2rem] border rounded-full disabled:opacity-50 disabled:cursor-not-allowed ${
                       canIncrease && !isOutOfStock
                         ? 'border-gray-200 text-defined-black hover:bg-gray-100'
                         : 'border-gray-300 text-gray-400 bg-gray-50'
@@ -237,7 +237,7 @@ const reversedCart = useMemo(() => {
                   </p>
 
                   <p
-                    className="mt-2 text-sm text-defined-black"
+                    className="mt-2 text-sm text-defined-black line-clamp-2"
                     dangerouslySetInnerHTML={{
                       __html: (item.productId as ProductType).shortDescription,
                     }}
@@ -261,9 +261,9 @@ const reversedCart = useMemo(() => {
                 ) : ("")}
                 </div>
 
-                <div className="flex gap-4 justify-evenly lg:justify-start pt-4">
+                <div className="flex gap-4 justify-evenly items-center lg:justify-start pb-1 ">
                   <button
-                    className={`font-bold text-sm lg:text-base lg:px-6 lg:py-2 ${
+                    className={`font-bold text-sm lg:text-sm  ${
                       isOutOfStock 
                         ? 'text-gray-400 cursor-not-allowed' 
                         : 'hover:text-defined-green text-defined-black'
@@ -276,7 +276,7 @@ const reversedCart = useMemo(() => {
 
                   <button
                     onClick={() => handleRemove(item)}
-                    className={`font-semibold text-sm lg:text-base lg:px-6 lg:py-2 ${
+                    className={`font-semibold text-sm lg:text-sm  ${
                       isOutOfStock ? 'text-red-400' : 'text-defined-black hover:text-red-500'
                     }`}
                   >
@@ -317,7 +317,7 @@ const reversedCart = useMemo(() => {
         <button
           onClick={handleCheckout}
           disabled={availableCartItems.length === 0}
-          className={`mt-6 w-full rounded-full py-2 font-semibold transition-all ${
+          className={`mt-6 w-full rounded-full py-2 h-[3rem] text-sm font-semibold transition-all ${
             availableCartItems.length === 0
               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
               : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] text-white'

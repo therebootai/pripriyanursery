@@ -12,7 +12,7 @@ export default function PlantsGallery() {
 
   return (
     <section >
-      <div className="self-padding">
+      <div className="self-padding py-4 lg:py-8">
         <h2 className="mb-10 text-xl lg:text-3xl font-bold">
           Plants <span className="text-green-600">Gallery</span>
         </h2>

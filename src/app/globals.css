@@ -28,10 +28,17 @@ button{
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+    --breakpoint-sm: 280px;
+  --breakpoint-md: 760px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xlg: 1280px;
+  --breakpoint-xl: 1440px;
+  --breakpoint-xxl: 1980px;
+  --breakpoint-xxxl: 2480px;
 }
 
   .self-padding {
-    @apply max-w-300 lg:px-8 px-4 py-8 mx-auto;
+    @apply max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] xxl:px-12 xxxl:px-12 lg:px-8 px-4  mx-auto;
   }
 
 /* Custom thin scrollbar */

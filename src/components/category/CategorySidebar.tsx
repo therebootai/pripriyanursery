@@ -25,7 +25,7 @@ export default function CategorySidebar({
             {/* Parent Category */}
             <button
               onClick={() => handleClick(group.parent.name)}
-              className={`w-full lg:w-full flex flex-col md:flex-row max-md:justify-center items-center md:gap-3 gap-1 rounded-md p-1 text-left
+              className={`w-full lg:w-full flex flex-col lg:flex-row max-md:justify-center items-center md:gap-3 gap-1 rounded-md p-1 text-left
               ${
                 activeCategory === group.parent.name
                   ? "bg-defined-green/30"
@@ -33,7 +33,7 @@ export default function CategorySidebar({
               }
             `}
             >
-              <div className="relative size-12 md:size-12 shrink-0">
+              <div className="relative size-12 md:size-12 xl:size-14 xxl:size-16 shrink-0">
                 <Image
                   src={group.parent.image}
                   alt={group.parent.name}
@@ -52,7 +52,7 @@ export default function CategorySidebar({
                 <button
                   key={sub.id ?? sub.name}
                   onClick={() => handleClick(sub.name)}
-                  className={`w-full lg:w-fit flex flex-col md:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
+                  className={`w-full lg:w-fit flex flex-col lg:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
                   ${
                     activeCategory === sub.name
                       ? "bg-defined-green/10"
@@ -60,7 +60,7 @@ export default function CategorySidebar({
                   }
                 `}
                 >
-                  <div className="relative size-12 md:size-12 shrink-0">
+                  <div className="relative size-12 md:size-12 xl:size-14 xxl:size-16 shrink-0">
                     <Image
                       src={sub.image}
                       alt={sub.name}
