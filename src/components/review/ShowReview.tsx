@@ -30,7 +30,7 @@ export default function ShowReview() {
   async function deleteReview(id: string) {
     try {
       const { status } = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/review/delete/${id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/review/${id}`,
       );
 
       if (status === 200) {
@@ -50,7 +50,7 @@ export default function ShowReview() {
   }, []);
 
   return (
-    <div className="max-w-[1300px] mx-auto bg-white px-4 rounded-md shadow-sm py-6 md:py-8">
+    <div className="max-w-[1300px] mx-auto pt-4">
       {/* MAIN GRID */}
       {allReviews.map(
         (review: {
@@ -67,12 +67,12 @@ export default function ShowReview() {
           createdAt: string | number | Date;
         }) => (
           <div
-            className="grid grid-cols-1 md:grid-cols-[170px_1fr] gap-4 md:gap-6"
+            className="flex flex-col md:flex-row md:items-center gap-4 md:gap-6 bg-white shadow-sm px-4 rounded-md py-6 md:py-8"
             key={review._id}
           >
             {/* IMAGE */}
-            <div className="flex justify-center md:justify-start">
-              <div className="relative aspect-square rounded">
+            <div className="flex justify-center md:justify-start relative">
+              <div className="relative aspect-square rounded md:w-40">
                 <Image
                   src={review.product?.coverImage?.url}
                   alt="Product"
@@ -83,7 +83,7 @@ export default function ShowReview() {
             </div>
 
             {/* CONTENT */}
-            <div>
+            <div className="flex-1">
               {/* TITLE */}
               <p className="font-medium text-gray-800 text-base md:text-lg">
                 {review.product?.name}

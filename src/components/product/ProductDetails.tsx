@@ -435,10 +435,12 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             {/* Rating */}
             <div className="flex items-center gap-2 w-full">
               <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
-                4.9 <Star size={14} fill="white" />
+                {product.averageRating.toFixed(1)}{" "}
+                <Star size={14} fill="white" />
               </span>
               <span className="text-[16px] text-gray-600">
-                6,426 Ratings & 477 Reviews
+                {product.ratingCount.toLocaleString()} Ratings &{" "}
+                {product.reviews.length} Reviews
               </span>
             </div>
 
