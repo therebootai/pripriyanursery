@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCustomer } from "@/context/CustomerContext";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export default function ShowReview() {
   const { customer } = useCustomer();
@@ -23,6 +24,24 @@ export default function ShowReview() {
       }
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  async function deleteReview(id: string) {
+    try {
+      const { status } = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/review/delete/${id}`,
+      );
+
+      if (status === 200) {
+        toast.success("Review deleted successfully");
+        getAllReviews();
+      }
+
+      throw Error;
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to delete review");
     }
   }
 
@@ -112,7 +131,10 @@ export default function ShowReview() {
                   Edit
                 </Link>
 
-                <button className="text-sm text-red-600 hover:underline">
+                <button
+                  className="text-sm text-red-600 hover:underline"
+                  onClick={() => deleteReview(review._id)}
+                >
                   Delete
                 </button>
               </div>

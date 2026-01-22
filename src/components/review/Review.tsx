@@ -3,9 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Star, X } from "lucide-react";
-import Link from "next/link";
 import { ProductType } from "@/types/types";
 import { useCustomer } from "@/context/CustomerContext";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -25,6 +26,8 @@ export default function ReviewPage({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { customer } = useCustomer();
+
+  const nav = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -103,18 +106,19 @@ export default function ReviewPage({
       );
 
       if (status === 201 && ok) {
-        alert("Review submitted successfully");
+        toast.success("Review submitted successfully");
         setSupportingFiles([]);
         setTitle("");
         setDescription("");
         setRating(0);
         setHover(0);
+        nav.push("/my-orders");
         return;
       }
       throw new Error("Failed to submit review");
     } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message ?? "Failed to submit review");
     }
   }
 

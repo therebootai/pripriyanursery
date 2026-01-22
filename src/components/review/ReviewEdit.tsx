@@ -1,6 +1,8 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { Star, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -46,6 +48,8 @@ export default function ReviewEdit({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const nav = useRouter();
 
   // Helper function to determine file type from URL
   function getFileTypeFromUrl(url: string): string {
@@ -197,7 +201,7 @@ export default function ReviewEdit({
     e.preventDefault();
 
     if (!title.trim() || !description.trim() || rating === 0) {
-      alert("Please fill in all required fields and provide a rating");
+      toast.error("Please fill in all required fields and provide a rating");
       return;
     }
 
@@ -239,7 +243,7 @@ export default function ReviewEdit({
 
       const updatedReview = await response.json();
 
-      alert("Review updated successfully!");
+      toast.success("Review updated successfully!");
 
       if (onUpdate) {
         onUpdate(updatedReview);
@@ -255,9 +259,13 @@ export default function ReviewEdit({
           URL.revokeObjectURL(file.preview);
         }
       });
+
+      nav.push("/my-reviews");
     } catch (error: any) {
       console.error("Error updating review:", error);
-      alert(error.message || "Failed to update review. Please try again.");
+      toast.error(
+        error.message || "Failed to update review. Please try again.",
+      );
     } finally {
       setIsSubmitting(false);
     }

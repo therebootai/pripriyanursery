@@ -647,14 +647,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                             </tr>
                           ),
                         )}
-                        <div className={`relative ${open ? "mt-3" : "-mt-3"}`}>
-                          <button
-                            onClick={() => setOpen(!open)}
-                            className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
-                          >
-                            {open ? "Read Less" : "Read More"}
-                          </button>
-                        </div>
                       </tbody>
                     </table>
                   </div>
@@ -663,6 +655,16 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                     <div className="absolute bottom-0 left-0 w-full h-14 bg-linear-to-t from-white/50 to-transparent pointer-events-none" />
                   )}
                 </div>
+                {product.specifications.length > 1 && (
+                  <div className={`relative mt-2`}>
+                    <button
+                      onClick={() => setOpen(!open)}
+                      className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
+                    >
+                      {open ? "Read Less" : "Read More"}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
