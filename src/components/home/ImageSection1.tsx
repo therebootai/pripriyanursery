@@ -9,7 +9,7 @@ export default function ImageSection1() {
   ]
 
   return (
-    <section className="w-full py-12">
+    <section className="w-full py-6">
       <div className=" self-padding">
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {images.map((src, index) => (

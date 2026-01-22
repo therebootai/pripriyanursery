@@ -10,6 +10,7 @@ import { addToCartApi, removeFromCartApi } from "@/library/cart";
 import { ProductType } from "@/types/types";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import CustomerAuthModal from "../customer/CustomerAuthModal";
 
 
 
@@ -37,11 +38,17 @@ export default function ProductCards({
   const [loading, setLoading] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
   const router = useRouter()
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   const customerId = customer?._id;
 
 const handleWishlist = async () => {
-  if (!customerId || loading) return;
+if (!customerId) {
+      setIsSignupOpen(true); // Open the modal
+      return;
+    }
+
+    if (loading) return;
 
   setLoading(true);
   setIsWishlisted((prev) => !prev);
@@ -67,7 +74,12 @@ const handleWishlist = async () => {
 };
 
 const handleCart = async () => {
-  if (!customerId || loading) return;
+  if (!customerId) {
+      setIsSignupOpen(true); // Open the modal
+      return;
+    }
+
+    if (loading) return;
 
   setLoading(true);
 
@@ -115,6 +127,7 @@ useEffect(() => {
 
 
   return (
+    <>
     <div className="relative rounded bg-white p-1 md:p-2 shadow-sm hover:shadow-md w-full h-auto flex flex-col justify-between">
       <Link
         href={`/product/${slug}`}
@@ -146,7 +159,7 @@ useEffect(() => {
           />
         </button>
 
-        <div className="h-[8rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem]">
+        <div className="h-[10rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem]">
           <Image
             src={coverImage.url}
             alt={coverImage.public_id}
@@ -158,7 +171,7 @@ useEffect(() => {
       </div>
 
       {/* CONTENT */}
-      <div className=" pt-2 flex flex-col">
+      <div className=" pt-2 pb-2 flex flex-col">
         {/* {category && (
           <span className="rounded-full bg-green-100 px-3 py-1 text-green-600 text-xs">
             {category}
@@ -266,5 +279,10 @@ useEffect(() => {
         </div>
       </div>
     </div>
+    <CustomerAuthModal
+        isOpen={isSignupOpen}
+        onClose={() => setIsSignupOpen(false)}
+      />
+      </>
   );
 }

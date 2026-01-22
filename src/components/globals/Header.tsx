@@ -193,7 +193,7 @@ function getName(name = "") {
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
       <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-4">
         {/* TOP BAR */}
-        <div className="flex h-14 md:h-20 items-center justify-between gap-3">
+        <div className="flex h-16 md:h-20 items-center justify-between gap-3">
           {/* Logo */}
           {!mobileSearchOpen && (
             <Link href="/" className="shrink-0">
@@ -203,13 +203,13 @@ function getName(name = "") {
                 width={80}
                 height={80}
                 priority
-                className="w-fit h-[3rem] md:h-[4.5rem] p-2"
+                className="w-fit h-[4rem] md:h-[4.5rem] p-2"
               />
             </Link>
           )}
 
           {/* SEARCH (always visible) */}
-          <div ref={inputRef} className="flex-1 max-w-md hidden sm:block">
+          <div ref={inputRef} className="flex-1 max-w-md hidden md:block">
             <div className="relative">
               <Search
                 className="absolute left-3 top-1/2 -translate-y-1/2 text-defined-green "
@@ -358,7 +358,8 @@ function getName(name = "") {
                 Login <User size={16} />
               </button>
             ) : (
-              <div className="relative">
+              <div onMouseEnter={() => setAccountOpen(true)} 
+  onMouseLeave={() => setAccountOpen(false)} className="relative h-fit z-50">
                 <button
                   onClick={() => setAccountOpen(!accountOpen)}
                   className="flex items-center gap-2"
@@ -380,7 +381,8 @@ function getName(name = "") {
                 </button>
 
                 {accountOpen && (
-                  <div className="absolute right-0 mt-2 w-44 rounded-md bg-white shadow-lg border border-gray-200">
+                  <div className="absolute right-0  top-full pt-2 w-44">
+                  <div className=" rounded-md bg-white shadow-lg border border-gray-200">
                     <Link
                       href="/my-account"
                       className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
@@ -415,6 +417,7 @@ function getName(name = "") {
                     >
                       <LogOut size={16} /> Logout
                     </button>
+                  </div>
                   </div>
                 )}
               </div>
@@ -476,7 +479,7 @@ function getName(name = "") {
                 }}
                 className="relative text-defined-green"
               >
-                <Heart size={18} />
+                <Heart size={20} />
 
                 <span className="absolute -top-1 -right-2 size-3 rounded-full bg-defined-green text-[10px] font-bold text-white flex items-center justify-center">
                   {customer?.wishlist?.length ?? 0}
@@ -494,7 +497,7 @@ function getName(name = "") {
                 }}
                 className="relative text-defined-green"
               >
-                <ShoppingCart size={18} />
+                <ShoppingCart size={20} />
 
                 <span className="absolute -top-1 -right-2 size-3 rounded-full bg-defined-green text-[10px] font-bold text-white flex items-center justify-center">
                   {customer?.cart?.length ?? 0}
@@ -515,12 +518,12 @@ function getName(name = "") {
               >
                 {customer ? (
                   <>
-                    <div className="size-7 text-xs rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
+                    <div className="size-8 text-xs rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
                       {getName(customer.name)}
                     </div>
                   </>
                 ) : (
-                  <UserIcon size={18} />
+                  <UserIcon size={20} />
                 )}
               </button>
             )}
@@ -620,7 +623,7 @@ function getName(name = "") {
               {list.map((item, idx) => (
                 <button
                   key={idx}
-                  onClick={() => handleSearchClick(item)}
+                  onMouseDown={(e) => {e.preventDefault(); handleSearchClick(item)}}
                   className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left"
                 >
                   <span className="text-sm">

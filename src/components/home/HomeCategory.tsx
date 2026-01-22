@@ -14,7 +14,7 @@ const {categories, loading} = useCategories();
     return (
       <div className="py-5">
         <div className="self-padding ">
-          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-2 md:grid-cols-2 lg:grid-cols-3">
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
@@ -55,7 +55,7 @@ const {categories, loading} = useCategories();
                 href={`/products?category=${encodeURIComponent(cat.parent.name)}`}
                 className="text-center group"
               >
-                <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
+                <div className="relative mx-auto size-[6rem] md:size-[6rem] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
                   <Image
                     src={cat.parent.image}
                     alt={cat.parent.name}
@@ -75,7 +75,7 @@ const {categories, loading} = useCategories();
                   href={`/products?category=${encodeURIComponent(subCat.name)}`}
                   className="text-center group"
                 >
-                  <div className="relative mx-auto h-[90px] w-[90px] sm:h-[140px] sm:w-[140px] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
+                  <div className="relative mx-auto size-[6rem] md:size-[6rem] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
                     <Image
                       src={subCat.image}
                       alt={subCat.name}

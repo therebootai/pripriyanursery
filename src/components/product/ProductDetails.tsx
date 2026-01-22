@@ -337,6 +337,11 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
   const handleShare = () => setShowShare(true);
 
+  const { ref: buttonRef, inView: buttonsInView } = useInView({
+  threshold: 0, 
+  rootMargin: "0px 0px 0px 0px" 
+});
+
   return (
     <>
       {variantLoading && (
@@ -356,7 +361,8 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 onShare={handleShare}
               />
 
-              <div className="flex gap-4">
+              <div ref={buttonRef} className="flex gap-4">
+                <div className=" max-lg:hidden lg:w-16"></div>
                 <button
                   className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-2 rounded font-medium flex items-center justify-center gap-2"
                   onClick={handleCart}
@@ -585,7 +591,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
 
-            {product.specifications && (
+            {product.specifications && product.specifications.length > 0  && (
               <div className="pt-6  relative">
                 {/* ================= MASKED CONTENT ================= */}
                 <div
@@ -651,7 +657,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         </div>
       </section>
       {/* ================= MOBILE STICKY BUY BAR ================= */}
-      {!inView && (
+      {!buttonsInView && (
         <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 flex gap-3 md:hidden z-50">
           <button
             className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 rounded font-medium flex items-center justify-center gap-2"
