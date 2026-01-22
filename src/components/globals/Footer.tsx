@@ -79,8 +79,8 @@ export default function Footer() {
         <div className="mx-auto max-w-[1300px] px-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 rounded bg-white/10 backdrop-blur-md px-4 lg:px-6 py-4">
             <p className="text-[17px] text-white">
-              Get a call back within 15 minutes. WhatsApp us 24x7<br className=" max-md:hidden "></br>{" "}
-              between 9:00 AM and 8:00 PM.
+              Get a call back within 15 minutes. WhatsApp us 24x7
+              <br className=" max-md:hidden "></br> between 9:00 AM and 8:00 PM.
             </p>
 
             <div className="flex w-full md:w-auto md:border md:border-white rounded-[40px]">
@@ -277,7 +277,7 @@ export default function Footer() {
 
                   {/* Address */}
                   <li className="flex items-start gap-2">
-                    <MapPin size={16} />
+                    <MapPin size={16} className="shrink-0" />
                     <Link
                       href="https://maps.app.goo.gl/HDFP8hN6nWyEAaJ6A"
                       target="_blank"

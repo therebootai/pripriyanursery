@@ -105,23 +105,6 @@ export default function ReviewEdit({
     );
   };
 
-  // Restore removed existing file
-  const restoreExistingFile = (publicId: string) => {
-    const fileToRestore = review.supporting_files.find(
-      (f) => f.public_id === publicId,
-    );
-    if (fileToRestore) {
-      setExistingFiles((prev) => [
-        ...prev,
-        {
-          ...fileToRestore,
-          name: fileToRestore.url.split("/").pop() || "",
-          type: getFileTypeFromUrl(fileToRestore.url),
-        },
-      ]);
-    }
-  };
-
   const getFileIcon = (file: File | ExistingFile) => {
     const fileType = "type" in file ? file.type : file.type;
     if (fileType?.startsWith("image/")) return "🖼️";

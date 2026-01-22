@@ -38,7 +38,7 @@ const ProductRatingSummary = ({
           </svg>
         </div>
         <p className="text-[#5f6368] text-center mt-4 text-lg leading-snug">
-          {ratingCount.toLocaleString()} Ratings & {reviewsCount} Reviews
+          {ratingCount.toLocaleString()} Ratings &amp; {reviewsCount} Reviews
         </p>
       </div>
 
