@@ -17,6 +17,7 @@ import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import ShareModal from "./ShareModel";
 import ReviewCard from "./ProductReview";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
+import ProductRatingSummary from "./ProductRatingSummary";
 
 type TrustProps = {
   icon: React.ReactNode;
@@ -683,9 +684,20 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
             {/* <ReviewCard review={product.reviews} /> */}
-            {product.reviews.map((review: any) => (
-              <ReviewCard key={review._id} review={review} />
-            ))}
+            <div className="flex flex-col gap-2.5">
+              <h2 className="text-lg font-semibold text-defined-black mb-3">
+                Ratings &amp; Reviews
+              </h2>
+              <ProductRatingSummary
+                averageRating={product.averageRating}
+                ratingCount={product.ratingCount}
+                ratingBreakdown={product.ratingBreakdown}
+                reviewsCount={product.reviews.length}
+              />
+              {product.reviews.map((review: any) => (
+                <ReviewCard key={review._id} review={review} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
