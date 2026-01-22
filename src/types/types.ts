@@ -78,7 +78,7 @@ export type SpecificationType = {
 };
 
 export type ProductType = {
-  _id:  string ;
+  _id: string;
   productId: string;
   slug: string;
 
@@ -96,7 +96,11 @@ export type ProductType = {
 
   category: string;
   subCategory: string;
-  brand: string;
+  brand: {
+    brandId: string;
+    name: string;
+    image: ImageType;
+  };
   attributes: string[];
   variables?: {
     name: string;
@@ -119,6 +123,15 @@ export type ProductType = {
   price: number;
   discount: number;
   stock: number;
+
+  reviews: {
+    _id: string;
+    user: { name: string, };
+    rating: number;
+    description: string;
+    title: string;
+    supporting_files?: ImageType[];
+  }[];
 
   status: boolean;
   createdAt: Date;
@@ -173,7 +186,7 @@ export interface AddressType {
 export interface PaymentType {
   paymentGroupId: string; // internal payment reference (PG-001)
 
-  customer: Customer
+  customer: Customer;
 
   razorpayOrderId: string;
   razorpayPaymentId: string;
@@ -192,13 +205,13 @@ export interface PaymentType {
 export interface OrderType {
   orderId: string;
 
-  payment:PaymentType// 🔗 link to Payment
+  payment: PaymentType; // 🔗 link to Payment
   customer: Customer;
 
   mobile: string;
-  address: AddressType
+  address: AddressType;
 
-  product: ProductType // 🔥 FINAL SKU
+  product: ProductType; // 🔥 FINAL SKU
   quantity: number;
   price: number;
   orderValue: number;

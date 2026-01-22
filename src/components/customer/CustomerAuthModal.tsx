@@ -22,7 +22,7 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
 
   const router = useRouter();
   const [authMode, setAuthMode] = useState<"login" | "signup">("login");
-const { refreshCustomer } = useCustomer();
+  const { refreshCustomer } = useCustomer();
   const [step, setStep] = useState<Step>("MOBILE");
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
@@ -56,7 +56,6 @@ const { refreshCustomer } = useCustomer();
     return () => clearInterval(timer);
   }, [cooldown]);
 
-
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => {
@@ -74,11 +73,11 @@ const { refreshCustomer } = useCustomer();
     try {
       setLoading(true);
       const res = await sendOtp(mobile);
-      if(res.success) toast.success(res.message);
+      if (res.success) toast.success(res.message);
       setStep("OTP");
-       const expiry = Date.now() + OTP_COOLDOWN * 1000;
-       localStorage.setItem("otpCooldownUntil", String(expiry));
-       setCooldown(OTP_COOLDOWN);
+      const expiry = Date.now() + OTP_COOLDOWN * 1000;
+      localStorage.setItem("otpCooldownUntil", String(expiry));
+      setCooldown(OTP_COOLDOWN);
     } catch {
       toast.error("Failed to send OTP");
     } finally {
@@ -92,40 +91,38 @@ const { refreshCustomer } = useCustomer();
     return `${m}:${sec.toString().padStart(2, "0")}`;
   };
 
+  const handleVerifyOtp = async () => {
+    if (loading || otp.length !== 6) return;
 
- const handleVerifyOtp = async () => {
-   if (loading || otp.length !== 6) return;
+    try {
+      setLoading(true);
+      const res = await verifyOtp(mobile, otp);
+      await refreshCustomer();
 
-   try {
-     setLoading(true);
-    const res = await verifyOtp(mobile, otp);
-    await refreshCustomer(); 
+      if (res.success) toast.success(res.message);
+      setMobile("");
+      setOtp("");
+      setStep("MOBILE");
 
-    if (res.success) toast.success(res.message);
-     setMobile("");
-     setOtp("");
-     setStep("MOBILE");
+      onClose();
+      const redirect = localStorage.getItem("redirectAfterLogin") || "/";
 
-     onClose();
-     const redirect = localStorage.getItem("redirectAfterLogin") || "/";
+      localStorage.removeItem("redirectAfterLogin");
+      router.replace(redirect);
+    } catch {
+      toast.error("Invalid or expired OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-     localStorage.removeItem("redirectAfterLogin");
-     router.replace(redirect);
-
-   } catch {
-     toast.error("Invalid or expired OTP");
-   } finally {
-     setLoading(false);
-   }
- };
-
- const resetOtpFlow = () => {
-  setMobile("");
-  setOtp("");
-  setStep("MOBILE");
-  setCooldown(0);
-  localStorage.removeItem("otpCooldownUntil");
-};
+  const resetOtpFlow = () => {
+    setMobile("");
+    setOtp("");
+    setStep("MOBILE");
+    setCooldown(0);
+    localStorage.removeItem("otpCooldownUntil");
+  };
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
@@ -162,16 +159,16 @@ const { refreshCustomer } = useCustomer();
                 {step === "OTP"
                   ? "Verify OTP"
                   : authMode === "login"
-                  ? "Welcome Back"
-                  : "Looks like you're new here!"}
+                    ? "Welcome Back"
+                    : "Looks like you're new here!"}
               </h2>
 
               <p className=" opacity-90 leading-relaxed font-medium">
                 {step === "OTP"
                   ? `OTP sent to +91 ${mobile}`
                   : authMode === "login"
-                  ? "Get access to your Orders, Wishlist and Recommendations"
-                  : "Sign up instantly using your mobile number to get started"}
+                    ? "Get access to your Orders, Wishlist and Recommendations"
+                    : "Sign up instantly using your mobile number to get started"}
               </p>
             </div>
 
@@ -202,7 +199,7 @@ const { refreshCustomer } = useCustomer();
                 <path
                   d="M145.87 218.82H76.5966C75.6843 218.825 74.8073 218.468 74.1579 217.827C73.5086 217.186 73.1399 216.313 73.1328 215.4V60.7233C73.1399 59.8108 73.5085 58.9383 74.1578 58.2972C74.8071 57.6562 75.684 57.2989 76.5963 57.3037H145.87C146.782 57.2989 147.659 57.6562 148.308 58.2972C148.958 58.9383 149.326 59.8108 149.333 60.7233V215.4C149.326 216.313 148.958 217.186 148.308 217.827C147.659 218.468 146.782 218.825 145.87 218.82Z"
                   fill="white"
-                  fill-opacity="0.66"
+                  fillOpacity="0.66"
                 />
                 <path
                   d="M149.334 107.352H73.1328V108.418H149.334V107.352Z"
@@ -295,21 +292,21 @@ const { refreshCustomer } = useCustomer();
                 />
 
                 <p className="text-sm text-center text-gray-500 mt-3">
-                  You’ll receive an OTP on WhatsApp
+                  You&apos;ll receive an OTP on WhatsApp
                 </p>
 
                 <button
                   onClick={handleSendOtp}
                   disabled={loading || mobile.length !== 10 || cooldown > 0}
-                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60 shadow-md"
+                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60 shadow-md cursor-pointer disabled:cursor-not-allowed"
                 >
                   {loading
                     ? "Sending OTP..."
                     : cooldown > 0
-                    ? `Resend in ${formatTime(cooldown)}`
-                    : authMode === "login"
-                    ? "Request OTP"
-                    : "Continue"}
+                      ? `Resend in ${formatTime(cooldown)}`
+                      : authMode === "login"
+                        ? "Request OTP"
+                        : "Continue"}
                 </button>
               </>
             )}
@@ -356,7 +353,7 @@ const { refreshCustomer } = useCustomer();
                 <button
                   onClick={handleVerifyOtp}
                   disabled={loading || otp.length !== 6}
-                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60"
+                  className="w-full bg-defined-green text-white py-3 rounded-md mt-6 disabled:opacity-60 shadow-md cursor-pointer disabled:cursor-not-allowed"
                 >
                   {loading ? "Verifying..." : "Verify & Continue"}
                 </button>

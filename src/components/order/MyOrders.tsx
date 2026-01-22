@@ -163,7 +163,7 @@ export default function MyOrders() {
                 </div>
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4 ">
                   <div className=" w-auto">
-                    <div className="flex items-center justify-center border border-gray-200 rounded-md size-[10rem] ">
+                    <div className="flex items-center justify-center border border-gray-200 rounded-md size-40 ">
                       {order.product?.coverImage?.url ? (
                         <Image
                           src={order.product.coverImage.url}
@@ -173,7 +173,7 @@ export default function MyOrders() {
                           className="object-cover w-full h-full rounded-md  "
                         />
                       ) : (
-                        <div className=" size-[10rem] bg-gray-100 text-gray-300 text-center rounded-md flex justify-center items-center">
+                        <div className=" size-40 bg-gray-100 text-gray-300 text-center rounded-md flex justify-center items-center">
                           Image Unavailable
                         </div>
                       )}
@@ -181,18 +181,22 @@ export default function MyOrders() {
                   </div>
 
                   <div className=" w-full">
-                    <p className="font-medium text-gray-800 max-w-md">
+                    <Link
+                      href={`/product/${order.product?.slug}`}
+                      className="font-medium text-gray-800 max-w-md"
+                    >
                       {order.product?.name || "Product Unabailable"}
-                    </p>
-                      <div className=" flex flex-wrap gap-2">
-                    {getVariantText(order) && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        {getVariantText(order)}
+                    </Link>
+                    <div className=" flex flex-wrap gap-2">
+                      {getVariantText(order) && (
+                        <p className="text-sm text-gray-500 mt-1">
+                          {getVariantText(order)}
+                        </p>
+                      )}
+                      <p className="text-sm text-gray-600 mt-1">
+                        | Qty:{" "}
+                        <span className="font-medium">{order.quantity}</span>
                       </p>
-                    )}
-                    <p className="text-sm text-gray-600 mt-1">
-                      | Qty: <span className="font-medium">{order.quantity}</span>
-                    </p>
                     </div>
 
                     <div className="flex gap-3  mt-4 w-full">
@@ -254,7 +258,7 @@ export default function MyOrders() {
                   View Return / Replacement
                 </button>
 
-                <Link href="/review">
+                <Link href={`/review?product=${order.product?.slug}`}>
                   <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
                     Write a Review
                   </button>
