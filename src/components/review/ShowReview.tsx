@@ -106,7 +106,7 @@ export default function ShowReview() {
               {/* ACTION BUTTONS */}
               <div className="mt-4 flex gap-6">
                 <Link
-                  href="/review"
+                  href={`/review/${review._id}`}
                   className="text-sm text-green-600 hover:underline"
                 >
                   Edit
