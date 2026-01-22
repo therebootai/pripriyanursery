@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ShoppingCart } from "lucide-react";
+import { ChevronRight, ShoppingCart } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
 import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -16,6 +16,7 @@ import SinglePageImagesComponent from "./SinglePageImagesComponent";
 import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import ShareModal from "./ShareModel";
 import ReviewCard from "./ProductReview";
+import CustomerAuthModal from "../customer/CustomerAuthModal";
 
 type TrustProps = {
   icon: React.ReactNode;
@@ -69,6 +70,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   );
 
   const [showShare, setShowShare] = useState(false);
+  const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   // Add this useEffect after the existing useEffect for variants
   useEffect(() => {
@@ -124,6 +126,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const handleCart = async () => {
     if (!customer) {
       toast.error("Please login to add items to cart");
+      setIsSignupOpen(true);
       return;
     }
     if (isInCart) {
@@ -155,6 +158,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     try {
       if (!customer) {
         toast.error("Please login to proceed");
+        setIsSignupOpen(true);
         return;
       }
 
@@ -301,7 +305,12 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const customerId = customer?._id;
 
   const handleWishlist = async () => {
-    if (!customerId || loading) return;
+    if (!customerId) {
+      setIsSignupOpen(true); // Open the modal
+      return;
+    }
+
+    if (loading) return;
 
     setLoading(true);
     setIsWishlisted((prev) => !prev);
@@ -339,17 +348,17 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const handleShare = () => setShowShare(true);
 
   const { ref: buttonRef, inView: buttonsInView } = useInView({
-  threshold: 0, 
-  rootMargin: "0px 0px 0px 0px" 
-});
+    threshold: 0,
+    rootMargin: "0px 0px 0px 0px",
+  });
 
   return (
     <>
-      {variantLoading && (
+      {/* {variantLoading && (
         <div className="fixed inset-0 z-[100] bg-white/80 backdrop-blur-sm flex items-center justify-center">
           <div className="w-10 h-10 border-4 border-green-600 border-t-transparent rounded-full animate-spin" />
         </div>
-      )}
+      )} */}
 
       <section className="w-full">
         <div className=" flex flex-col lg:flex-row gap-4 md:gap-10">
@@ -403,6 +412,25 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               {product.name}
             </h1>
 
+            {/* Place this ABOVE your Product Title <h1> */}
+            <div className="flex flex-wrap items-center gap-2 mb-2">
+              {product.categoryLevels?.map((cat: any, index: number) => (
+                <div key={cat._id} className="flex items-center">
+                  {/* Separator only if not the first item */}
+                  {index > 0 && (
+                    <span className="text-gray-300 mx-2 text-[10px]">•</span>
+                  )}
+
+                  <Link
+                    href={`/products?category=${encodeURIComponent(cat.name)}`}
+                    className="text-[11px] md:text-xs font-bold tracking-widest uppercase text-green-700 hover:text-green-900 transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                </div>
+              ))}
+            </div>
+
             {/* Rating */}
             <div className="flex items-center gap-2 w-full">
               <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
@@ -420,10 +448,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </p>
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-semibold text-defined-green">
-                  ₹{product.price}
+                  ₹{product.price.toFixed(0)}
                 </span>
                 <span className="line-through text-gray-400">
-                  ₹{product.mrp}
+                  ₹{product.mrp.toFixed(0)}
                 </span>
                 <span className="bg-defined-green text-white px-2 py-1 text-xs rounded font-medium">
                   {product.discount}% Off
@@ -592,7 +620,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
 
-            {product.specifications && product.specifications.length > 0  && (
+            {product.specifications && product.specifications.length > 0 && (
               <div className="pt-6  relative">
                 {/* ================= MASKED CONTENT ================= */}
                 <div
@@ -689,6 +717,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         open={showShare}
         onClose={() => setShowShare(false)}
         url={typeof window !== "undefined" ? window.location.href : ""}
+      />
+      <CustomerAuthModal
+        isOpen={isSignupOpen}
+        onClose={() => setIsSignupOpen(false)}
       />
     </>
   );

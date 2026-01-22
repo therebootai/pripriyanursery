@@ -133,7 +133,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
       >
         <div
           ref={mainRef}
-          className="relative w-full h-[20rem] md:h-[30rem] lg:h-[26rem] xl:h-[28rem] overflow-hidden border border-gray-50"
+          className="relative w-full h-[20rem] md:h-[30rem] lg:h-[26rem] xl:h-[28rem] overflow-hidden border border-gray-50 cursor-crosshair"
           onMouseEnter={() => setIsZoomed(true)}
           onMouseLeave={() => setIsZoomed(false)}
           onMouseMove={handleMouseMove}
@@ -167,16 +167,30 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
             priority
             className="object-cover"
           />
+          {isZoomed && (
+            <div
+              className="absolute pointer-events-none z-10 hidden md:block"
+              style={{
+                top: `${zoomPos.y}%`,
+                left: `${zoomPos.x}%`,
+                transform: "translate(-50%, -50%)", // Centers lens on cursor
+                width: "150px", // Adjust width of lens
+                height: "150px", // Adjust height of lens
+                backgroundColor: "rgba(0, 100, 255, 0.2)", // Blue transparent bg
+                border: "1px solid rgba(0, 100, 255, 0.5)", // Blue border
+              }}
+            />
+          )}
         </div>
 
         {/* ---------- Zoom Preview ---------- */}
         {isZoomed && (
           <div
-            className="hidden md:block absolute left-[105%] top-0 xlg:size-[30rem] lg:size-[28rem] xl:size-[34rem]  bg-white shadow-lg z-[500]"
+            className="hidden md:block absolute left-[105%] top-0 xlg:size-[30rem] lg:size-[28rem] xl:size-[34rem]  xxl:size-[36rem] bg-white shadow-lg z-[500]"
             style={{
               backgroundImage: `url(${images[mainImageIndex]})`,
               backgroundRepeat: "no-repeat",
-              backgroundSize: "1800px 1800px",
+              backgroundSize: "1200px 1200px",
               backgroundPosition: `${zoomPos.x}% ${zoomPos.y}%`,
             }}
           />

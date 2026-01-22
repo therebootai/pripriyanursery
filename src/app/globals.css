@@ -24,6 +24,7 @@ button {
   --color-background: var(--background);
   --color-defined-green: #34a853;
   --color-defined-black: #202124;
+  --color-defined-yellow:#FFBB00;
   --color-foreground: var(--foreground);
   --font-dm-sans: var(--font-dm-sans);
   --breakpoint-sm: 280px;

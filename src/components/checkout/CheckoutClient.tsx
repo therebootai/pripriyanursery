@@ -11,6 +11,9 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { logout } from "@/library/api";
 import { CouponType } from "@/types/types";
 import { toggleWishlistApi } from "@/library/wishlist";
+import { IoMdSync } from "react-icons/io";
+import { FaPlus } from "react-icons/fa";
+import AddAddressModal from "../account-content/AddAddressModal";
 
 interface RazorpayInstance {
   open: () => void;
@@ -64,131 +67,154 @@ export default function CheckoutClient() {
   const [changeAccountMode, setChangeAccountMode] = useState(false);
   const [changeAddressMode, setChangeAddressMode] = useState(false);
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
-    null
+    null,
   );
   const router = useRouter();
+  const [showAddAddress, setShowAddAddress] = useState(false);
   const { customer, refreshCustomer } = useCustomer();
- 
+
   const customerId = customer?._id;
   const [coupon, setCoupon] = useState("");
 
-const searchParams = useSearchParams();
-const checkoutMode = searchParams.get("mode");
+  const searchParams = useSearchParams();
+  const checkoutMode = searchParams.get("mode");
 
-const addresses: any[] = customer?.addresses || [];
-const defaultAddress = addresses.find((a: any) => 
-  a.type?.toLowerCase() === "home"
-) || addresses[0];
-const selectedAddress = addresses.find((a: any) => 
-  a._id === selectedAddressId
-) || defaultAddress;
+  const addresses: any[] = customer?.addresses || [];
+  const defaultAddress =
+    addresses.find((a: any) => a.type?.toLowerCase() === "home") ||
+    addresses[0];
+  const selectedAddress =
+    addresses.find((a: any) => a._id === selectedAddressId) || defaultAddress;
 
-    const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
+  const [checkoutItems, setCheckoutItems] = useState<CartType[]>([]);
 
-useEffect(() => {
-  if (!customer) return;
+  useEffect(() => {
+    if (!customer) return;
 
-  if (checkoutMode === "buy-now") {
+    if (checkoutMode === "buy-now") {
+      const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+      if (!stored) {
+        setCheckoutItems([]);
+        return;
+      }
+      const buyNowItem = JSON.parse(stored);
+      setCheckoutItems([
+        {
+          productId: buyNowItem.productId,
+          variantId: buyNowItem.variantId,
+          quantity: buyNowItem.quantity,
+          priceAtTime: buyNowItem.price,
+        },
+      ]);
+    } else if (checkoutMode === "cart") {
+      // Get available items from URL params
+      const itemsParam = searchParams.get("items");
+      if (itemsParam) {
+        const parsedItems = JSON.parse(decodeURIComponent(itemsParam));
+
+        // Filter out only available items with stock check
+        const availableItems: CartType[] = parsedItems
+          .map((itemData: any) => {
+            const product = ((customer.cart as CartType[]) || []).find(
+              (cartItem) => cartItem.productId._id === itemData.productId,
+            );
+            if (!product) return null;
+
+            const stock = (product.productId as ProductType).stock || 0;
+            if (stock === 0 || itemData.quantity > stock) return null;
+
+            return {
+              productId: product.productId,
+              variantId: product.variantId,
+              quantity: itemData.quantity,
+              priceAtTime: itemData.priceAtTime,
+            };
+          })
+          .filter(Boolean) as CartType[];
+
+        setCheckoutItems(availableItems);
+        return;
+      }
+
+      // Fallback to full cart (but filter out-of-stock)
+      const availableCartItems = ((customer.cart as CartType[]) || []).filter(
+        (item) => {
+          const stock = (item.productId as ProductType).stock || 0;
+          return stock > 0 && item.quantity <= stock;
+        },
+      );
+      setCheckoutItems(availableCartItems);
+    }
+  }, [checkoutMode, customer, searchParams]);
+
+  const removeBuyNowItemFromCart = async () => {
+    if (!customerId) return;
+
     const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-    if (!stored) {
-      setCheckoutItems([]);
-      return;
+    if (!stored) return;
+
+    const item = JSON.parse(stored);
+
+    try {
+      await removeFromCartApi(customerId, item.productId, item.variantId);
+
+      sessionStorage.removeItem("BUY_NOW_ITEM");
+      await refreshCustomer();
+    } catch (err) {
+      console.error("Failed to remove buy-now item from cart", err);
     }
-    const buyNowItem = JSON.parse(stored);
-    setCheckoutItems([{
-      productId: buyNowItem.productId,
-      variantId: buyNowItem.variantId,
-      quantity: buyNowItem.quantity,
-      priceAtTime: buyNowItem.price,
-    }]);
-  } else if (checkoutMode === "cart") {
-    // Get available items from URL params
-    const itemsParam = searchParams.get("items");
-    if (itemsParam) {
-      const parsedItems = JSON.parse(decodeURIComponent(itemsParam));
-      
-      // Filter out only available items with stock check
-      const availableItems: CartType[] = parsedItems
-        .map((itemData: any) => {
-          const product = (customer.cart as CartType[] || []).find((cartItem) => 
-            cartItem.productId._id === itemData.productId
-          );
-          if (!product) return null;
-          
-          const stock = (product.productId as ProductType).stock || 0;
-          if (stock === 0 || itemData.quantity > stock) return null;
-          
-          return {
-            productId: product.productId,
-            variantId: product.variantId,
-            quantity: itemData.quantity,
-            priceAtTime: itemData.priceAtTime
-          };
-        })
-        .filter(Boolean) as CartType[];
-        
-      setCheckoutItems(availableItems);
-      return;
-    }
-    
-    // Fallback to full cart (but filter out-of-stock)
-  const availableCartItems = (customer.cart as CartType[] || []).filter((item) => {
-  const stock = (item.productId as ProductType).stock || 0;
-  return stock > 0 && item.quantity <= stock;
-});
-    setCheckoutItems(availableCartItems);
-  }
-}, [checkoutMode, customer, searchParams]);
+  };
 
+  const getStockStatus = (item: CartType): "available" | "low" | "out" => {
+    const stock = (item.productId as ProductType).stock || 0;
+    if (stock === 0) return "out";
+    if (stock <= 3) return "low";
+    return "available";
+  };
 
+  /* ------------------ TOTAL PRICE ------------------ */
+  const availableCheckoutItems = checkoutItems.filter(
+    (item) => getStockStatus(item) !== "out",
+  );
 
-const removeBuyNowItemFromCart = async () => {
-  if (!customerId) return;
+  /* ================= MRP TOTAL ================= */
+  const totalMRP = availableCheckoutItems.reduce((acc, item) => {
+    const product = item.productId as ProductType;
+    return acc + Math.round((product.mrp || 0) * item.quantity);
+  }, 0);
 
-  const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-  if (!stored) return;
+  /* ================= DISCOUNT TOTAL ================= */
+  const totalDiscount = availableCheckoutItems.reduce((acc, item) => {
+    const product = item.productId as ProductType;
+    const mrp = product.mrp || 0;
+    const discountPercent = product.discount || 0;
 
-  const item = JSON.parse(stored);
+    const discountPerItem = Math.round((mrp * discountPercent) / 100);
+    return acc + discountPerItem * item.quantity;
+  }, 0);
 
-  try {
-    await removeFromCartApi(
-      customerId,
-      item.productId,
-      item.variantId
-    );
+  /* ================= FINAL PRICE ================= */
+  const totalFinalPrice = totalMRP - totalDiscount;
 
-    sessionStorage.removeItem("BUY_NOW_ITEM");
-    await refreshCustomer();
-  } catch (err) {
-    console.error("Failed to remove buy-now item from cart", err);
-  }
-};
-
-  const getStockStatus = (item: CartType): 'available' | 'low' | 'out' => {
-  const stock = (item.productId as ProductType).stock || 0;
-  if (stock === 0) return 'out';
-  if (stock <= 3) return 'low';
-  return 'available';
-};
-
-
-const availableCheckoutItems = checkoutItems.filter((item: CartType) => 
-  getStockStatus(item) !== 'out'
-);
-
-const hasOutOfStockItems = checkoutItems.some(item => getStockStatus(item) === 'out');
-const totalAmount  = availableCheckoutItems.reduce(
-  (acc: number, item: CartType) =>
-    acc + ((item.productId as ProductType).price || 0) * item.quantity,
-  0
-);
-
+  /* ================= TOTAL ITEMS ================= */
+  const totalItems = availableCheckoutItems.reduce(
+    (acc, item) => acc + item.quantity,
+    0,
+  );
+  const hasOutOfStockItems = checkoutItems.some(
+    (item) => getStockStatus(item) === "out",
+  );
+  const totalAmount = availableCheckoutItems.reduce(
+    (acc: number, item: CartType) =>
+      acc + ((item.productId as ProductType).price || 0) * item.quantity,
+    0,
+  );
 
   const handlePayment = async () => {
-     if (hasOutOfStockItems) {
-    toast.error("Please remove out-of-stock items before payment");
-    return;
-  }
+    if (hasOutOfStockItems) {
+      toast.error("Please remove out-of-stock items before payment");
+      return;
+    }
     try {
       await loadRazorpayScript();
 
@@ -198,10 +224,10 @@ const totalAmount  = availableCheckoutItems.reduce(
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            amount: Math.max(total - couponDiscount, 0),
+            amount: Math.max(totalFinalPrice - couponDiscount, 0),
             currency: "INR",
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -243,24 +269,22 @@ const totalAmount  = availableCheckoutItems.reduce(
 
                 couponCode: appliedCoupon?.code,
                 couponDiscount: couponDiscount,
-                orderValue: total - couponDiscount,
+                orderValue: totalFinalPrice - couponDiscount,
               }),
-            }
+            },
           );
 
           const verifyData = await verifyRes.json();
 
           if (verifyData.success) {
             toast.success("Payment successful & verified!");
-              if (checkoutMode === "buy-now") {
-    await removeBuyNowItemFromCart();
-  }
+            if (checkoutMode === "buy-now") {
+              await removeBuyNowItemFromCart();
+            }
 
-    const paymentId = verifyData.paymentGroupId;
-  const orderIds = verifyData.orders.join(",");
-            router.push(
-              `/thank-you?payment=${paymentId}&orders=${orderIds}`
-            );
+            const paymentId = verifyData.paymentGroupId;
+            const orderIds = verifyData.orders.join(",");
+            router.push(`/thank-you?payment=${paymentId}&orders=${orderIds}`);
           } else {
             toast.error("Payment verification failed");
           }
@@ -275,7 +299,7 @@ const totalAmount  = availableCheckoutItems.reduce(
       };
 
       const razorpay = new (window as unknown as RazorpayWindow).Razorpay(
-        options
+        options,
       );
       razorpay.open();
     } catch (err) {
@@ -284,76 +308,70 @@ const totalAmount  = availableCheckoutItems.reduce(
     }
   };
 
-
-
-
-
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-const handleQtyById = async (
-  productId: string,
-  variantId: string | undefined,
-  qty: number
-) => {
-  if (qty < 1) return;
+  const handleQtyById = async (
+    productId: string,
+    variantId: string | undefined,
+    qty: number,
+  ) => {
+    if (qty < 1) return;
 
-  // Find current item to check stock
-  const currentItem = checkoutItems.find(
-    (item) =>
-      item.productId._id === productId &&
-      item.variantId?._id === variantId
-  );
-
-  if (!currentItem) return;
-
-  // ✅ STOCK VALIDATION - Block if exceeding stock
-  const stock = (currentItem.productId as ProductType).stock || 0;
-  if (qty > stock) {
-    toast.error(`Only ${stock} products are in stock`);
-    return;
-  }
-
-  /* ================= BUY NOW ================= */
-  if (checkoutMode === "buy-now") {
-    setCheckoutItems((prev) =>
-      prev.map((item) =>
-        item.productId._id === productId &&
-        item.variantId?._id === variantId
-          ? { ...item, quantity: qty }
-          : item
-      )
+    // Find current item to check stock
+    const currentItem = checkoutItems.find(
+      (item) =>
+        item.productId._id === productId && item.variantId?._id === variantId,
     );
 
-    const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-    if (stored) {
-      const item = JSON.parse(stored);
-      sessionStorage.setItem(
-        "BUY_NOW_ITEM",
-        JSON.stringify({ ...item, quantity: qty })
-      );
+    if (!currentItem) return;
+
+    // ✅ STOCK VALIDATION - Block if exceeding stock
+    const stock = (currentItem.productId as ProductType).stock || 0;
+    if (qty > stock) {
+      toast.error(`Only ${stock} products are in stock`);
+      return;
     }
-    return;
-  }
 
-  /* ================= CART CHECKOUT ================= */
-  if (!customerId) return;
+    /* ================= BUY NOW ================= */
+    if (checkoutMode === "buy-now") {
+      setCheckoutItems((prev) =>
+        prev.map((item) =>
+          item.productId._id === productId && item.variantId?._id === variantId
+            ? { ...item, quantity: qty }
+            : item,
+        ),
+      );
 
-  const delta = qty - currentItem.quantity;
-  if (delta === 0) return;
+      const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+      if (stored) {
+        const item = JSON.parse(stored);
+        sessionStorage.setItem(
+          "BUY_NOW_ITEM",
+          JSON.stringify({ ...item, quantity: qty }),
+        );
+      }
+      return;
+    }
 
-  try {
-    await addToCartApi(
-      customerId,
-      productId,
-      variantId,
-      delta,
-      currentItem.priceAtTime
-    );
-    await refreshCustomer();
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update quantity");
-  }
-};
+    /* ================= CART CHECKOUT ================= */
+    if (!customerId) return;
+
+    const delta = qty - currentItem.quantity;
+    if (delta === 0) return;
+
+    try {
+      await addToCartApi(
+        customerId,
+        productId,
+        variantId,
+        delta,
+        currentItem.priceAtTime,
+      );
+      await refreshCustomer();
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update quantity");
+    }
+  };
 
   const handleMoveToWishlist = async (item: CartType) => {
     if (!customerId) return;
@@ -362,7 +380,7 @@ const handleQtyById = async (
       await removeFromCartApi(
         customerId,
         (item.productId as ProductType)?._id,
-        (item.variantId as ProductType)?._id
+        (item.variantId as ProductType)?._id,
       );
       await refreshCustomer();
       toast.success("Moved to wishlist");
@@ -378,42 +396,28 @@ const handleQtyById = async (
     await removeFromCartApi(
       customerId,
       item.productId._id,
-      item.variantId?._id
+      item.variantId?._id,
     );
 
     await refreshCustomer();
   };
 
-  /* ------------------ TOTAL PRICE ------------------ */
-  const total = checkoutItems.reduce(
-    (acc: number, item: CartType) =>
-      acc + ((item.productId as ProductType).price || 0) * item.quantity,
-    0
-  );
-
   useEffect(() => {
-    if (total <= 0) return;
+    if (totalFinalPrice <= 0) return;
 
     const fetchCoupons = async () => {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
-      const data = await res.json();
-      console.log(data);
-      // const validCoupons = data.coupons.filter((c: CouponType) => {
-      //   const now = new Date();
-      //   return (
-      //     total >= c.minOrderAmount &&
-      //     new Date(c.startDate) <= now &&
-      //     new Date(c.expirationDate) >= now &&
-      //     c.usageLimit > 0
-      //   );
-      // });
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
+        const data = await res.json();
 
-      setAvailableCoupons(data.coupons);
-      console.log(data.coupons);
+        setAvailableCoupons(data.coupons || []);
+      } catch (err) {
+        console.error("Failed to fetch coupons", err);
+      }
     };
 
     fetchCoupons();
-  }, [total]);
+  }, [totalFinalPrice]);
 
   const handleLogoutAndRedirect = async () => {
     await logout();
@@ -435,9 +439,11 @@ const handleQtyById = async (
     let discountAmount = 0;
 
     if (found.discountType === "percentage") {
-      discountAmount = (total * found.discountValue) / 100;
+      discountAmount = Math.round(
+        (totalFinalPrice * found.discountValue) / 100,
+      );
     } else {
-      discountAmount = found.discountValue;
+      discountAmount = Math.round(found.discountValue);
     }
 
     if (found.maxDiscountAmount) {
@@ -449,9 +455,24 @@ const handleQtyById = async (
     setCouponMessage(`Coupon ${found.code} applied`);
   };
 
+  const payableAmount = Math.max(
+    Math.round(totalFinalPrice - couponDiscount),
+    0,
+  );
+
+  useEffect(() => {
+  const saved = sessionStorage.getItem("SELECTED_ADDRESS_ID");
+
+  if (saved && addresses.some((a) => a._id === saved)) {
+    setSelectedAddressId(saved);
+  } else if (defaultAddress?._id) {
+    setSelectedAddressId(defaultAddress._id);
+  }
+}, [addresses]);
+
   const handleApplyCoupon = () => {
     const found = availableCoupons.find(
-      (c) => c.code.toLowerCase() === coupon.toLowerCase()
+      (c) => c.code.toLowerCase() === coupon.toLowerCase(),
     );
 
     if (!found) {
@@ -478,14 +499,14 @@ const handleQtyById = async (
       <div className="lg:col-span-2 space-y-2">
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4">
           <div className="flex justify-between items-center">
-            <p className="font-medium text-sm lg:text-base">Login ✓</p>
+            <p className="font-medium text-sm lg:text-base">Login</p>
 
             {!changeAccountMode ? (
               <button
                 onClick={() => setChangeAccountMode(true)}
-                className="text-white text-xs lg:text-base p-1 lg:p-2 bg-defined-green rounded"
+                className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
               >
-                Change Account
+              <IoMdSync />  Change Account
               </button>
             ) : null}
           </div>
@@ -520,17 +541,27 @@ const handleQtyById = async (
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4 mt-2">
           <div className="flex justify-between items-center">
             <p className="font-medium text-sm lg:text-base">
-              Delivery Address ✓
+              Delivery Address 
             </p>
 
-            {!changeAddressMode && (
+            {!changeAddressMode ? (
               <button
                 onClick={() => setChangeAddressMode(true)}
-                className="text-white text-xs lg:text-base p-1 lg:p-2 bg-defined-green rounded"
+                className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
               >
-                Change Address
+               <IoMdSync /> Change Address
+              </button>
+            ) : (
+               <button
+                onClick={() => setShowAddAddress(true)}
+                className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
+              >
+               <FaPlus />
+ Add New Address
               </button>
             )}
+
+
           </div>
 
           {/* DEFAULT VIEW */}
@@ -563,7 +594,10 @@ const handleQtyById = async (
                     type="radio"
                     name="address"
                     checked={selectedAddressId === address._id}
-                    onChange={() => setSelectedAddressId(address._id)}
+                   onChange={() => {
+  setSelectedAddressId(address._id);
+  sessionStorage.setItem("SELECTED_ADDRESS_ID", address._id);
+}}
                     className="mt-1"
                   />
 
@@ -582,7 +616,12 @@ const handleQtyById = async (
 
               <div className="flex justify-end">
                 <button
-                  onClick={() => setChangeAddressMode(false)}
+                    onClick={() => {
+    if (selectedAddressId) {
+      sessionStorage.setItem("SELECTED_ADDRESS_ID", selectedAddressId);
+    }
+    setChangeAddressMode(false);
+  }}
                   className="text-xs lg:text-base p-1 lg:p-2 bg-defined-green text-white rounded"
                 >
                   Deliver Here
@@ -596,106 +635,106 @@ const handleQtyById = async (
           .slice()
           .reverse()
           .map((item: CartType, index) => {
+            const stockStatus = getStockStatus(item);
+            const stock = (item.productId as ProductType).stock || 0;
+            const isOutOfStock = stockStatus === "out";
+            const canIncrease = item.quantity < stock;
+                      const product = item.productId as ProductType;
+          const linePrice = product.price * item.quantity; // Price × Qty
+const lineMRP = product.mrp * item.quantity;
 
-             const stockStatus = getStockStatus(item);
-    const stock = (item.productId as ProductType).stock || 0;
-    const isOutOfStock = stockStatus === 'out';
-    const canIncrease = item.quantity < stock;
-
-            return(
+            return (
               <div
-              key={item.productId._id}
-              className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
-            >
-              {/* IMAGE + QTY */}
-              <div className="flex flex-col items-center w-full md:w-40">
-                <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
-                  <Image
-                    src={item.productId.coverImage.url}
-                    alt={item.productId.name}
-                    fill
-                    className="object-cover"
-                  />
+                key={item.productId._id}
+                className="flex flex-col md:flex-row bg-white border border-gray-200 rounded-md p-4 gap-4"
+              >
+                {/* IMAGE + QTY */}
+                <div className="flex flex-col items-center w-full md:w-40">
+                  <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
+                    <Image
+                      src={item.productId.coverImage.url}
+                      alt={item.productId.name}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+
+                  <div className="flex items-center mt-2">
+                    <button
+                      onClick={() =>
+                        handleQtyById(
+                          item.productId._id,
+                          item.variantId?._id,
+                          item.quantity - 1,
+                        )
+                      }
+                      className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
+                    >
+                      −
+                    </button>
+
+                    <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        handleQtyById(
+                          item.productId._id,
+                          item.variantId?._id,
+                          item.quantity + 1,
+                        )
+                      }
+                      className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
 
-               
+                {/* INFO */}
+                <div className="flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-semibold text-[18px] text-defined-green">
+                      {(item.productId as ProductType).name}
+                    </h3>
 
-                <div className="flex items-center mt-2">
-  <button
-     onClick={() =>
-              handleQtyById(
-                item.productId._id,
-                item.variantId?._id,
-                item.quantity - 1
-              )
-            }
-    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
-  >
-    −
-  </button>
+                    <p className="text-sm text-gray-500 pt-1">
+                      {(item.productId as ProductType).variables
+                        ?.map((v: any) => `${v.name}: ${v.values.join(", ")}`)
+                        .join(" | ")}
+                    </p>
 
-  <span className="px-4 py-1 border text-defined-black border-gray-200 mx-2">
-    {item.quantity}
-  </span>
+                    <p
+                      className="mt-2 text-sm text-defined-black line-clamp-1"
+                      dangerouslySetInnerHTML={{
+                        __html: (item.productId as ProductType)
+                          .shortDescription,
+                      }}
+                    ></p>
 
-  <button
-     onClick={() =>
-              handleQtyById(
-                item.productId._id,
-                item.variantId?._id,
-                item.quantity + 1
-              )
-            }
-    className="px-4 py-2 border text-defined-black border-gray-200 rounded-full hover:bg-gray-100"
-  >
-    +
-  </button>
-</div>
+                    <p className="mt-2 font-bold text-green-600 text-lg">
+                      ₹{linePrice.toFixed(0)}
+                      <span className="line-through text-gray-400 text-sm ml-3">
+                        ₹{lineMRP.toFixed(0)}
+                      </span>
+                      <span className="text-defined-green text-[13px] ml-2 font-normal">
+                        {(item.productId as ProductType).discount}% OFF
+                      </span>
+                    </p>
+                    {isOutOfStock ? (
+                      <div className="mt-2 px-3 w-fit py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
+                        Out of Stock
+                      </div>
+                    ) : stockStatus === "low" ? (
+                      <div className="mt-2 px-3 py-1 w-fit bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
+                        Only {stock} left
+                      </div>
+                    ) : null}
+                  </div>
 
-              </div>
-
-              {/* INFO */}
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-semibold text-[18px] text-defined-green">
-                    {(item.productId as ProductType).name}
-                  </h3>
-
-                  <p className="text-sm text-gray-500 pt-1">
-                    {(item.productId as ProductType).variables
-                      ?.map((v: any) => `${v.name}: ${v.values.join(", ")}`)
-                      .join(" | ")}
-                  </p>
-
-                  <p
-                    className="mt-2 text-sm text-defined-black"
-                    dangerouslySetInnerHTML={{
-                      __html: (item.productId as ProductType).shortDescription,
-                    }}
-                  ></p>
-
-                  <p className="mt-2 font-bold text-green-600 text-lg">
-                    ₹{(item.productId as ProductType).price}
-                    <span className="line-through text-gray-400 text-sm ml-3">
-                      ₹{item.priceAtTime}
-                    </span>
-                    <span className="text-defined-green text-[13px] ml-2 font-normal">
-                      {(item.productId as ProductType).discount}% OFF
-                    </span>
-                  </p>
-                   {isOutOfStock ? (
-            <div className="mt-2 px-3 w-fit py-1 bg-red-100 text-red-700 text-xs rounded-full font-medium">
-              Out of Stock
-            </div>
-          ) : stockStatus === 'low' ? (
-            <div className="mt-2 px-3 py-1 w-fit bg-orange-100 text-orange-700 text-xs rounded-full font-medium">
-              Only {stock} left
-            </div>
-          ) : null}
-                </div>
-
-                <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
-                  {/* <button
+                  <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
+                    {/* <button
                     className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 "
                     onClick={() => handleMoveToWishlist(item)}
                   >
@@ -707,10 +746,10 @@ const handleQtyById = async (
                   >
                     REMOVE
                   </button> */}
+                  </div>
                 </div>
               </div>
-            </div>
-            )
+            );
           })}
       </div>
 
@@ -776,64 +815,81 @@ const handleQtyById = async (
 
         <div className="text-sm space-y-3 mt-5 text-defined-black">
           <h2 className="font-semibold text-lg">Order Summary</h2>
+
           <div className="flex justify-between">
-            <span>
-              Price (
-              {checkoutItems.reduce((a: number, b: CartType) => a + b.quantity, 0)}{" "}
-              items)
-            </span>
-            <span>₹{total}</span>
+            <span>Price ({totalItems} items)</span>
+            <span>₹{totalMRP.toLocaleString()}</span>
           </div>
 
-          <div className="flex justify-between pb-3">
+          <div className="flex justify-between">
             <span>Discount</span>
-            <span>₹{couponDiscount}</span>
+            <span className="text-green-600">
+              -₹{totalDiscount.toLocaleString()}
+            </span>
           </div>
 
-          <div className="flex justify-between border-b border-gray-200 pb-3">
-            <span>Coupon Code</span>
-            <span>{coupon || "—"}</span>
-          </div>
-          {couponMessage !== "" && (
-            <div className="border border-green-500 text-defined-green rounded-full px-6 py-2 text-sm font-medium whitespace-nowrap">
-              {couponMessage}
+          {couponDiscount > 0 && (
+            <div className="flex justify-between">
+              <span>Coupon Discount</span>
+              <span className="text-green-600">
+                -₹{couponDiscount.toLocaleString()}
+              </span>
             </div>
           )}
 
-          <div className="flex justify-between font-semibold">
+          <div className="flex justify-between font-semibold text-lg border-t border-gray-400 text-gray-700 pt-3">
             <span>Total Amount</span>
-            <span>₹{Math.max(total - couponDiscount, 0)}</span>
+            <span>₹{payableAmount.toLocaleString()}</span>
           </div>
         </div>
 
-       <button
-  onClick={handlePayment}
-  disabled={hasOutOfStockItems || total <= 0 || !selectedAddress}
-  className={`mt-6 w-full rounded-full py-3 text-white font-semibold hover:scale-[1.03] transition-all duration-200 flex items-center justify-center ${
-    hasOutOfStockItems || total <= 0 || !selectedAddress
-      ? 'bg-gray-400 cursor-not-allowed from-gray-400 to-gray-500'
-      : 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
-  }`}
->
-  {hasOutOfStockItems ? (
-    <>
-      <span className="w-5 h-5 mr-2">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      </span>
-      Remove out-of-stock items to pay
-    </>
-  ) : total <= 0 ? (
-    'Empty Cart'
-  ) : !selectedAddress ? (
-    'Select Address First'
-  ) : (
-    `₹${Math.max(total - couponDiscount, 0).toLocaleString()} Pay Now`
-  )}
-</button>
-
+        <button
+          onClick={handlePayment}
+          disabled={
+            hasOutOfStockItems || totalFinalPrice <= 0 || !selectedAddress
+          }
+          className={`mt-6 w-full rounded-full py-3 text-white font-semibold hover:scale-[1.03] transition-all duration-200 flex items-center justify-center ${
+            hasOutOfStockItems || totalFinalPrice <= 0 || !selectedAddress
+              ? "bg-gray-400 cursor-not-allowed from-gray-400 to-gray-500"
+              : "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
+          }`}
+        >
+          {hasOutOfStockItems ? (
+            <>
+              <span className="w-5 h-5 mr-2">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+              </span>
+              Remove out-of-stock items to pay
+            </>
+          ) : totalFinalPrice <= 0 ? (
+            "Empty Cart"
+          ) : !selectedAddress ? (
+            "Select Address First"
+          ) : (
+            `₹${Math.max(totalFinalPrice - couponDiscount, 0).toLocaleString()} Pay Now`
+          )}
+        </button>
       </div>
+      {showAddAddress && (
+  <AddAddressModal
+    onClose={() => setShowAddAddress(false)}
+    onSuccess={ async (newAddressId: string) => {
+      // 🔥 THIS IS THE MAGIC
+        await refreshCustomer();
+      sessionStorage.setItem("SELECTED_ADDRESS_ID", newAddressId);
+      setSelectedAddressId(newAddressId);
+      setChangeAddressMode(false);
+      setShowAddAddress(false);
+    }}
+  />
+)}
     </div>
   );
 }

@@ -1,16 +1,57 @@
 "use client";
+
 import Link from "next/link";
-import { useCategories } from "@/context/CategoryContext";
 import { usePathname } from "next/navigation";
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import CardSkeleton from "../ui/CardSkeleton";
+import { useCategoryList } from "@/hooks/useCategoryList"; 
+import { useInView } from "react-intersection-observer";
 
-export default function HomeCategory() {
-const {categories, loading} = useCategories();
+interface HomeCategoryProps {
+  title?: string;   
+  limit?: number; 
+  page?: number;
+  enableLazy?: boolean;  
+}
+
+export default function HomeCategory({ 
+  title = "Shop by Categories", 
+  limit = 8, 
+  enableLazy = false ,
+  page = 1,
+}: HomeCategoryProps) {
+  
   const pathname = usePathname();
+  const isCategoryPage = pathname === "/categories";
+  
+  
+  const { 
+    categories, 
+    loading, 
+    loadingMore, 
+    hasMore, 
+    loadMore 
+  } = useCategoryList({ 
+    initialLimit: limit, 
+    initialPage: page,
+    isInfinite: enableLazy || isCategoryPage 
+  });
 
-  if(loading){
+
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px", 
+  });
+
+
+  useEffect(() => {
+    if (inView && hasMore && !loading && !loadingMore) {
+      loadMore();
+    }
+  }, [inView, hasMore, loading, loadingMore, loadMore]);
+
+  if (loading) {
     return (
       <div className="py-5">
         <div className="self-padding ">
@@ -18,22 +59,19 @@ const {categories, loading} = useCategories();
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
-            <div/>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <section className="py-2 md:py-5">
       <div className="self-padding ">
-        {/* HEADER ROW */}
-
-        {pathname !== "/categories" && (
+        {!isCategoryPage && (
           <div className="mb-8 flex items-center justify-between">
             <h2 className="text-sm md:text-2xl font-bold">
-              Shop by Categories
+              {title}
             </h2>
 
             <Link
@@ -44,14 +82,12 @@ const {categories, loading} = useCategories();
             </Link>
           </div>
         )}
-       
-        {/* GRID */}
+
+      
         <div className="grid gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7">
-          {categories?.map((cat) => (
-            <React.Fragment key={cat.parent.id}>
-              {/* Parent card */}
+          {categories.map((cat, index) => (
+            <React.Fragment key={`${cat.parent.id}-${index}`}>
               <Link
-              
                 href={`/products?category=${encodeURIComponent(cat.parent.name)}`}
                 className="text-center group"
               >
@@ -69,6 +105,7 @@ const {categories, loading} = useCategories();
                 </p>
               </Link>
 
+              
               {cat.subCategories.map((subCat) => (
                 <Link
                   key={subCat.id ?? subCat.name}
@@ -91,7 +128,27 @@ const {categories, loading} = useCategories();
               ))}
             </React.Fragment>
           ))}
+          
+          {(loadingMore) && (
+             <>
+               <CardSkeleton />
+               <CardSkeleton />
+               <CardSkeleton />
+             </>
+          )}
         </div>
+
+ 
+        {(enableLazy || isCategoryPage) && hasMore && (
+           <div ref={ref} className="w-full h-10 mt-4 flex justify-center items-center">
+            
+           </div>
+        )}
+        
+
+        {(enableLazy || isCategoryPage) && !hasMore && categories.length > 0 && (
+           <p className="text-center text-gray-400 text-sm mt-8"></p>
+        )}
       </div>
     </section>
   );

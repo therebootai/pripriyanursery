@@ -95,6 +95,7 @@ export type ProductType = {
   video?: ImageType;
 
   category: string;
+  categoryLevels?:string[];
   subCategory: string;
   brand: {
     brandId: string;
