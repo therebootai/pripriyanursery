@@ -7,6 +7,7 @@ import OrderTracker from "./OrderTracker";
 import { OrderType } from "@/types/types";
 import { useCustomer } from "@/context/CustomerContext";
 import axios from "axios";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function MyOrders() {
   // const [trackerOpen, setTrackerOpen] = useState(false);
@@ -14,21 +15,25 @@ export default function MyOrders() {
   //   useState<Order["status"]>("Processing");
   const { customer, loading } = useCustomer();
   const [orders, setOrders] = useState<OrderType[]>([]);
-
+   const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+  const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
     if (!customer?._id) return;
 
     const fetchOrders = async () => {
       const res = await axios(
-        `${process.env.NEXT_PUBLIC_API_URL}/order/customers/${customer._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/order/customers/${customer._id}?page=${page}&limit=10`,
       );
       if (res.data.success) {
         setOrders(res.data.data);
+        setTotalPages(res.data.pagination.totalPages);
       }
     };
 
     fetchOrders();
-  }, [customer]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [customer,page]);
 
   useEffect(() => {}, [orders]);
 
@@ -80,7 +85,27 @@ export default function MyOrders() {
     }
   };
 
-  if (loading) {
+  const getPageNumbers = () => {
+    const pages = [];
+    const maxVisibleButtons = 5; // How many numbers to show at once
+
+    if (totalPages <= maxVisibleButtons) {
+      // Show all pages if total is small
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      // Complex logic for ellipsis (...)
+      if (page <= 3) {
+        pages.push(1, 2, 3, 4, "...", totalPages);
+      } else if (page >= totalPages - 2) {
+        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
+      }
+    }
+    return pages;
+  };
+
+if (loading && page === 1) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         Loading...
@@ -88,16 +113,20 @@ export default function MyOrders() {
     );
   }
 
-  if (orders?.length === 0) {
+  if (orders?.length === 0 && !isFetching) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         You have no orders yet
       </div>
     );
   }
-
   return (
     <div className="space-y-6">
+      {isFetching && (
+        <div className="fixed inset-0 bg-white/50 z-50 flex items-center justify-center pointer-events-none">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+        </div>
+      )}
       {orders?.map((order) => {
         const isProductAvailable = Boolean(order.product?.slug);
         return (
@@ -268,6 +297,51 @@ export default function MyOrders() {
           </div>
         );
       })}
+
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-8 pb-4">
+          {/* Previous Button */}
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="p-2 border rounded-md hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronLeft size={18} />
+          </button>
+
+          {/* Page Numbers */}
+          <div className="flex items-center gap-1">
+            {getPageNumbers().map((pageNum, idx) => (
+              <button
+                key={idx}
+                disabled={pageNum === "..."}
+                onClick={() => typeof pageNum === "number" && setPage(pageNum)}
+                className={`
+                  min-w-[36px] h-[36px] px-3 rounded-md text-sm font-medium transition-all
+                  ${
+                    pageNum === page
+                      ? "bg-green-600 text-white shadow-md"
+                      : pageNum === "..."
+                      ? "text-gray-400 cursor-default"
+                      : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
+                  }
+                `}
+              >
+                {pageNum}
+              </button>
+            ))}
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page === totalPages}
+            className="p-2 border rounded-md hover:bg-gray-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      )}
 
       {/* TRACKER MODAL */}
       {/* <OrderTracker

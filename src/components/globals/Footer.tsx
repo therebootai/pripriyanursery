@@ -77,15 +77,15 @@ export default function Footer() {
       {/* CALLBACK BAR */}
       <div className="relative z-10 pb-6 pt-12">
         <div className="mx-auto max-w-[1300px] px-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 rounded bg-white/10 backdrop-blur-md px-6 py-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 rounded bg-white/10 backdrop-blur-md px-4 lg:px-6 py-4">
             <p className="text-[17px] text-white">
-              Get a call back within 15 minutes. WhatsApp us 24x7<br></br>{" "}
+              Get a call back within 15 minutes. WhatsApp us 24x7<br className=" max-md:hidden "></br>{" "}
               between 9:00 AM and 8:00 PM.
             </p>
 
             <div className="flex w-full md:w-auto md:border md:border-white rounded-[40px]">
               <form action="" onSubmit={handleSubmit}>
-                <div className="flex w-full md:w-[550px] px-4 md:px-0">
+                <div className="flex w-full md:w-[550px]  md:px-0">
                   {/* Input Field */}
                   <div className="flex items-center   backdrop-blur-md rounded-l-[40px] px-3 w-full">
                     <svg
@@ -165,7 +165,7 @@ export default function Footer() {
       <div className="relative z-10">
         <div className="mx-auto max-w-[1300px] px-4 pb-12 pt-6">
           <div className="text-gray-300">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
               {/* BRAND – BIG */}
               <div className="lg:col-span-3">
                 <Link href="/" className="block">

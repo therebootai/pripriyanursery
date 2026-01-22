@@ -12,27 +12,28 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 
-
+type Product = {
+  _id: string;
+  slug: string;
+  name: string;
+  price: number;
+  mrp?: number;
+  discount?: number;
+  coverImage: {
+    url: string;
+    public_id:string
+  };
+};
 
 export default function ProductCards({
   _id,
   name,
   price,
   coverImage,
-  images,
-  brand,
-  longDescription,
-  shortDescription,
   mrp,
   discount,
-  // averageRating,
-  // ratingCount,
-  // ratingBreakdown,
-  // image,
-  // category,
-  // tag,
   slug,
-}: ProductType) {
+}: Product) {
   const { customer, refreshCustomer } = useCustomer();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -221,16 +222,17 @@ useEffect(() => {
           <span className="text-xs md:text-lg font-bold text-defined-green">
             ₹{price.toFixed(0)}
           </span>
-          {discount > 0 && (
-            <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-gray-500 line-through">
-              ₹{mrp.toFixed(0)}
-            </span>
-          )}
-          {discount > 0 && (
-            <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-red-500">
-              {discount}% OFF
-            </span>
-          )}
+         {discount && discount > 0 && mrp && (
+  <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-gray-500 line-through">
+    ₹{mrp.toFixed(0)}
+  </span>
+)}
+
+          {discount && discount > 0 && (
+  <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-red-500">
+    {discount}% OFF
+  </span>
+)}
         </div>
 
         {/* BUTTONS */}
