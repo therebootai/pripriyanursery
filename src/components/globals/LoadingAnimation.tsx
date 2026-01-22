@@ -5,7 +5,7 @@ const LoadingAnimation = () => {
     <>
       <style>{`
         /* From Uiverse.io by NlghtM4re */ 
-        .container {
+        .container-a {
           width: 100%;
           display: flex;
           justify-content: center;
@@ -79,7 +79,7 @@ const LoadingAnimation = () => {
         }
       `}</style>
 
-      <div className="container">
+      <div className="container-a">
         <div className="tree">
           {/* Branch 0 */}
           <div className="branch" style={{ "--x": 0 } as React.CSSProperties}>

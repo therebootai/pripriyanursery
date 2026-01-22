@@ -104,7 +104,7 @@ const loadMore = async () => {
         {/* Infinite Scroll Loader */}
         {pagination.totalPages > page && (
           <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4 gap-6"
+            className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xlg:grid-cols-4 gap-6"
             ref={ref}
           >
             <CardSkeleton />

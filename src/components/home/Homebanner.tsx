@@ -31,11 +31,11 @@ export default function Homebanner() {
           nextEl: ".banner-next",
           prevEl: ".banner-prev",
         }}
-        className="h-[200px] sm:h-[350px] md:h-[450px] lg:h-[520px] mt-[-60px] mb-[-60px] md:mt-0 md:mb-0"
+        className=" mt-[-50px] mb-[-30px]  md:mt-0 md:mb-0"
       >
         {images.map((src, index) => (
           <SwiperSlide key={index}>
-            <div className="relative h-full w-full">
+            <div className="relative h-[13rem]  md:h-[450px] lg:h-[520px] w-full">
               <Image
                 src={src}
                 alt={`Banner ${index + 1}`}
