@@ -1,6 +1,7 @@
 import MainTemplates from "@/templates/MainTemplates";
 import ProductDetails from "@/components/product/ProductDetails";
 import { ProductType } from "@/types/types";
+import RelatedProductSection from "@/components/product/RelatedProductSection";
 export const dynamic = 'force-dynamic'; 
 
 export default async function ProductDetailsPage({
@@ -45,23 +46,9 @@ export default async function ProductDetailsPage({
     <MainTemplates>
       <section className="self-padding md:py-10  flex flex-col gap-8">
         <ProductDetails product={product} />
-        <div className="flex flex-col gap-4">
-          <div className="grid md:grid-cols-4 gap-6">
-            <h2 className="font-semibold text-[#0047BB] mb-6 text-[24px]">
-              Related Products
-            </h2>
-            {/* {relatedProducts.map((item) => (
-            <ProductCards
-              key={item.href}
-              id={item.id}
-              name={item.name}
-              price={item.price}
-              image={item.image}
-              category={item.category}
-              href={item.href}
-            />
-          ))} */}
-          </div>
+        <div className="w-full">
+          <RelatedProductSection slug={product.slug}/>
+           
         </div>
       </section>
     </MainTemplates>

@@ -13,6 +13,8 @@ type EditableFieldProps = {
   value: string;
   placeholder?: string;
   fieldKey: string;
+  minLength?:any;
+  maxLength?:any;
   onSave: (key: string, value: string) => Promise<void>;
 };
 
@@ -21,6 +23,8 @@ function EditableField({
   placeholder,
   fieldKey,
   onSave,
+  maxLength,
+  minLength
 }: EditableFieldProps) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(value);
@@ -55,6 +59,8 @@ function EditableField({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={placeholder}
+            maxLength={maxLength}
+            minLength={minLength}
             className="flex-1 bg-transparent outline-none text-sm"
           />
 
@@ -94,10 +100,10 @@ export default function AccountInformation() {
   const updateField = async (key: string, value: string) => {
     if (!customer?._id || !value.trim()) return;
 
-    if (key === "mobile" && !value.startsWith("91")) {
-      toast.error("Mobile number should start with 91");
-      throw new Error("Invalid phone");
-    }
+    // if (key === "mobile" && !value.startsWith("91")) {
+    //   toast.error("Mobile number should start with 91");
+    //   throw new Error("Invalid phone");
+    // }
 
     try {
       const res = await fetch(
@@ -204,6 +210,8 @@ export default function AccountInformation() {
         <EditableField
           value={customer?.mobile || ""}
           fieldKey="mobile"
+          maxLength={10}
+          minLength={10}
           placeholder="Your mobile number"
           onSave={updateField}
         />

@@ -15,7 +15,8 @@ export default async function CategoriesPage() {
 
       <section className="py-6">
         <div className=" self-padding">
-          <HomeCategory />
+          <HomeCategory  limit={8} 
+          enableLazy={true}  />
         </div>
       </section>
       </Suspense>
