@@ -37,8 +37,8 @@ export default function Header() {
   const [results, setResults] = useState<any[]>([]);
   const [show, setShow] = useState(false);
   const [suggestions, setSuggestions] = useState<any[]>([]);
-const inputRef = useRef<HTMLDivElement>(null);
-const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [open, setOpen] = useState(false);
@@ -57,15 +57,14 @@ const dropdownRef = useRef<HTMLDivElement>(null);
     { label: "Hindi", code: "HIN" },
   ];
 
-  
-const openLogin = () => {
-  const fullPath =
-    pathname + (searchParams.toString() ? `?${searchParams}` : "");
+  const openLogin = () => {
+    const fullPath =
+      pathname + (searchParams.toString() ? `?${searchParams}` : "");
 
-  localStorage.setItem("redirectAfterLogin", fullPath);
+    localStorage.setItem("redirectAfterLogin", fullPath);
 
-  setIsSignupOpen(true); // this opens CustomerLoginModal
-};
+    setIsSignupOpen(true); // this opens CustomerLoginModal
+  };
 
   useEffect(() => {
     if (!debouncedQuery) {
@@ -85,7 +84,7 @@ const openLogin = () => {
 
   const fetchSuggestions = async () => {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/search/suggestions`
+      `${process.env.NEXT_PUBLIC_API_URL}/search/suggestions`,
     );
     const data = await res.json();
     if (data.success) {
@@ -109,21 +108,21 @@ const openLogin = () => {
     setQuery("");
 
     setTimeout(() => {
-    switch (item.type) {
-      case "product":
-        router.push(`/product/${item.slug}`);
-        break;
-      case "category":
-        router.push(`/products?category=${encodeURIComponent(item.name)}`);
-        break;
-      case "brand":
-        router.push(`/products?brand=${encodeURIComponent(item.name)}`);
-        break;
-      case "attribute":
-        router.push(`/products?attribute=${encodeURIComponent(item.name)}`);
-        break;
-    }
-  }, 0);
+      switch (item.type) {
+        case "product":
+          router.push(`/product/${item.slug}`);
+          break;
+        case "category":
+          router.push(`/products?category=${encodeURIComponent(item.name)}`);
+          break;
+        case "brand":
+          router.push(`/products?brand=${encodeURIComponent(item.name)}`);
+          break;
+        case "attribute":
+          router.push(`/products?attribute=${encodeURIComponent(item.name)}`);
+          break;
+      }
+    }, 0);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -154,38 +153,38 @@ const openLogin = () => {
 
   /* ================= OUTSIDE CLICK ================= */
 
-useEffect(() => {
-  const handler = (e: MouseEvent) => {
-    const target = e.target as Node;
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as Node;
 
-    if (
-      inputRef.current?.contains(target) ||
-      dropdownRef.current?.contains(target)
-    ) {
-      return;
+      if (
+        inputRef.current?.contains(target) ||
+        dropdownRef.current?.contains(target)
+      ) {
+        return;
+      }
+
+      setShow(false);
+      setActiveIndex(-1);
+    };
+
+    document.addEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+    };
+  }, []);
+
+  function getName(name = "") {
+    const parts = name.trim().split(/\s+/);
+
+    if (parts.length === 1) {
+      return parts[0][0]?.toUpperCase() || "";
     }
 
-    setShow(false);
-    setActiveIndex(-1);
-  };
-
- document.addEventListener("mousedown", handler);
-  return () => {
-    document.removeEventListener("mousedown", handler);
-  };
-}, []);
-
-
-function getName(name = "") {
-  const parts = name.trim().split(/\s+/);
-
-  if (parts.length === 1) {
-    return parts[0][0]?.toUpperCase() || "";
+    return (
+      parts[0][0]?.toUpperCase() + parts[parts.length - 1][0]?.toUpperCase()
+    );
   }
-
-  return parts[0][0]?.toUpperCase() + parts[parts.length - 1][0]?.toUpperCase();
-}
-
 
   const list = query ? results : suggestions;
 
@@ -244,7 +243,10 @@ function getName(name = "") {
                     {suggestions.map((item, idx) => (
                       <button
                         key={`suggest-${idx}`}
-                        onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item)}}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearchClick(item);
+                        }}
                         className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
@@ -277,7 +279,10 @@ function getName(name = "") {
                     {results.map((item, idx) => (
                       <button
                         key={`result-${idx}`}
-                        onMouseDown={(e) => { e.preventDefault(); handleSearchClick(item)}}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleSearchClick(item);
+                        }}
                         className="flex w-full items-center gap-3 px-4 py-2 hover:bg-gray-100 text-left cursor-pointer"
                       >
                         {item.type === "product" && item.image && (
@@ -350,8 +355,8 @@ function getName(name = "") {
             {!customer ? (
               <button
                 onClick={() => {
-                  setIsSignupOpen(true)
-                  openLogin()
+                  setIsSignupOpen(true);
+                  openLogin();
                 }}
                 className="rounded-full bg-gray-100 px-6 py-3 text-sm font-bold text-defined-green  flex gap-1 cursor-pointer"
               >
@@ -366,7 +371,7 @@ function getName(name = "") {
                   {customer ? (
                     <>
                       <div className="px-6 py-3 text-sm rounded-full text-white bg-defined-green font-bold flex items-center justify-center gap-1">
-                    <User size={16} />
+                        <User size={16} />
                         {getName(customer.name)}
                         <ChevronDown size={16} />
                       </div>
@@ -387,24 +392,24 @@ function getName(name = "") {
                     >
                       <UserIcon size={16} /> My Account
                     </Link>
-                      <Link
-                  href="/my-orders"
-                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
-                >
-                 <BsBoxSeam  size={16} /> My Orders
-                </Link>
-                 <Link
-                  href="/my-wishlist"
-                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
-                >
-                 <Heart size={16} /> My Wishlist
-                </Link>
-                  <Link
-                  href="/my-cart"
-                  className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
-                >
-                <ShoppingCart size={16} />  My Cart
-                </Link>
+                    <Link
+                      href="/my-orders"
+                      className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                    >
+                      <BsBoxSeam size={16} /> My Orders
+                    </Link>
+                    <Link
+                      href="/my-wishlist"
+                      className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                    >
+                      <Heart size={16} /> My Wishlist
+                    </Link>
+                    <Link
+                      href="/my-cart"
+                      className="flex items-center gap-2 px-4 py-3 text-defined-green  hover:bg-gray-100"
+                    >
+                      <ShoppingCart size={16} /> My Cart
+                    </Link>
 
                     <button
                       onClick={async () => {
@@ -547,7 +552,6 @@ function getName(name = "") {
                 >
                   My Account
                 </Link>
-               
 
                 <button
                   onClick={async () => {

@@ -124,6 +124,15 @@ export type ProductType = {
   discount: number;
   stock: number;
 
+  reviews: {
+    _id: string;
+    user: { name: string, };
+    rating: number;
+    description: string;
+    title: string;
+    supporting_files?: ImageType[];
+  }[];
+
   status: boolean;
   createdAt: Date;
   updatedAt: Date;

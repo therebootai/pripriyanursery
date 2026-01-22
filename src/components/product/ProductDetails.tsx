@@ -15,6 +15,7 @@ import Link from "next/link";
 import SinglePageImagesComponent from "./SinglePageImagesComponent";
 import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import ShareModal from "./ShareModel";
+import ReviewCard from "./ProductReview";
 
 type TrustProps = {
   icon: React.ReactNode;
@@ -324,16 +325,16 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   };
 
   useEffect(() => {
-  if (!customer || !customer.wishlist) return;
+    if (!customer || !customer.wishlist) return;
 
-  const exists = customer.wishlist.some(
-    (item: any) =>
-      String(item.product?._id || item.product) === String(product._id) &&
-      item.status === true
-  );
+    const exists = customer.wishlist.some(
+      (item: any) =>
+        String(item.product?._id || item.product) === String(product._id) &&
+        item.status === true,
+    );
 
-  setIsWishlisted(exists);
-}, [customer, product._id]);
+    setIsWishlisted(exists);
+  }, [customer, product._id]);
 
   const handleShare = () => setShowShare(true);
 
@@ -612,14 +613,14 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                             </tr>
                           ),
                         )}
-                          <div className={`relative ${open ? "mt-3" : "-mt-3"}`}>
-                  <button
-                    onClick={() => setOpen(!open)}
-                    className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
-                  >
-                    {open ? "Read Less" : "Read More"}
-                  </button>
-                </div>
+                        <div className={`relative ${open ? "mt-3" : "-mt-3"}`}>
+                          <button
+                            onClick={() => setOpen(!open)}
+                            className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
+                          >
+                            {open ? "Read Less" : "Read More"}
+                          </button>
+                        </div>
                       </tbody>
                     </table>
                   </div>
@@ -628,8 +629,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                     <div className="absolute bottom-0 left-0 w-full h-14 bg-linear-to-t from-white/50 to-transparent pointer-events-none" />
                   )}
                 </div>
-
-              
               </div>
             )}
 
@@ -647,6 +646,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 />
               </div>
             )}
+            {/* <ReviewCard review={product.reviews} /> */}
+            {product.reviews.map((review: any) => (
+              <ReviewCard key={review._id} review={review} />
+            ))}
           </div>
         </div>
       </section>

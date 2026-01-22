@@ -97,7 +97,7 @@ export default function ReviewPage({
       formData.append("rating", rating.toString());
 
       supportingFiles.forEach((file) => {
-        formData.append("supporting_files", file);
+        formData.append("images", file);
       });
       formData.append("productId", productDetails?._id ?? "");
       formData.append("customerId", customer?._id ?? "");
