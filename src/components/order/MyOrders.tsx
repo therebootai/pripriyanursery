@@ -15,8 +15,8 @@ export default function MyOrders() {
   //   useState<Order["status"]>("Processing");
   const { customer, loading } = useCustomer();
   const [orders, setOrders] = useState<OrderType[]>([]);
-   const [page, setPage] = useState(1);
-const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
   useEffect(() => {
     if (!customer?._id) return;
@@ -32,8 +32,8 @@ const [totalPages, setTotalPages] = useState(1);
     };
 
     fetchOrders();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [customer,page]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [customer, page]);
 
   useEffect(() => {}, [orders]);
 
@@ -97,7 +97,14 @@ const [totalPages, setTotalPages] = useState(1);
       if (page <= 3) {
         pages.push(1, 2, 3, 4, "...", totalPages);
       } else if (page >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
       } else {
         pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
       }
@@ -105,7 +112,7 @@ const [totalPages, setTotalPages] = useState(1);
     return pages;
   };
 
-if (loading && page === 1) {
+  if (loading && page === 1) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         Loading...
@@ -287,11 +294,13 @@ if (loading && page === 1) {
                   View Return / Replacement
                 </button>
 
-                <Link href={`/review?product=${order.product?.slug}`}>
-                  <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                    Write a Review
-                  </button>
-                </Link>
+                {order.status === "Delivered" && (
+                  <Link href={`/review?product=${order.product?.slug}`}>
+                    <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                      Write a Review
+                    </button>
+                  </Link>
+                )}
               </div>
             </div>
           </div>
@@ -322,8 +331,8 @@ if (loading && page === 1) {
                     pageNum === page
                       ? "bg-green-600 text-white shadow-md"
                       : pageNum === "..."
-                      ? "text-gray-400 cursor-default"
-                      : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
+                        ? "text-gray-400 cursor-default"
+                        : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
                   }
                 `}
               >
