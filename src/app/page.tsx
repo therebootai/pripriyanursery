@@ -53,8 +53,8 @@ export default async function Home() {
        />   
         <ProductSection
          title="Fruit Plants"
-         products={newProducts.data}
-         pagination={newProducts.pagination}
+         products={fruitPlantsroducts.data}
+         pagination={fruitPlantsroducts.pagination}
          limit={PRODUCT_LIMIT}
          apiQuery="category=Fruit+Plants" 
          enableLazy={false}
@@ -63,8 +63,8 @@ export default async function Home() {
         <Homebanner2 />
          <ProductSection
          title="Flower Plants"
-         products={newProducts.data}
-         pagination={newProducts.pagination}
+         products={flowerPlantsroducts.data}
+         pagination={flowerPlantsroducts.pagination}
          limit={PRODUCT_LIMIT}
          apiQuery="category=Flower+Plants" 
          enableLazy={false}

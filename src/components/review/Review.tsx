@@ -15,7 +15,7 @@ interface FileWithPreview extends File {
 export default function ReviewPage({
   productDetails,
 }: {
-  productDetails: ProductType | null;
+  productDetails?: ProductType | null;
 }) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
