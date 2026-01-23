@@ -35,23 +35,11 @@ export default function CartList() {
   };
 
 useEffect(() => {
-  if (!customer?.cart) return;
+  if (!customer?._id) return;
 
-  // 1️⃣ First priority: localStorage
-  const stored = localStorage.getItem("LOCAL_CART");
+  setLocalCart(customer.cart as CartType[]);
+}, [customer?.cart]);
 
-  if (stored && !hasInitialized.current) {
-    setLocalCart(JSON.parse(stored));
-    hasInitialized.current = true;
-    return;
-  }
-
-  // 2️⃣ Fallback: backend cart (ONLY ONCE)
-  if (!hasInitialized.current) {
-    setLocalCart(customer.cart as CartType[]);
-    hasInitialized.current = true;
-  }
-}, [customer?._id]);
 
 
   const cart = localCart;

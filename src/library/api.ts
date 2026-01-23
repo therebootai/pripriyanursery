@@ -79,7 +79,8 @@ export const getCustomer = async (): Promise<Customer> => {
 
 export const logout = async () => {
   try {
-    await api.post("/customer/logout",{}, { withCredentials: true });    
+    await api.post("/customer/logout",{}, { withCredentials: true });
+    localStorage.removeItem("LOCAL_CART");    
   } catch (error) {
     const err = error as AxiosError<ApiErrorResponse>;
     throw new Error(err.response?.data?.message ?? "Failed to logout");

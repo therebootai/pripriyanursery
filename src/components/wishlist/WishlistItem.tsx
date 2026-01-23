@@ -2,20 +2,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
-import { ProductType } from "@/types/types";
+import { ProductType, WishlistType } from "@/types/types";
 import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import { useCustomer } from "@/context/CustomerContext";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { addToCartApi } from "@/library/cart";
 
-export default function WishlistItem({item} : {item: ProductType}) {
+export default function WishlistItem({item} : {item: WishlistType}) {
 
    const { customer, refreshCustomer} = useCustomer();
    const customerId = customer?._id;
     const [loading, setLoading] = useState(false);
-    console.log(item.name)
-
+  const product = item.product;
   const handleWishlist = async () => {
     if (!customerId || loading) return;
   
@@ -43,12 +42,12 @@ export default function WishlistItem({item} : {item: ProductType}) {
     try {
       await addToCartApi(
         customerId,
-        item._id,
+        product._id,
         undefined,
         1,
-        item.price
+        product.price
       );
-      await toggleWishlistApi(customerId, item._id);
+      await toggleWishlistApi(customerId, product._id);
       await refreshCustomer();
       toast.success("Moved to cart");
     } catch (err) {
@@ -67,8 +66,8 @@ export default function WishlistItem({item} : {item: ProductType}) {
         {/* Image */}
         <div className="relative h-36 w-full sm:h-40 sm:w-40 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
           <Image
-            src={item.coverImage?.url}
-            alt={item.coverImage?.public_id}
+            src={product.coverImage?.url}
+            alt={product.coverImage?.public_id}
             fill
             className="object-cover"
           />
@@ -79,23 +78,23 @@ export default function WishlistItem({item} : {item: ProductType}) {
           {/* Top content */}
           <div>
             <h4 className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-snug">
-              {item.name}
+              {product.name}
             </h4>
 
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              {item.variables?.map((v) => v.name).join(", ")}
+              {product.variables?.map((v) => v.name).join(", ")}
             </p>
 
-            {item.price && (
+            {product.price && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-                  ₹{item.price}
+                  ₹{product.price.toFixed(0)}
                 </span>
                 <span className="line-through text-gray-500 text-xs sm:text-sm">
-                  ₹{item.mrp}
+                  ₹{product.mrp.toFixed(0)}
                 </span>
                 <span className="text-xs text-green-600 font-medium">
-                  {item.discount}% OFF
+                  {product.discount}% OFF
                 </span>
               </div>
             )}
@@ -129,7 +128,7 @@ export default function WishlistItem({item} : {item: ProductType}) {
       {/* RIGHT: Actions */}
       <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 justify-between lg:justify-center">
         <Link
-          href={`/product/${item.slug}`}
+          href={`/product/${product.slug}`}
           className="
             inline-flex items-center justify-center
             text-xs sm:text-sm
