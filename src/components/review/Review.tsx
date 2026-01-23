@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
-import { Star } from "lucide-react";
-import Link from "next/link";
+import { Star, X } from "lucide-react";
 import { ProductType } from "@/types/types";
 import { useCustomer } from "@/context/CustomerContext";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -25,6 +26,8 @@ export default function ReviewPage({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { customer } = useCustomer();
+
+  const nav = useRouter();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
@@ -60,14 +63,6 @@ export default function ReviewPage({
     }
 
     setSupportingFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-  // Format file size
-  const formatFileSize = (bytes: number): string => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   // Get file icon based on type
@@ -111,18 +106,19 @@ export default function ReviewPage({
       );
 
       if (status === 201 && ok) {
-        alert("Review submitted successfully");
+        toast.success("Review submitted successfully");
         setSupportingFiles([]);
         setTitle("");
         setDescription("");
         setRating(0);
         setHover(0);
+        nav.push("/my-orders");
         return;
       }
       throw new Error("Failed to submit review");
     } catch (error: any) {
       console.error(error);
-      alert(error.message);
+      toast.error(error.message ?? "Failed to submit review");
     }
   }
 
@@ -222,10 +218,10 @@ export default function ReviewPage({
               <button
                 type="button"
                 onClick={() => removeFile(index)}
-                className="absolute top-1 right-1 z-10 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                className="absolute top-1 right-1 z-10 w-6 h-6 text-red-500 flex items-center justify-center text-xs hover:text-red-600 transition-colors"
                 aria-label={`Remove ${file.name}`}
               >
-                ×
+                <X />
               </button>
 
               {/* File preview/thumbnail */}

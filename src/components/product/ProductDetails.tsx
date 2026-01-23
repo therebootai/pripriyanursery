@@ -17,6 +17,7 @@ import { removeWishlistApi, toggleWishlistApi } from "@/library/wishlist";
 import ShareModal from "./ShareModel";
 import ReviewCard from "./ProductReview";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
+import ProductRatingSummary from "./ProductRatingSummary";
 
 type TrustProps = {
   icon: React.ReactNode;
@@ -434,10 +435,12 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             {/* Rating */}
             <div className="flex items-center gap-2 w-full">
               <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
-                4.9 <Star size={14} fill="white" />
+                {product.averageRating.toFixed(1)}{" "}
+                <Star size={14} fill="white" />
               </span>
               <span className="text-[16px] text-gray-600">
-                6,426 Ratings & 477 Reviews
+                {product.ratingCount.toLocaleString()} Ratings &{" "}
+                {product.reviews.length} Reviews
               </span>
             </div>
 
@@ -647,14 +650,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                             </tr>
                           ),
                         )}
-                        <div className={`relative ${open ? "mt-3" : "-mt-3"}`}>
-                          <button
-                            onClick={() => setOpen(!open)}
-                            className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
-                          >
-                            {open ? "Read Less" : "Read More"}
-                          </button>
-                        </div>
                       </tbody>
                     </table>
                   </div>
@@ -663,6 +658,16 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                     <div className="absolute bottom-0 left-0 w-full h-14 bg-linear-to-t from-white/50 to-transparent pointer-events-none" />
                   )}
                 </div>
+                {product.specifications.length > 1 && (
+                  <div className={`relative mt-2`}>
+                    <button
+                      onClick={() => setOpen(!open)}
+                      className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
+                    >
+                      {open ? "Read Less" : "Read More"}
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -681,9 +686,20 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
             {/* <ReviewCard review={product.reviews} /> */}
-            {product.reviews.map((review: any) => (
-              <ReviewCard key={review._id} review={review} />
-            ))}
+            <div className="flex flex-col gap-2.5">
+              <h2 className="text-lg font-semibold text-defined-black mb-3">
+                Ratings &amp; Reviews
+              </h2>
+              <ProductRatingSummary
+                averageRating={product.averageRating}
+                ratingCount={product.ratingCount}
+                ratingBreakdown={product.ratingBreakdown}
+                reviewsCount={product.reviews.length}
+              />
+              {product.reviews.map((review: any) => (
+                <ReviewCard key={review._id} review={review} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
