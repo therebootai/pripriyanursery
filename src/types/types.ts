@@ -26,7 +26,7 @@ export interface Customer {
     quantity: number;
     priceAtTime: number;
   }>;
-  wishlist: ProductType[];
+  wishlist: WishlistType[];
   totalOrders: number;
   totalSpent: number;
   rewards: {
