@@ -52,7 +52,7 @@ export default function CategorySidebar({
                 <button
                   key={sub.id ?? sub.name}
                   onClick={() => handleClick(sub.name)}
-                  className={`w-full lg:w-fit flex flex-col lg:flex-row justify-center items-center md:gap-3 gap-1 rounded-md p-2
+                  className={`w-full lg:w-full flex flex-col lg:flex-row  items-center md:gap-3 gap-1 rounded-md p-2
                   ${
                     activeCategory === sub.name
                       ? "bg-defined-green/10"

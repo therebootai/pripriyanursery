@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 interface ResourceContextType<T> {
   data: T | null;
   loading: boolean;
-  refresh: () => Promise<void>;
+    refresh: (options?: { silent?: boolean }) => Promise<void>;
   clear?: () => void;
 }
 
@@ -21,17 +21,22 @@ export function createResourceContext<T>(
     const [data, setData] = useState<T | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const refresh = async () => {
-      try {
-        setLoading(true);
-        const result = await fetcher();
-        setData(result);
-      } catch (err) {
-        setData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+const refresh = async (options?: { silent?: boolean }) => {
+  try {
+    if (!options?.silent) {
+      setLoading(true);
+    }
+    const result = await fetcher();
+    setData(result);
+  } catch {
+    setData(null);
+  } finally {
+    if (!options?.silent) {
+      setLoading(false);
+    }
+  }
+};
+
 
     useEffect(() => {
       refresh();

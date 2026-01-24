@@ -20,6 +20,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { BsBoxSeam, BsBoxSeamFill } from "react-icons/bs";
+import LoadingAnimation from "./LoadingAnimation";
+import { useGlobalUI } from "@/context/GlobalUIContext";
 
 type SearchItem = {
   type: "product" | "category" | "brand" | "attribute";
@@ -47,10 +49,11 @@ export default function Header() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [language, setLanguage] = useState("ENG");
 
-  const { customer, loading, logoutCustomer } = useCustomer();
+  const { customer, loading, logoutCustomer,clearCustomer } = useCustomer();
   const router = useRouter();
-  const [activeIndex, setActiveIndex] = useState(-1);
 
+  const [activeIndex, setActiveIndex] = useState(-1);
+const [isLoggingOut, setIsLoggingOut] = useState(false);
   const languages = [
     { label: "English", code: "ENG" },
     { label: "Bengali", code: "BEN" },
@@ -186,11 +189,36 @@ export default function Header() {
     );
   }
 
+const { setShowLoader } = useGlobalUI();
+const handleLogoutClick = async () => {
+  try {
+    setShowLoader(true);
+    setAccountOpen(false);
+    setOpen(false);
+
+    await logoutCustomer();
+    clearCustomer();
+
+    router.replace("/");
+  } catch (error) {
+    console.error("Logout failed", error);
+    setShowLoader(false);
+  }
+};
+
+  useEffect(() => {
+  setShowLoader(false);
+}, [pathname]);
   const list = query ? results : suggestions;
 
   return (
+    <>
+    {isLoggingOut &&  <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
+    <LoadingAnimation />
+  </div>}
+   
     <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
-      <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-4">
+      <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-6">
         {/* TOP BAR */}
         <div className="flex h-16 md:h-20 items-center justify-between gap-3">
           {/* Logo */}
@@ -414,10 +442,7 @@ export default function Header() {
                     </Link>
 
                     <button
-                      onClick={async () => {
-                        await logoutCustomer();
-                        router.push("/");
-                      }}
+                     onClick={handleLogoutClick}
                       className="flex w-full items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-100 cursor-pointer"
                     >
                       <LogOut size={16} /> Logout
@@ -462,17 +487,17 @@ export default function Header() {
               </div>
             </button>
             <Link
-              href="#"
+              href="/my-orders"
               className="rounded-full bg-green-600 px-6 py-3 text-sm font-bold text-white  flex gap-1 items-center"
             >
-              Support <Headphones size={16} />
+              <BsBoxSeam size={18} /> My Orders
             </Link>
           </div>
 
           {/* MOBILE FULL SEARCH MODE */}
 
           {/* MOBILE SEARCH + MENU */}
-          <div className="md:hidden flex items-center gap-3">
+          <div className="md:hidden flex items-center gap-4">
             {!mobileSearchOpen && (
               <button
                 onClick={() => {
@@ -484,7 +509,7 @@ export default function Header() {
                 }}
                 className="relative text-defined-green"
               >
-                <Heart size={20} />
+                <Heart size={22} />
 
                 <span className="absolute -top-1 -right-2 size-3 rounded-full bg-defined-green text-[10px] font-bold text-white flex items-center justify-center">
                   {customer?.wishlist?.length ?? 0}
@@ -502,7 +527,7 @@ export default function Header() {
                 }}
                 className="relative text-defined-green"
               >
-                <ShoppingCart size={20} />
+                <ShoppingCart size={22} />
 
                 <span className="absolute -top-1 -right-2 size-3 rounded-full bg-defined-green text-[10px] font-bold text-white flex items-center justify-center">
                   {customer?.cart?.length ?? 0}
@@ -510,79 +535,76 @@ export default function Header() {
               </button>
             )}
 
-            {!mobileSearchOpen && (
-              <button
-                onClick={() => {
-                  if (!customer) {
-                    setIsSignupOpen(true);
-                    return;
-                  }
-                  router.push("/my-account");
-                }}
-                className="text-defined-green"
-              >
-                {customer ? (
-                  <>
-                    <div className="size-8 text-xs rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
-                      {getName(customer.name)}
-                    </div>
-                  </>
-                ) : (
-                  <UserIcon size={20} />
-                )}
-              </button>
-            )}
+          {/* Replace this specific button inside your MOBILE SEARCH + MENU section */}
+
+<div className="relative"> {/* Added relative wrapper for positioning */}
+  <button
+    onClick={() => {
+      if (!customer) {
+        setIsSignupOpen(true);
+        return;
+      }
+      // Toggle the dropdown logic here
+      setAccountOpen(!accountOpen);
+    }}
+    className="text-defined-green flex items-center"
+  >
+    {customer ? (
+      <div className="size-8 text-xs rounded-full text-white bg-defined-green font-bold flex items-center justify-center">
+        {getName(customer.name)}
+      </div>
+    ) : (
+      <UserIcon size={20} />
+    )}
+  </button>
+
+  {/* DROPDOWN LOGIC (Copied from Desktop and adjusted for Mobile) */}
+  {accountOpen && customer && (
+    <div className="absolute right-0 top-full mt-2 w-48 z-50">
+      <div className="rounded-md bg-white shadow-lg border border-gray-200 overflow-hidden">
+        <Link
+          href="/my-account"
+          onClick={() => setAccountOpen(false)} // Close on click
+          className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+        >
+          <UserIcon size={16} /> My Account
+        </Link>
+        <Link
+          href="/my-orders"
+          onClick={() => setAccountOpen(false)}
+          className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+        >
+          <BsBoxSeam size={16} /> My Orders
+        </Link>
+        <Link
+          href="/my-wishlist"
+          onClick={() => setAccountOpen(false)}
+          className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+        >
+          <Heart size={16} /> My Wishlist
+        </Link>
+        <Link
+          href="/my-cart"
+          onClick={() => setAccountOpen(false)}
+          className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+        >
+          <ShoppingCart size={16} /> My Cart
+        </Link>
+
+        <button
+          onClick={handleLogoutClick}
+          className="flex w-full items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-100 text-sm cursor-pointer"
+        >
+          <LogOut size={16} /> Logout
+        </button>
+      </div>
+    </div>
+  )}
+</div>
           </div>
         </div>
 
-        {/* MOBILE MENU */}
-        {open && (
-          <div className="md:hidden space-y-4 mt-2 pb-4 text-defined-green">
-            {!loading && !customer && (
-              <button
-                onClick={() => setIsSignupOpen(true)}
-                className="w-full rounded-full bg-gray-100 py-3 font-bold"
-              >
-                Login
-              </button>
-            )}
-
-            {!loading && customer && (
-              <>
-                <Link
-                  href="/my-account"
-                  className="block rounded-full bg-gray-100 py-3 text-center font-bold"
-                >
-                  My Account
-                </Link>
-
-                <button
-                  onClick={async () => {
-                    await logoutCustomer();
-                    router.replace("/");
-                  }}
-                  className="w-full rounded-full bg-red-100 py-3 font-bold text-red-600"
-                >
-                  Logout
-                </button>
-              </>
-            )}
-
-            <Link
-              href="/my-cart"
-              className="block rounded-lg bg-gray-100 py-3 text-center"
-            >
-              Cart
-            </Link>
-
-            <Link
-              href="#"
-              className="block rounded-lg bg-green-600 py-3 text-center text-white"
-            >
-              Support
-            </Link>
-          </div>
-        )}
+ 
       </div>
 
       {/* MOBILE STICKY SEARCH (ALWAYS VISIBLE) */}
@@ -648,5 +670,6 @@ export default function Header() {
         onClose={() => setIsSignupOpen(false)}
       />
     </header>
+     </>
   );
 }

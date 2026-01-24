@@ -8,6 +8,18 @@ import { OrderType } from "@/types/types";
 import { useCustomer } from "@/context/CustomerContext";
 import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+export const STATUS_COLORS: Record<string, string> = {
+  Processing: "bg-yellow-500",
+  Confirmed: "bg-amber-600",
+  Shipped: "bg-blue-500",
+  InTransit: "bg-indigo-500",
+  OutForDelivery: "bg-purple-500",
+  Delivered: "bg-green-600",
+  Cancelled: "bg-red-500",
+  RTO: "bg-gray-700",
+};
 
 export default function MyOrders() {
   // const [trackerOpen, setTrackerOpen] = useState(false);
@@ -15,9 +27,10 @@ export default function MyOrders() {
   //   useState<Order["status"]>("Processing");
   const { customer, loading } = useCustomer();
   const [orders, setOrders] = useState<OrderType[]>([]);
-   const [page, setPage] = useState(1);
-const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
+  const router = useRouter();
   useEffect(() => {
     if (!customer?._id) return;
 
@@ -32,8 +45,8 @@ const [totalPages, setTotalPages] = useState(1);
     };
 
     fetchOrders();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [customer,page]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [customer, page]);
 
   useEffect(() => {}, [orders]);
 
@@ -97,7 +110,14 @@ const [totalPages, setTotalPages] = useState(1);
       if (page <= 3) {
         pages.push(1, 2, 3, 4, "...", totalPages);
       } else if (page >= totalPages - 2) {
-        pages.push(1, "...", totalPages - 3, totalPages - 2, totalPages - 1, totalPages);
+        pages.push(
+          1,
+          "...",
+          totalPages - 3,
+          totalPages - 2,
+          totalPages - 1,
+          totalPages,
+        );
       } else {
         pages.push(1, "...", page - 1, page, page + 1, "...", totalPages);
       }
@@ -105,7 +125,7 @@ const [totalPages, setTotalPages] = useState(1);
     return pages;
   };
 
-if (loading && page === 1) {
+  if (loading && page === 1) {
     return (
       <div className="bg-white p-8 rounded-lg text-center text-gray-500 shadow-sm">
         Loading...
@@ -129,6 +149,36 @@ if (loading && page === 1) {
       )}
       {orders?.map((order) => {
         const isProductAvailable = Boolean(order.product?.slug);
+        const stockStatus = Number(order.product?.status);
+        const handleBuyNow = async (product: any, stockStatus: number) => {
+          if (stockStatus === 0) {
+            toast.error("This product is out of stock");
+            return;
+          }
+          try {
+            if (!customer) {
+              toast.error("Please login to proceed");
+              // setIsSignupOpen(true); // Ensure this state exists or use a context method
+              return;
+            }
+
+            // ✅ STORE BUY NOW ITEM
+            sessionStorage.setItem(
+              "BUY_NOW_ITEM",
+              JSON.stringify({
+                productId: product,
+                variantId: undefined,
+                quantity: 1,
+                price: product.price,
+              }),
+            );
+
+            router.push("/checkout?mode=buy-now");
+          } catch (err) {
+            console.error(err);
+            toast.error("Failed to proceed");
+          }
+        };
         return (
           <div
             key={order.orderId}
@@ -145,7 +195,7 @@ if (loading && page === 1) {
 
               <div>
                 <p className="text-gray-500">Total Amount</p>
-                <p className="font-medium">₹{order.orderValue}</p>
+                <p className="font-medium">₹{order.orderValue.toFixed(0)}</p>
               </div>
 
               <div>
@@ -175,7 +225,7 @@ if (loading && page === 1) {
               key={order.product?._id || ""}
               className="flex flex-col md:flex-row justify-between items-center gap-4 p-4 border-t border-gray-200"
             >
-              <div className="w-[70%] flex flex-col gap-3">
+              <div className="md:w-[70%] w-full flex flex-col gap-3">
                 {/* LEFT */}
                 <div className=" flex flex-col gap-1">
                   {(() => {
@@ -190,24 +240,25 @@ if (loading && page === 1) {
                     );
                   })()}
                 </div>
-                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 ">
-                  <div className=" w-auto">
-                    <div className="flex items-center justify-center border border-gray-200 rounded-md size-40 ">
+                <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full ">
+               
+                    <div className="md:flex items-center justify-center border border-gray-200 rounded-md w-full md:w-fit  ">
                       {order.product?.coverImage?.url ? (
+                        <div className="  md:size-40 relative h-[18rem] w-full">
                         <Image
                           src={order.product.coverImage.url}
                           alt={order.product?.name || ""}
-                          width={120}
-                          height={120}
+                          fill
                           className="object-cover w-full h-full rounded-md  "
                         />
+                        </div>
                       ) : (
                         <div className=" size-40 bg-gray-100 text-gray-300 text-center rounded-md flex justify-center items-center">
                           Image Unavailable
                         </div>
                       )}
                     </div>
-                  </div>
+                
 
                   <div className=" w-full">
                     <Link
@@ -228,18 +279,23 @@ if (loading && page === 1) {
                       </p>
                     </div>
 
-                    <div className="flex gap-3  mt-4 w-full">
+                    <div className="flex md:flex-row flex-col gap-3  mt-4 w-full">
                       {isProductAvailable ? (
-                        <Link
-                          href="/checkout"
-                          className="lg:px-6 lg:py-4 p-2 text-xs lg:text-sm bg-green-600 text-white rounded hover:bg-green-700 w-fit text-center"
+                        <button
+                          onClick={() => handleBuyNow(order.product, stockStatus)}
+                          disabled={stockStatus === 0}
+                          className={`lg:px-6 lg:py-4 p-3 text-sm  lg:text-sm bg-green-600 text-white rounded hover:bg-green-700 w-full md:w-fit text-center ${
+                            stockStatus === 0
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60"
+                              : "bg-green-600 hover:bg-green-700 text-white"
+                          }`}
                         >
                           Buy Again
-                        </Link>
+                        </button>
                       ) : (
                         <button
                           disabled
-                          className="lg:px-6 lg:py-4 p-2 text-xs lg:text-sm bg-gray-200 text-gray-500 rounded w-fit cursor-not-allowed"
+                          className="lg:px-6 lg:py-4 p-3 text-sm lg:text-sm bg-gray-200 text-gray-500 rounded w-full md:w-fit cursor-not-allowed"
                           title="Product no longer available"
                         >
                           Buy Again
@@ -249,14 +305,14 @@ if (loading && page === 1) {
                       {isProductAvailable ? (
                         <Link
                           href={`/product/${order.product!.slug}`}
-                          className="lg:px-6 lg:py-4 p-2 text-xs lg:text-sm bg-yellow-400 rounded hover:bg-yellow-500 w-fit text-center"
+                          className="lg:px-6 lg:py-4 p-3 text-sm lg:text-sm bg-yellow-400 rounded hover:bg-yellow-500 w-full md:w-fit text-center"
                         >
                           View Your Item
                         </Link>
                       ) : (
                         <button
                           disabled
-                          className="lg:px-6 lg:py-4 p-2 text-xs lg:text-xs bg-gray-200 text-gray-500 rounded w-fit cursor-not-allowed"
+                          className="lg:px-6 lg:py-4 p-3 text-sm lg:text-xs bg-gray-200 text-gray-500 rounded w-full md:w-fit cursor-not-allowed"
                           title="Product no longer available"
                         >
                           Product Unavailable
@@ -268,27 +324,28 @@ if (loading && page === 1) {
               </div>
 
               {/* RIGHT ACTIONS */}
-              <div className="flex flex-col gap-2 w-full md:w-56">
+              <div className="flex flex-col gap-3 md:gap-2 w-full md:w-56">
+                <button
+                  className={`w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700 capitalize ${STATUS_COLORS[order.status]}`}
+                >
+                  {order.status}
+                </button>
                 <button
                   // onClick={() => {
                   //   setTrackStatus(order.status);
                   //   setTrackerOpen(true);
                   // }}
-                  className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+                  className="w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Track Your Order
                 </button>
 
-                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                  Get Support
-                </button>
-
-                <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                <button className="w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700">
                   View Return / Replacement
                 </button>
 
                 <Link href={`/review?product=${order.product?.slug}`}>
-                  <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                  <button className="w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700">
                     Write a Review
                   </button>
                 </Link>
@@ -322,8 +379,8 @@ if (loading && page === 1) {
                     pageNum === page
                       ? "bg-green-600 text-white shadow-md"
                       : pageNum === "..."
-                      ? "text-gray-400 cursor-default"
-                      : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
+                        ? "text-gray-400 cursor-default"
+                        : "bg-white border border-gray-200 text-gray-700 hover:bg-green-50 hover:text-green-700 hover:border-green-200"
                   }
                 `}
               >

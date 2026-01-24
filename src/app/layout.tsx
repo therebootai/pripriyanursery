@@ -4,6 +4,7 @@ import { DM_Sans } from "next/font/google";
 import { CustomerProvider } from "@/context/CustomerContext";
 import { Toaster } from "react-hot-toast";
 import { CategoryProvider } from "@/context/CategoryContext";
+import { GlobalUIProvider } from "@/context/GlobalUIContext";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -26,14 +27,13 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${dmSans.variable} antialiased`}>
         <Toaster />
-        <CustomerProvider>
-          <CategoryProvider>
-            {/* <ProductProvider> */}
-            {children}
-
-            {/* </ProductProvider> */}
-          </CategoryProvider>
-        </CustomerProvider>
+        <GlobalUIProvider>
+          <CustomerProvider>
+            <CategoryProvider>
+              {children}
+            </CategoryProvider>
+          </CustomerProvider>
+        </GlobalUIProvider>
       </body>
     </html>
   );

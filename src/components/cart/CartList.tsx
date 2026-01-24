@@ -9,6 +9,7 @@ import { toggleWishlistApi } from "@/library/wishlist";
 import toast from "react-hot-toast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
+import LoadingAnimation from "../globals/LoadingAnimation";
 
 export interface CartItemProps {
   productId: string | ProductType;
@@ -19,12 +20,21 @@ export interface CartItemProps {
 
 export default function CartList() {
   const router = useRouter();
-  const { customer, refreshCustomer } = useCustomer();
+  const { customer, refreshCustomer, loading: customerLoading } = useCustomer();
 
   const customerId = customer?._id;
   const [localCart, setLocalCart] = useState<CartType[]>([]);
 
   const hasInitialized = useRef(false);
+  const [actionLoading, setActionLoading] = useState(false);
+
+  {(actionLoading || customerLoading) && (
+  <div className="fixed inset-0 bg-white/60 z-50 flex items-center justify-center">
+    <LoadingAnimation />
+  </div>
+)}
+
+
 
   // Calculate stock status for each cart item
   const getStockStatus = (item: CartType): "available" | "low" | "out" => {
@@ -78,7 +88,7 @@ useEffect(() => {
         item.priceAtTime,
       );
       
-      // await refreshCustomer();
+     await refreshCustomer({silent: true});
     } catch (err) {
       console.error(err);
     }
@@ -86,6 +96,7 @@ useEffect(() => {
 
   const handleRemove = async (item: CartType) => {
     if (!customerId) return;
+    setActionLoading(true);
 
     const productId = (item.productId as ProductType)._id;
     const variantId = (item.variantId as ProductType)?._id;
@@ -102,12 +113,14 @@ useEffect(() => {
 
     try {
       await removeFromCartApi(customerId, productId, variantId);
-      // await refreshCustomer();
+      await refreshCustomer({silent: true});
     } catch (err) {
       toast.error("Failed to remove item");
 
       // rollback
       setLocalCart(customer?.cart as CartType[]);
+    }finally {
+      setActionLoading(false); // ✅ Stop Loading
     }
   };
 
@@ -183,13 +196,6 @@ useEffect(() => {
 
   const hasOutOfStockItems = cart.length > availableCartItems.length;
 
-  if (!cart || cart.length === 0) {
-    return (
-      <div className="bg-white p-6 rounded-md text-center text-gray-500">
-        Your cart is empty
-      </div>
-    );
-  }
 
   // Handle checkout - only proceed with available items
   const handleCheckout = () => {
@@ -201,11 +207,10 @@ useEffect(() => {
     const itemsToPass = availableCartItems.map((item) => ({
       productId: (item.productId as ProductType)._id,
       variantId: (item.variantId as ProductType)?._id,
-      quantity: item.quantity, // This is the updated quantity from your localCart state
+      quantity: item.quantity, 
       priceAtTime: item.priceAtTime,
     }));
 
-    // 2. Encode it into a string
     const encodedItems = encodeURIComponent(JSON.stringify(itemsToPass));
     router.push(`/checkout?mode=cart&items=${encodedItems}`);
   };
@@ -217,6 +222,8 @@ useEffect(() => {
   
 
   const reversedCart = cart.slice().reverse();
+
+
 
   return (
     <div className=" grid grid-cols-1 lg:grid-cols-3 gap-6">

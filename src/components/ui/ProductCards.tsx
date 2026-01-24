@@ -23,6 +23,7 @@ type Product = {
     url: string;
     public_id:string
   };
+  height?:string;
 };
 
 export default function ProductCards({
@@ -33,6 +34,7 @@ export default function ProductCards({
   mrp,
   discount,
   slug,
+  height
 }: Product) {
   const { customer, refreshCustomer } = useCustomer();
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -132,7 +134,7 @@ useEffect(() => {
     <div className="relative rounded bg-white p-1 md:p-2 shadow-sm hover:shadow-md w-full h-auto flex flex-col justify-between">
       <Link
         href={`/product/${slug}`}
-        className="absolute inset-0 z-10 md:hidden"
+        className="absolute inset-0 z-10 "
         aria-label={`View ${name}`}
       ></Link>
       {/* IMAGE SECTION */}
@@ -160,7 +162,7 @@ useEffect(() => {
           />
         </button>
 
-        <div className="h-[10rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem]">
+        <div className={`h-[10rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem] ${height}`}>
           <Image
             src={coverImage.url}
             alt={coverImage.public_id}
@@ -184,7 +186,7 @@ useEffect(() => {
             {name}
           </h3>
 
-          <button
+          {/* <button
             onClick={handleCart}
             // disabled={isInCart}
             className={`cursor-pointer relative z-20 
@@ -215,7 +217,7 @@ useEffect(() => {
                 />
               </>
             )}
-          </button>
+          </button> */}
         </div>
 
         <div>
@@ -236,10 +238,10 @@ useEffect(() => {
         </div>
 
         {/* BUTTONS */}
-        <div className="mt-2 hidden md:flex justify-between items-center">
+        <div className="mt-2 flex justify-between items-center">
           <Link
             href={`/product/${slug}`}
-            className="text-xs  text-green-600 border rounded-full px-3 py-2 hover:bg-green-50"
+            className="text-xs  text-green-600 border rounded-full px-3 py-2 hover:bg-green-50 hidden md:flex "
           >
             More Info
           </Link>
@@ -247,7 +249,7 @@ useEffect(() => {
           <button
             onClick={handleCart}
             // disabled={isInCart}
-            className={`cursor-pointer relative z-20 
+            className={`cursor-pointer max-md:w-full relative z-20 
              group flex items-center justify-center gap-2
               text-xs  font-semibold
               px-3  py-2

@@ -100,6 +100,8 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
       await refreshCustomer();
 
       if (res.success) toast.success(res.message);
+      localStorage.removeItem("otpCooldownUntil");
+      setCooldown(0)
       setMobile("");
       setOtp("");
       setStep("MOBILE");
