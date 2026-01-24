@@ -433,7 +433,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             </div>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 w-full">
+            <Link
+              href={`/product/${product.slug}#reviews`}
+              className="flex items-center gap-2 w-full"
+            >
               <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
                 {product.averageRating.toFixed(1)}{" "}
                 <Star size={14} fill="white" />
@@ -442,7 +445,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 {product.ratingCount.toLocaleString()} Ratings &{" "}
                 {product.reviews.length} Reviews
               </span>
-            </div>
+            </Link>
 
             {/* Price */}
             <div className="">
@@ -686,7 +689,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </div>
             )}
             {/* <ReviewCard review={product.reviews} /> */}
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col gap-2.5" id="reviews">
               <h2 className="text-lg font-semibold text-defined-black mb-3">
                 Ratings &amp; Reviews
               </h2>

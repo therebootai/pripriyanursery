@@ -72,7 +72,7 @@ export default function ShowReview() {
           >
             {/* IMAGE */}
             <div className="flex justify-center md:justify-start relative">
-              <div className="relative aspect-square rounded md:w-40">
+              <div className="relative aspect-square rounded w-40">
                 <Image
                   src={review.product?.coverImage?.url}
                   alt="Product"

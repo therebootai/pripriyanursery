@@ -344,11 +344,15 @@ export default function MyOrders() {
                   View Return / Replacement
                 </button>
 
-                <Link href={`/review?product=${order.product?.slug}`}>
-                  <button className="w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700">
-                    Write a Review
-                  </button>
-                </Link>
+
+                {order.status === "Delivered" && (
+                  <Link href={`/review?product=${order.product?.slug}`}>
+                    <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
+                      Write a Review
+                    </button>
+                  </Link>
+                )}
+
               </div>
             </div>
           </div>
