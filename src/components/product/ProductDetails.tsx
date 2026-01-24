@@ -20,7 +20,7 @@ import CustomerAuthModal from "../customer/CustomerAuthModal";
 import ProductRatingSummary from "./ProductRatingSummary";
 
 type TrustProps = {
-  icon: React.ReactNode;
+  icon: string;
   label: string;
 };
 
@@ -603,11 +603,11 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             </div>
 
             {/* Trust Icons */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center mb-6">
-              <Trust icon={<Headphones />} label="24x7 Support" />
-              <Trust icon={<RotateCcw />} label="Easy Return" />
-              <Trust icon={<ShieldCheck />} label="100% Original" />
-              <Trust icon={<Leaf />} label="Made in India" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-1 text-center mb-6">
+              <Trust icon={"/icons/24x7support.svg"} label="24x7 Support" />
+              <Trust icon={"/icons/easyreturn.svg"} label="Easy Return" />
+              <Trust icon={"/icons/originalproduct.svg"} label="100% Original" />
+              <Trust icon={"/icons/makeinindia.svg"} label="Made in India" />
             </div>
 
             {/* ================= DESCRIPTION (CONNECTED) ================= */}
@@ -752,10 +752,11 @@ export default ProductDetails;
 function Trust({ icon, label }: TrustProps) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className="w-12 h-12 rounded-full bg-green-600 text-white flex items-center justify-center">
-        {icon}
-      </div>
-      <p className="text-sm font-medium text-defined-green">{label}</p>
+       <div className=" relative size-[4rem]">
+                       <Image src={icon} alt="icons" fill className=""/>
+                       </div>
+     
+      <p className="text-lg font-medium text-gray-800">{label}</p>
     </div>
   );
 }

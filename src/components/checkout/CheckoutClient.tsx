@@ -309,69 +309,45 @@ export default function CheckoutClient() {
   };
 
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-  const handleQtyById = async (
-    productId: string,
-    variantId: string | undefined,
-    qty: number,
-  ) => {
-    if (qty < 1) return;
+const handleQtyById = (
+  productId: string,
+  variantId: string | undefined,
+  qty: number,
+) => {
+  if (qty < 1) return;
 
-    // Find current item to check stock
-    const currentItem = checkoutItems.find(
-      (item) =>
-        item.productId._id === productId && item.variantId?._id === variantId,
-    );
+  setCheckoutItems((prev) =>
+    prev.map((item) => {
+      const match =
+        item.productId._id === productId &&
+        item.variantId?._id === variantId;
 
-    if (!currentItem) return;
+      if (!match) return item;
 
-    // ✅ STOCK VALIDATION - Block if exceeding stock
-    const stock = (currentItem.productId as ProductType).stock || 0;
-    if (qty > stock) {
-      toast.error(`Only ${stock} products are in stock`);
-      return;
-    }
-
-    /* ================= BUY NOW ================= */
-    if (checkoutMode === "buy-now") {
-      setCheckoutItems((prev) =>
-        prev.map((item) =>
-          item.productId._id === productId && item.variantId?._id === variantId
-            ? { ...item, quantity: qty }
-            : item,
-        ),
-      );
-
-      const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-      if (stored) {
-        const item = JSON.parse(stored);
-        sessionStorage.setItem(
-          "BUY_NOW_ITEM",
-          JSON.stringify({ ...item, quantity: qty }),
-        );
+      // ✅ STOCK VALIDATION
+      const stock = (item.productId as ProductType).stock || 0;
+      if (qty > stock) {
+        toast.error(`Only ${stock} items available`);
+        return item;
       }
-      return;
-    }
 
-    /* ================= CART CHECKOUT ================= */
-    if (!customerId) return;
+      return { ...item, quantity: qty };
+    }),
+  );
 
-    const delta = qty - currentItem.quantity;
-    if (delta === 0) return;
-
-    try {
-      await addToCartApi(
-        customerId,
-        productId,
-        variantId,
-        delta,
-        currentItem.priceAtTime,
+  // ✅ BUY NOW: update sessionStorage
+  if (checkoutMode === "buy-now") {
+    const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      sessionStorage.setItem(
+        "BUY_NOW_ITEM",
+        JSON.stringify({ ...parsed, quantity: qty }),
       );
-      await refreshCustomer();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update quantity");
     }
-  };
+  }
+};
+
 
   const handleMoveToWishlist = async (item: CartType) => {
     if (!customerId) return;
@@ -650,7 +626,7 @@ const lineMRP = product.mrp * item.quantity;
               >
                 {/* IMAGE + QTY */}
                 <div className="flex flex-col items-center w-full md:w-40">
-                  <div className="relative w-full h-40 bg-gray-100 rounded overflow-hidden">
+                  <div className="relative w-full h-[18rem] md:h-40 bg-gray-100 rounded overflow-hidden">
                     <Image
                       src={item.productId.coverImage.url}
                       alt={item.productId.name}
@@ -659,7 +635,7 @@ const lineMRP = product.mrp * item.quantity;
                     />
                   </div>
 
-                  <div className="flex items-center mt-2">
+                  <div className="md:flex hidden items-center mt-2 ">
                     <button
                       onClick={() =>
                         handleQtyById(
@@ -733,20 +709,85 @@ const lineMRP = product.mrp * item.quantity;
                     ) : null}
                   </div>
 
-                  <div className="flex gap-4 justify-evenly lg:justify-start pt-4 lg:pt-0">
-                    {/* <button
-                    className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-base lg:px-6 lg:py-2 "
+                  <div className="md:flex hidden gap-4 justify-evenly md:justify-start pt-4 lg:pt-0 md:pb-2 lg:pb-0">
+                    <button
+                    className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-lg lg:px-6 lg:py-2 "
                     onClick={() => handleMoveToWishlist(item)}
                   >
                     MOVE TO WISHLIST
                   </button>
                   <button
                     onClick={() => handleRemove(item)}
-                    className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-base lg:px-6 lg:py-2"
+                    className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-lg lg:px-6 lg:py-2"
                   >
                     REMOVE
-                  </button> */}
+                  </button>
                   </div>
+                </div>
+
+                 <div className="flex md:hidden items-center gap-4 mt-3 w-full">
+                  {/* 1. QUANTITY BOX (Mobile Only as per your code) */}
+                  <div className="flex lg:hidden items-center border border-gray-200 rounded-md overflow-hidden h-[40px]">
+                    <button
+                      onClick={() => handleQtyById(
+                          item.productId._id,
+                          item.variantId?._id,
+                          item.quantity - 1,
+                        )
+                      }
+                      className="px-2 h-full bg-gray-50 text-defined-black hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      disabled={item.quantity <= 1 || isOutOfStock}
+                    >
+                      −
+                    </button>
+
+                    <span className="px-3 h-full flex items-center justify-center text-sm font-semibold text-defined-black border-x border-gray-200 min-w-[40px]">
+                      {item.quantity}
+                    </span>
+
+                    <button
+                      onClick={() => handleQtyById(
+                          item.productId._id,
+                          item.variantId?._id,
+                          item.quantity + 1,
+                        )}
+                      className={`px-2 h-full transition-colors ${
+                        canIncrease && !isOutOfStock
+                          ? "bg-gray-50 text-defined-black hover:bg-gray-200"
+                          : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      }`}
+                      disabled={!canIncrease || isOutOfStock}
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* 2. MOVE TO WISHLIST BOX */}
+                  <button
+                    className={`h-[40px]    text-xs font-bold tracking-wide uppercase transition-all duration-200 flex items-center justify-center
+      ${
+        isOutOfStock
+          ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
+          : "border-gray-300 text-defined-black hover:border-defined-green hover:text-defined-green hover:bg-green-50"
+      }`}
+                    onClick={() => handleMoveToWishlist(item)}
+                    disabled={isOutOfStock}
+                  >
+                    MOVE TO WISHLIST
+                  </button>
+
+                  {/* 3. REMOVE BOX */}
+                  <button
+                    onClick={() => handleRemove(item)}
+                    className={`h-[40px]   text-xs  font-bold tracking-wide uppercase transition-all duration-200 flex items-center justify-center
+      ${
+        isOutOfStock
+          ? "border-gray-200 text-red-300"
+          : "border-gray-300 text-defined-black hover:border-red-500 hover:text-red-600 hover:bg-red-50"
+      }`}
+                  >
+                    Remove
+                  </button>
                 </div>
               </div>
             );

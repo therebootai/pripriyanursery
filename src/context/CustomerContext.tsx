@@ -20,6 +20,10 @@ export const useCustomer = () => {
 
   const logoutCustomer = async () => {
     await logout();
+
+  };
+
+    const clearCustomer = () => {
     ctx.clear?.();
   };
 
@@ -28,5 +32,6 @@ export const useCustomer = () => {
     loading: ctx.loading,
     refreshCustomer: ctx.refresh,
     logoutCustomer,
+    clearCustomer,
   };
 };

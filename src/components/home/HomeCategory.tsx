@@ -84,7 +84,7 @@ export default function HomeCategory({
         )}
 
       
-        <div className="grid gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7">
+        <div className="grid gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xxl:grid-cols-8">
           {categories.map((cat, index) => (
             <React.Fragment key={`${cat.parent.id}-${index}`}>
               <Link

@@ -80,6 +80,7 @@ export default function ProductSection({
                mrp={p.mrp}
                discount={p.discount}
                slug={p.slug}
+               height='h-[12rem] md:h-[12rem] lg:h-[14rem] xxl:h-[16rem]'
             />
           ))}
         </div>

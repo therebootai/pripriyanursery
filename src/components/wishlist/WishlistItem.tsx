@@ -8,12 +8,14 @@ import { useCustomer } from "@/context/CustomerContext";
 import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { addToCartApi } from "@/library/cart";
+import { useRouter } from "next/navigation";
 
 export default function WishlistItem({item} : {item: WishlistType}) {
 
    const { customer, refreshCustomer} = useCustomer();
    const customerId = customer?._id;
     const [loading, setLoading] = useState(false);
+    const navigate = useRouter();
   const product = item.product;
   const handleWishlist = async () => {
     if (!customerId || loading) return;
@@ -22,8 +24,8 @@ export default function WishlistItem({item} : {item: WishlistType}) {
 
   
     try {
-      await removeWishlistApi(customerId, item._id);
-     await refreshCustomer();
+      await removeWishlistApi(customerId, product._id);
+     await refreshCustomer({silent:true});
       toast.success("Removed from wishlist");
     } catch (err) {
       console.log(err);
@@ -47,9 +49,10 @@ export default function WishlistItem({item} : {item: WishlistType}) {
         1,
         product.price
       );
-      await toggleWishlistApi(customerId, product._id);
-      await refreshCustomer();
+      await removeWishlistApi(customerId, product._id);
+      await refreshCustomer({silent:true});
       toast.success("Moved to cart");
+      navigate.push("/my-cart");
     } catch (err) {
       console.log(err);
       toast.error("Failed to move to cart");

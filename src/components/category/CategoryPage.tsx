@@ -8,6 +8,7 @@ import { useMemo, useState, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import CardSkeleton from "@/components/ui/CardSkeleton";
 import { ListFilterPlus } from "lucide-react";
+import { MdKeyboardDoubleArrowDown } from "react-icons/md";
 
 export default function CategoryPage({
   activeCategory,
@@ -158,34 +159,38 @@ useEffect(() => {
   return (
     <section className="md:py-8 self-padding flex flex-col md:gap-6">
       <div className="md:hidden flex justify-end items-center px-4 md:px-0">
-        <div className="relative w-fit">
-          {/* Icon */}
-          <ListFilterPlus
-            size={16}
-            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-          />
+      <div className="relative w-fit rounded border border-gray-200 bg-white">
+  {/* 1. Icons are now visually 'under' the select, but visible because select is transparent */}
+  
+  {/* Left Icon */}
+  <ListFilterPlus
+    size={16}
+    className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
+  />
 
-          {/* Select */}
-          <select
-            name="filter"
-            onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-            className="appearance-none rounded border border-gray-200 bg-white py-1 pl-9 pr-8 text-sm text-gray-600 outline-none focus:border-gray-400"
-          >
-            <option value="" hidden>
-              Sort By
-            </option>
-            {sortArr.map((item) => (
-              <option key={item.type} value={item.type}>
-                {item.name}
-              </option>
-            ))}
-          </select>
+  {/* 2. The Select: bg-transparent, z-10 (on top), and cursor-pointer */}
+  <select
+    name="filter"
+    // Add value prop to make it a controlled component (Recommended)
+    // value={sortBy} 
+    onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
+    className="relative z-10 w-full appearance-none bg-transparent py-1 pl-9 pr-8 text-sm text-gray-600 outline-none cursor-pointer"
+  >
+    <option value="" hidden>
+      Sort By
+    </option>
+    {sortArr.map((item) => (
+      <option key={item.type} value={item.type}>
+        {item.name}
+      </option>
+    ))}
+  </select>
 
-          {/* Dropdown arrow (optional, keeps it clean) */}
-          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-            ▼
-          </span>
-        </div>
+  {/* Right Icon */}
+  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
+    <MdKeyboardDoubleArrowDown />
+  </span>
+</div>
       </div>
       <div className="flex md:gap-4 justify-between items-start mb-4 p-2">
         {/* SIDEBAR */}
