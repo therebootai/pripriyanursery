@@ -5,6 +5,8 @@ import { CustomerProvider } from "@/context/CustomerContext";
 import { Toaster } from "react-hot-toast";
 import { CategoryProvider } from "@/context/CategoryContext";
 import { GlobalUIProvider } from "@/context/GlobalUIContext";
+import { CartPreviewProvider } from "@/context/CartPreviewContext";
+import FloatingCartPreview from "@/components/ui/FloatingCartPreview";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -30,7 +32,10 @@ export default function RootLayout({
         <GlobalUIProvider>
           <CustomerProvider>
             <CategoryProvider>
-              {children}
+              <CartPreviewProvider>
+  {children}
+   <FloatingCartPreview />
+</CartPreviewProvider>
             </CategoryProvider>
           </CustomerProvider>
         </GlobalUIProvider>

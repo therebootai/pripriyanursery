@@ -249,18 +249,22 @@ export default function AccountInformation() {
 
       <div className="mt-8 flex flex-wrap gap-4">
         <button
-          className="px-4 py-2 rounded-md text-sm bg-red-100 text-red-600 hover:bg-red-200"
-          onClick={() => setDeleteOpen(true)}
+          className="px-4 py-2 z-[1000] rounded-md text-sm bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer"
+          onClick={() => 
+          
+            alert("Kindly reach out to our customer support for further assistance.")
+          
+          }
         >
           Delete Account
         </button>
 
-        <button
+        {/* <button
           className="px-4 py-2 rounded-md text-sm bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
           onClick={() => setDeactivateOpen(true)}
         >
           De-active Account
-        </button>
+        </button> */}
       </div>
 
       <div className="hidden md:block absolute right-6 bottom-0 opacity-70 ">
@@ -271,23 +275,7 @@ export default function AccountInformation() {
           height={1000}
         />
       </div>
-      <ConfirmModal
-        open={deleteOpen}
-        title="Delete Account"
-        description="This action is permanent. Your account will be deleted."
-        confirmText="Delete"
-        onCancel={() => setDeleteOpen(false)}
-        onConfirm={deleteAccount}
-      />
-
-      <ConfirmModal
-        open={deactivateOpen}
-        title="Deactivate Account"
-        description="You can reactivate later by contacting support."
-        confirmText="Deactivate"
-        onCancel={() => setDeactivateOpen(false)}
-        onConfirm={deactivateAccount}
-      />
+     
     </div>
   );
 }

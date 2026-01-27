@@ -223,14 +223,14 @@ const handleLogoutClick = async () => {
         <div className="flex h-16 md:h-20 items-center justify-between gap-3">
           {/* Logo */}
           {!mobileSearchOpen && (
-            <Link href="/" className="shrink-0">
+            <Link href="/" className="">
               <Image
-                src="/assets/Pri Priya Nursery Logo.png"
+                src="/icons/logo.png"
                 alt="Pri Priya Nursery Logo"
-                width={80}
-                height={80}
+                width={1280}
+                height={146}
                 priority
-                className="w-fit h-[4rem] md:h-[4.5rem] p-2"
+                className="w-fit h-[1rem] md:h-[1.5rem] "
               />
             </Link>
           )}

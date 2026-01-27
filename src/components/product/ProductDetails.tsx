@@ -18,6 +18,7 @@ import ShareModal from "./ShareModel";
 import ReviewCard from "./ProductReview";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import ProductRatingSummary from "./ProductRatingSummary";
+import { useCartPreview } from "@/context/CartPreviewContext";
 
 type TrustProps = {
   icon: string;
@@ -123,6 +124,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const hasSize = Object.keys(sizeGroups).length > 0;
 
   const router = useRouter();
+    const { showPreview } = useCartPreview();
 
   const handleCart = async () => {
     if (!customer) {
@@ -144,6 +146,14 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         product.price,
       );
       await refreshCustomer();
+     showPreview({
+  _id: product._id,
+  name: product.name,
+  price: product.price,
+  mrp: product.mrp,
+  discount: product.discount,
+  image: product.coverImage?.url || product.images?.[0]?.url || "",
+});
       toast.success("Added to cart");
     } catch (err) {
       console.error(err);
@@ -361,7 +371,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         </div>
       )} */}
 
-      <section className="w-full">
+      <section className="w-full max-md:mt-4">
         <div className=" flex flex-col lg:flex-row gap-4 md:gap-10">
           <div className="lg:sticky lg:top-24 h-fit w-full lg:w-[50%] xl:w-[45%] xxl:w-[40%] z-[10]">
             <div className="flex flex-col w-full gap-2">
@@ -400,12 +410,23 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
           <div className="flex flex-col gap-3 w-full lg:w-[50%] xl:w-[55%] xxl:w-[60%]">
             {/* Breadcrumb */}
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-600 flex flex-wrap gap-2">
               Home ›{" "}
-              <span className="text-black">
-                {/* {product.category ?? "Products"} › */}
+              <span className="text-black flex flex-wrap">
+               {product.categoryLevels?.map((cat: any, index: number) => (
+                <div key={cat._id} className="">
+                
+
+                  <Link
+                    href={`/products?category=${encodeURIComponent(cat.name)}`}
+                    className="t"
+                  >
+                    {cat.name} {">"}
+                  </Link>
+                </div>
+              ))}
               </span>{" "}
-              <span className="text-gray-600"> {product.name}</span>
+              <span className="text-black"> {product.name}</span>
             </p>
 
             {/* Title */}
@@ -596,9 +617,9 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 Available Offers
               </h2>
               <ul className="text-sm text-gray-700 space-y-1 mb-6 list-disc ml-5">
-                <li>Special Price: Extra discount applied</li>
-                <li>Bank Offer: Flat ₹75 cashback</li>
-                <li>5% cashback on Axis Bank Card</li>
+                <li>Flat discount for new users - Use PPNNEW</li>
+                <li>Flat 20% OFF on cart value - Use PPNCART20</li>
+                <li>Extra 10% OFF for existing users - Use PPNEXTRA10</li>
               </ul>
             </div>
 

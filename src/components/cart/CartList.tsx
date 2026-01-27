@@ -258,7 +258,7 @@ const lineMRP = product.mrp * item.quantity;
             >
               {/* IMAGE + QTY */}
               <div className="flex flex-col items-center w-full md:w-40">
-                <div className="relative w-full  h-[12rem] md:h-40 bg-gray-100 rounded overflow-hidden">
+                <div className="relative w-full  h-[20rem] md:h-40  bg-gray-100 rounded overflow-hidden">
                   <Image
                     src={(item.productId as ProductType).coverImage.url || ""}
                     alt={(item.productId as ProductType).name || ""}
@@ -391,7 +391,7 @@ const lineMRP = product.mrp * item.quantity;
 
                   {/* 2. MOVE TO WISHLIST BOX */}
                   <button
-                    className={`h-[40px]    text-xs font-bold tracking-wide uppercase transition-all duration-200 flex items-center justify-center
+                    className={`h-[40px]    text-[13px] font-medium tracking-wide uppercase transition-all duration-200 flex items-center justify-center
       ${
         isOutOfStock
           ? "border-gray-200 text-gray-400 cursor-not-allowed bg-gray-50"
@@ -406,7 +406,7 @@ const lineMRP = product.mrp * item.quantity;
                   {/* 3. REMOVE BOX */}
                   <button
                     onClick={() => handleRemove(item)}
-                    className={`h-[40px]   text-xs  font-bold tracking-wide uppercase transition-all duration-200 flex items-center justify-center
+                    className={`h-[40px]   text-[13px]  font-medium tracking-wide uppercase transition-all duration-200 flex items-center justify-center
       ${
         isOutOfStock
           ? "border-gray-200 text-red-300"
