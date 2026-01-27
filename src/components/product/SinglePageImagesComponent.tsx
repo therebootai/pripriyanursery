@@ -18,6 +18,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
   const [thumbIndex, setThumbIndex] = useState<number>(0);
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
   const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
   const mainRef = useRef<HTMLDivElement | null>(null);
   const startX = useRef<number>(0);
@@ -96,6 +97,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
   );
 
   return (
+    <>
     <div className="relative flex flex-col-reverse lg:flex-row gap-4">
       {/* ---------- Thumbnails ---------- */}
       <div className="flex lg:flex-col gap-4">
@@ -133,7 +135,7 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
       >
         <div
           ref={mainRef}
-          className="relative w-full h-[20rem] md:h-[30rem] lg:h-[26rem] xl:h-[28rem] overflow-hidden border border-gray-50 cursor-crosshair"
+          className="relative w-full h-[25rem] md:h-[30rem] lg:h-[26rem] xl:h-[28rem] overflow-hidden border border-gray-50 cursor-crosshair"
           onMouseEnter={() => setIsZoomed(true)}
           onMouseLeave={() => setIsZoomed(false)}
           onMouseMove={handleMouseMove}
@@ -166,6 +168,11 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
             fill
             priority
             className="object-cover"
+             onClick={() => {
+    if (window.innerWidth < 768) {
+      setIsMobilePreviewOpen(true);
+    }
+  }}
           />
           {isZoomed && (
             <div
@@ -196,7 +203,62 @@ const SinglePageImagesComponent: React.FC<Props> = ({ images = [],  isWishlisted
           />
         )}
       </div>
+ {isMobilePreviewOpen && (
+  <div className="fixed inset-0 z-[9999] bg-white flex flex-col">
+    
+    {/* Close Button */}
+    <button
+      onClick={() => setIsMobilePreviewOpen(false)}
+      className="absolute top-[8rem] right-4 z-20 bg-gray-100 rounded-full size-9 flex items-center justify-center shadow"
+    >
+      ✕
+    </button>
+
+    {/* Main Image */}
+    <div className="relative flex-1 flex items-center justify-center px-4">
+      <Image
+        src={images[mainImageIndex]}
+        alt="Preview Image"
+        fill
+        sizes="100vw"
+        className="object-contain"
+        priority
+      />
     </div>
+
+    {/* Thumbnail Strip */}
+    <div className="w-full px-3 pb-4">
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide">
+        {images.map((img, index) => (
+          <div
+            key={index}
+            onClick={() => setMainImage(index)}
+            className={`relative min-w-[64px] h-16 border rounded cursor-pointer ${
+              index === mainImageIndex
+                ? "border-green-600"
+                : "border-gray-300"
+            }`}
+          >
+            <Image
+              src={img}
+              alt={`thumb-${index}`}
+              fill
+              sizes="64px"
+              className="object-cover rounded"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+
+  </div>
+)}
+
+
+    </div>
+ 
+
+    </>
   );
 };
 

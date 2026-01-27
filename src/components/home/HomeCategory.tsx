@@ -84,14 +84,14 @@ export default function HomeCategory({
         )}
 
       
-        <div className="grid gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xxl:grid-cols-8">
+        <div className="grid gap-3 md:gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xxl:grid-cols-8">
           {categories.map((cat, index) => (
             <React.Fragment key={`${cat.parent.id}-${index}`}>
               <Link
                 href={`/products?category=${encodeURIComponent(cat.parent.name)}`}
                 className="text-center group"
               >
-                <div className="relative mx-auto size-[6rem] md:size-[6rem] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
+                <div className="relative mx-auto size-[7.5rem] md:size-[6rem] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
                   <Image
                     src={cat.parent.image}
                     alt={cat.parent.name}
@@ -100,7 +100,7 @@ export default function HomeCategory({
                   />
                 </div>
 
-                <p className="mt-4 text-gray-900 font-medium text-xs sm:text-sm lg:text-sm">
+                <p className=" mt-2 lg:mt-4 text-gray-900 font-medium text-xs sm:text-sm lg:text-sm">
                   {cat.parent.name}
                 </p>
               </Link>
@@ -112,7 +112,7 @@ export default function HomeCategory({
                   href={`/products?category=${encodeURIComponent(subCat.name)}`}
                   className="text-center group"
                 >
-                  <div className="relative mx-auto size-[6rem] md:size-[6rem] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
+                  <div className="relative mx-auto size-[7.5rem] md:size-[6rem] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
                     <Image
                       src={subCat.image}
                       alt={subCat.name}
@@ -121,7 +121,7 @@ export default function HomeCategory({
                     />
                   </div>
 
-                  <p className="mt-4 text-gray-900 font-medium text-xs sm:text-sm lg:text-sm">
+                  <p className="mt-2 lg:mt-4 text-gray-900 font-medium text-xs sm:text-sm lg:text-sm">
                     {subCat.name}
                   </p>
                 </Link>

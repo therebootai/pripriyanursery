@@ -285,6 +285,7 @@ export default function CheckoutClient() {
             const paymentId = verifyData.paymentGroupId;
             const orderIds = verifyData.orders.join(",");
             router.push(`/thank-you?payment=${paymentId}&orders=${orderIds}`);
+            await refreshCustomer({silent: true});
           } else {
             toast.error("Payment verification failed");
           }
@@ -470,7 +471,7 @@ const handleQtyById = (
   }
 
   return (
-    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div className="self-padding grid grid-cols-1 lg:grid-cols-3 py-6 gap-6">
       {/* LEFT */}
       <div className="lg:col-span-2 space-y-2">
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4">

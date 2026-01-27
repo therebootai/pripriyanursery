@@ -11,6 +11,7 @@ import { ProductType } from "@/types/types";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
+import { useCartPreview } from "@/context/CartPreviewContext";
 
 type Product = {
   _id: string;
@@ -42,6 +43,8 @@ export default function ProductCards({
   const [isInCart, setIsInCart] = useState(false);
   const router = useRouter()
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const { showPreview } = useCartPreview();
 
   const customerId = customer?._id;
 
@@ -82,8 +85,10 @@ const handleCart = async () => {
       return;
     }
 
-    if (loading) return;
+    
 
+    if (loading) return;
+setIsAnimating(true);
   setLoading(true);
 
   try {
@@ -96,7 +101,19 @@ const handleCart = async () => {
  await refreshCustomer();
 
     setIsInCart(!isInCart);
+    setTimeout(() => {
+      setIsAnimating(false);
+    }, 700);
     toast.success(isInCart ? "Removed from cart" : "Added to cart");
+
+    showPreview({
+  _id,
+  name,
+  price,
+  mrp,
+  discount,
+  image: coverImage.url,
+});
   } catch (err) {
     console.error(err);
     toast.error("Failed to update cart");
@@ -186,38 +203,7 @@ useEffect(() => {
             {name}
           </h3>
 
-          {/* <button
-            onClick={handleCart}
-            // disabled={isInCart}
-            className={`cursor-pointer relative z-20 
-              md:hidden group flex items-center justify-center gap-2
-               font-semibold
-              p-2
-              rounded-full
-              transition-all duration-300 ease-in-out
-              ${
-                !isInCart
-                  ? "bg-green-100 text-green-700 cursor-default shadow-inner"
-                  : "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
-              }
-            `}
-          >
-            {isInCart ? (
-              <>
-                <ShoppingCart
-                  size={10}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />                
-              </>
-            ) : (
-              <>
-                <ShoppingCart
-                  size={10}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-              </>
-            )}
-          </button> */}
+    
         </div>
 
         <div>
@@ -246,40 +232,44 @@ useEffect(() => {
             More Info
           </Link>
 
-          <button
-            onClick={handleCart}
-            // disabled={isInCart}
-            className={`cursor-pointer max-md:w-full relative z-20 
+         <button
+      onClick={handleCart}
+      className={`cursor-pointer max-md:w-full relative z-20 
              group flex items-center justify-center gap-2
-              text-xs  font-semibold
-              px-3  py-2
-              rounded-full
-              transition-all duration-300 ease-in-out
-              ${
-                !isInCart
-                  ? "bg-green-100 text-green-700 cursor-default shadow-inner"
-                  : "bg-linear-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
-              }
+             text-xs  font-semibold
+             px-3  py-2
+             rounded-full
+             transition-all duration-300 ease-in-out
+             ${
+               !isInCart
+                 ? "bg-green-100 text-green-700 cursor-default shadow-inner"
+                 : "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
+             }
             `}
-          >
-            {isInCart ? (
-              <>
-                <ShoppingCart
-                  size={12}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-                <span>Go to Cart</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart
-                  size={12}
-                  className="transition-transform duration-300 group-hover:translate-x-1"
-                />
-                <span>Add to Cart</span>
-              </>
-            )}
-          </button>
+    >
+      {/* --- THE BURST ANIMATION --- */}
+      {isAnimating && (
+        <span className="absolute -inset-2 rounded-full bg-green-400 opacity-75 animate-ping duration-700 pointer-events-none"></span>
+      )}
+
+      {isInCart ? (
+        <>
+          <ShoppingCart
+            size={12}
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          />
+          <span>Go to Cart</span>
+        </>
+      ) : (
+        <>
+          <ShoppingCart
+            size={12}
+            className="transition-transform duration-300 group-hover:translate-x-1"
+          />
+          <span>Add to Cart</span>
+        </>
+      )}
+    </button>
         </div>
       </div>
     </div>

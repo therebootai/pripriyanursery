@@ -46,7 +46,7 @@ export default async function ProductDetailsPage({
     <MainTemplates>
       <section className="self-padding md:py-10  flex flex-col gap-8">
         <ProductDetails product={product} />
-        <div className="w-full">
+        <div className="w-full max-md:mb-6">
           <RelatedProductSection slug={product.slug}/>
            
         </div>

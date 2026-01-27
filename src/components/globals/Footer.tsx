@@ -1,23 +1,24 @@
 "use client";
 
+import Facebook from "@/svg/Facebook";
+import Instagram from "@/svg/Instagram";
+import Linkedin from "@/svg/Linkedin";
+import Youtube from "@/svg/Youtube";
 import {
   Phone,
   Mail,
   MapPin,
   Check,
-  // Linkedin,
-  // Instagram,
-  // Youtube,
-  Facebook,
+ 
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
 const socialLinks = [
-  // { icon: Linkedin, href: 'https://www.linkedin.com/' },
-  // { icon: Instagram, href: 'https://www.instagram.com/' },
-  // { icon: Youtube, href: 'https://www.youtube.com/' },
+  { icon: Linkedin, href: 'https://www.linkedin.com/' },
+  { icon: Instagram, href: 'https://www.instagram.com/' },
+  { icon: Youtube, href: 'https://www.youtube.com/' },
   { icon: Facebook, href: "https://www.facebook.com/pripriyanursery" },
 ];
 
@@ -168,14 +169,14 @@ export default function Footer() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
               {/* BRAND – BIG */}
               <div className="lg:col-span-3">
-                <Link href="/" className="block">
+                <Link href="/" className=" ">
                   <Image
-                    src="/assets/Pri Priya Nursery Logo.png"
+                    src="/icons/logowhite.png"
                     alt="Pri Priya Nursery Logo"
-                    width={80}
-                    height={60}
-                    className="object-contain"
-                    priority
+                    width={2048}
+                    height={234}
+                    className="w-full h-[2rem] "
+                    
                   />
                 </Link>
                 <p className="mt-4 text-sm leading-relaxed">
@@ -306,10 +307,10 @@ export default function Footer() {
             {/* IMAGE BOXES */}
             <div className="flex items-center gap-2">
               {[
-                "/assets/globals/visa.png",
-                "/assets/globals/mastercard.png",
-                "/assets/globals/rupay.png",
-                "/assets/globals/upi.png",
+                "/icons/visa.jpg",
+                "/icons/mastercrd.jpg",
+                "/icons/rupay.jpg",
+                "/icons/upi.jpg",
               ].map((src) => (
                 <div
                   key={src}
@@ -318,9 +319,9 @@ export default function Footer() {
                   <Image
                     src={src}
                     alt="payment"
-                    width={40}
-                    height={26}
-                    className="h-6 w-auto object-contain"
+                    width={120}
+                    height={52}
+                    className="h-8 w-auto object-contain"
                   />
                 </div>
               ))}
@@ -341,8 +342,8 @@ export default function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white hover:bg-gray-100 transition">
-                  <Icon size={20} className="text-black" />
+                <div className="  ">
+                  <Icon  />
                 </div>
               </Link>
             ))}

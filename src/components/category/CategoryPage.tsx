@@ -158,7 +158,16 @@ useEffect(() => {
 
   return (
     <section className="md:py-8 self-padding flex flex-col md:gap-6">
-      <div className="md:hidden flex justify-end items-center px-4 md:px-0">
+     
+      <div className="flex md:gap-4 justify-between items-start mb-4 p-2">
+        {/* SIDEBAR */}
+        <div className="lg:w-[30%] xl:w-[25%] w-[20%]">
+          <CategorySidebar categories={categories} />
+        </div>
+
+        {/* RIGHT CONTENT */}
+        <div className="xl:w-[75%] lg:w-[70%] w-[80%] flex flex-col gap-2">
+           <div className="md:hidden flex  items-center  md:px-0">
       <div className="relative w-fit rounded border border-gray-200 bg-white">
   {/* 1. Icons are now visually 'under' the select, but visible because select is transparent */}
   
@@ -192,14 +201,6 @@ useEffect(() => {
   </span>
 </div>
       </div>
-      <div className="flex md:gap-4 justify-between items-start mb-4 p-2">
-        {/* SIDEBAR */}
-        <div className="lg:w-[30%] xl:w-[25%] w-[20%]">
-          <CategorySidebar categories={categories} />
-        </div>
-
-        {/* RIGHT CONTENT */}
-        <div className="xl:w-[75%] lg:w-[70%] w-[80%] flex flex-col gap-2">
           <div className="hidden md:flex flex-wrap items-center gap-3 rounded bg-white p-4 shadow-sm">            
               <span className="text-sm text-gray-600">Sort By</span>
 

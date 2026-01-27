@@ -61,7 +61,7 @@ export default function RelatedProductSection({
   if (loading || products.length === 0) return null;
 
   return (
-    <section className="mt-10">
+    <section className="mt-10 ">
       <h2 className="text-xl font-semibold text-defined-black mb-4">
         Related Products
       </h2>

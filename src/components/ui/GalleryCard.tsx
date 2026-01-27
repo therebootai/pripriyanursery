@@ -53,11 +53,11 @@ export default function GalleryCard({
         className={clsx(
           `
           absolute bottom-4 left-4 z-10
-          transition-all duration-500 ease-in-out
+          transition-all duration-500 ease-in-out group-hover:line-clamp-1
           `,
           active
             ? 'opacity-100 translate-y-0'
-            : 'opacity-90 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0'
+            : 'opacity-90 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 line-clamp-1'
         )}
       >
         <h3 className="md:text-lg text-[14px] font-semibold text-white">
