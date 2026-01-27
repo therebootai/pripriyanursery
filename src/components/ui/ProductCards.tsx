@@ -12,6 +12,7 @@ import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { useCartPreview } from "@/context/CartPreviewContext";
+import confetti from "canvas-confetti";
 
 type Product = {
   _id: string;
@@ -79,7 +80,8 @@ if (!customerId) {
   }
 };
 
-const handleCart = async () => {
+const handleCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
+  e.preventDefault();
   if (!customerId) {
       setIsSignupOpen(true); // Open the modal
       return;
@@ -89,6 +91,25 @@ const handleCart = async () => {
 
     if (loading) return;
 setIsAnimating(true);
+
+if (!isInCart) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const x = (rect.left + rect.width / 2) / window.innerWidth;
+      const y = (rect.top + rect.height / 2) / window.innerHeight;
+
+      confetti({
+        origin: { x, y }, 
+        particleCount: 25,   
+        spread: 360,  
+        startVelocity: 15, 
+        decay: 0.90,
+        gravity: 0,  
+        scalar: 0.8, 
+        colors: ['#22c55e', '#ffffff'], 
+        disableForReducedMotion: true,
+        zIndex: 9999,
+      });
+    }
   setLoading(true);
 
   try {
@@ -104,7 +125,7 @@ setIsAnimating(true);
     setTimeout(() => {
       setIsAnimating(false);
     }, 700);
-    toast.success(isInCart ? "Removed from cart" : "Added to cart");
+    // toast.success(isInCart ? "Removed from cart" : "Added to cart");
 
     showPreview({
   _id,
@@ -234,23 +255,21 @@ useEffect(() => {
 
          <button
       onClick={handleCart}
-      className={`cursor-pointer max-md:w-full relative z-20 
-             group flex items-center justify-center gap-2
-             text-xs  font-semibold
-             px-3  py-2
-             rounded-full
-             transition-all duration-300 ease-in-out
-             ${
-               !isInCart
-                 ? "bg-green-100 text-green-700 cursor-default shadow-inner"
-                 : "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
-             }
-            `}
+     className={`cursor-pointer max-md:w-full relative z-20 
+          group flex items-center justify-center gap-2
+          text-xs font-semibold px-3 py-2 rounded-full
+          transition-all duration-300 ease-in-out
+          
+          /* This creates the button "press" effect */
+          ${isAnimating ? "scale-90" : "scale-100"} 
+
+          ${!isInCart
+              ? "bg-green-100 text-green-700 hover:bg-green-200 shadow-inner"
+              : "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
+          }
+        `}
     >
-      {/* --- THE BURST ANIMATION --- */}
-      {isAnimating && (
-        <span className="absolute -inset-2 rounded-full bg-green-400 opacity-75 animate-ping duration-700 pointer-events-none"></span>
-      )}
+    
 
       {isInCart ? (
         <>
