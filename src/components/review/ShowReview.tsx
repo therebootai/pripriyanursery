@@ -36,6 +36,7 @@ export default function ShowReview() {
       if (status === 200) {
         toast.success("Review deleted successfully");
         getAllReviews();
+        return;
       }
 
       throw Error;

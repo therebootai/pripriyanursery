@@ -183,7 +183,7 @@ export default function ReviewEdit({
   const handleSubmitAlternative = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim() || !description.trim() || rating === 0) {
+    if (!title.trim() || !description.trim() || rating === 0 ) {
       toast.error("Please fill in all required fields and provide a rating");
       return;
     }
@@ -411,14 +411,14 @@ export default function ReviewEdit({
                   key={`new-${file.name}-${index}`}
                   className="relative group border border-gray-200 rounded-lg overflow-hidden bg-gray-50 hover:bg-gray-100 transition-all"
                 >
-                  <button
+                  {/* <button
                     type="button"
                     onClick={() => removeNewFile(index)}
                     className="absolute top-1 right-1 z-10 w-6 h-6 text-red-500 flex items-center justify-center text-xs hover:text-red-600 transition-colors"
                     aria-label={`Remove ${file.name}`}
                   >
                     <X />
-                  </button>
+                  </button> */}
                   <div className="aspect-square flex items-center justify-center">
                     {file.type.startsWith("image/") && file.preview ? (
                       <img
