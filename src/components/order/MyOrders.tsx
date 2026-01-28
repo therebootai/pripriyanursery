@@ -21,15 +21,27 @@ export const STATUS_COLORS: Record<string, string> = {
   RTO: "bg-gray-700",
 };
 
+interface CancelModalState {
+  isOpen: boolean;
+  orderId: string;
+  orderNumber: string;
+  reason: string;
+  isLoading: boolean;
+}
+
 export default function MyOrders() {
-  // const [trackerOpen, setTrackerOpen] = useState(false);
-  // const [trackStatus, setTrackStatus] =
-  //   useState<Order["status"]>("Processing");
   const { customer, loading } = useCustomer();
   const [orders, setOrders] = useState<OrderType[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
+  const [cancelModal, setCancelModal] = useState<CancelModalState>({
+    isOpen: false,
+    orderId: "",
+    orderNumber: "",
+    reason: "",
+    isLoading: false,
+  });
   const router = useRouter();
   useEffect(() => {
     if (!customer?._id) return;
@@ -48,9 +60,68 @@ export default function MyOrders() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [customer, page]);
 
-  useEffect(() => {}, [orders]);
+  const handleCancelOrder = async () => {
+    if (!cancelModal.orderId || !cancelModal.reason.trim()) {
+      toast.error("Please provide a cancellation reason");
+      return;
+    }
 
-  // console.log("Orders:", orders);
+    setCancelModal((prev) => ({ ...prev, isLoading: true }));
+
+    try {
+      const res = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/order/${cancelModal.orderId}`,
+        {
+          status: "Cancelled",
+          cancelReason: cancelModal.reason,
+        },
+      );
+
+      if (res.data.success) {
+        // Update local orders state
+        setOrders((prevOrders) =>
+          prevOrders.map((order) =>
+            order._id === cancelModal.orderId
+              ? { ...order, status: "Cancelled" }
+              : order,
+          ),
+        );
+
+        toast.success("Order cancelled successfully");
+        closeCancelModal();
+      } else {
+        throw new Error(res.data.message || "Failed to cancel order");
+      }
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to cancel order";
+      toast.error(errorMessage);
+    } finally {
+      setCancelModal((prev) => ({ ...prev, isLoading: false }));
+    }
+  };
+
+  // Open cancel modal
+  const openCancelModal = (orderId: string, orderNumber: string) => {
+    setCancelModal({
+      isOpen: true,
+      orderId,
+      orderNumber,
+      reason: "",
+      isLoading: false,
+    });
+  };
+
+  // Close cancel modal
+  const closeCancelModal = () => {
+    setCancelModal({
+      isOpen: false,
+      orderId: "",
+      orderNumber: "",
+      reason: "",
+      isLoading: false,
+    });
+  };
 
   const getVariantText = (order: OrderType) => {
     const vars = order.product?.variables;
@@ -141,12 +212,72 @@ export default function MyOrders() {
     );
   }
   return (
-    <div className="space-y-6">
+    <div className="">
       {isFetching && (
         <div className="fixed inset-0 bg-white/50 z-50 flex items-center justify-center pointer-events-none">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
         </div>
       )}
+
+      {cancelModal.isOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                Cancel Order #{cancelModal.orderNumber}
+              </h3>
+              <p className="text-sm text-gray-600 mb-4">
+                Are you sure you want to cancel this order? This action cannot
+                be undone.
+              </p>
+
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason for cancellation *
+                </label>
+                <textarea
+                  value={cancelModal.reason}
+                  onChange={(e) =>
+                    setCancelModal((prev) => ({
+                      ...prev,
+                      reason: e.target.value,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  rows={3}
+                  placeholder="Please provide a reason for cancellation..."
+                  required
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={closeCancelModal}
+                  disabled={cancelModal.isLoading}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Go Back
+                </button>
+                <button
+                  onClick={handleCancelOrder}
+                  disabled={cancelModal.isLoading || !cancelModal.reason.trim()}
+                  className="flex-1 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {cancelModal.isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Cancelling...
+                    </span>
+                  ) : (
+                    "Confirm Cancellation"
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {orders?.map((order) => {
         const isProductAvailable = Boolean(order.product?.slug);
         const stockStatus = Number(order.product?.status);
@@ -212,9 +343,15 @@ export default function MyOrders() {
                     View Order Details
                   </Link>
                   <span>|</span>
-                  <Link href="#" className="text-blue-600 hover:underline">
-                    Get Invoice
-                  </Link>
+                  {order.status === "Processing" && (
+                    <button
+                      type="button"
+                      className="text-blue-600 hover:underline"
+                      onClick={() => openCancelModal(order._id, order.orderId)}
+                    >
+                      Cancel Order
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -241,24 +378,22 @@ export default function MyOrders() {
                   })()}
                 </div>
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full ">
-               
-                    <div className="md:flex items-center justify-center border border-gray-200 rounded-md w-full md:w-fit  ">
-                      {order.product?.coverImage?.url ? (
-                        <div className="  md:size-40 relative h-[18rem] w-full">
+                  <div className="md:flex items-center justify-center border border-gray-200 rounded-md w-full md:w-fit  ">
+                    {order.product?.coverImage?.url ? (
+                      <div className="  md:size-40 relative h-[18rem] w-full">
                         <Image
                           src={order.product.coverImage.url}
                           alt={order.product?.name || ""}
                           fill
                           className="object-cover w-full h-full rounded-md  "
                         />
-                        </div>
-                      ) : (
-                        <div className=" size-40 bg-gray-100 text-gray-300 text-center rounded-md flex justify-center items-center">
-                          Image Unavailable
-                        </div>
-                      )}
-                    </div>
-                
+                      </div>
+                    ) : (
+                      <div className=" size-40 bg-gray-100 text-gray-300 text-center rounded-md flex justify-center items-center">
+                        Image Unavailable
+                      </div>
+                    )}
+                  </div>
 
                   <div className=" w-full">
                     <Link
@@ -282,7 +417,9 @@ export default function MyOrders() {
                     <div className="flex md:flex-row flex-col gap-3  mt-4 w-full">
                       {isProductAvailable ? (
                         <button
-                          onClick={() => handleBuyNow(order.product, stockStatus)}
+                          onClick={() =>
+                            handleBuyNow(order.product, stockStatus)
+                          }
                           disabled={stockStatus === 0}
                           className={`lg:px-6 lg:py-4 p-3 text-sm  lg:text-sm bg-green-600 text-white rounded hover:bg-green-700 w-full md:w-fit text-center ${
                             stockStatus === 0
@@ -344,7 +481,6 @@ export default function MyOrders() {
                   View Return / Replacement
                 </button>
 
-
                 {order.status === "Delivered" && (
                   <Link href={`/review?product=${order.product?.slug}`}>
                     <button className="w-full px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700">
@@ -352,7 +488,6 @@ export default function MyOrders() {
                     </button>
                   </Link>
                 )}
-
               </div>
             </div>
           </div>
