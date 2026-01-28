@@ -74,6 +74,8 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const [showShare, setShowShare] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
 
+  const [availableCoupons, setAvailableCoupons] = useState<any>([]);
+
   // Add this useEffect after the existing useEffect for variants
   useEffect(() => {
     const stock = currentProduct.stock || 0;
@@ -124,7 +126,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const hasSize = Object.keys(sizeGroups).length > 0;
 
   const router = useRouter();
-    const { showPreview } = useCartPreview();
+  const { showPreview } = useCartPreview();
 
   const handleCart = async () => {
     if (!customer) {
@@ -146,14 +148,14 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         product.price,
       );
       await refreshCustomer();
-     showPreview({
-  _id: product._id,
-  name: product.name,
-  price: product.price,
-  mrp: product.mrp,
-  discount: product.discount,
-  image: product.coverImage?.url || product.images?.[0]?.url || "",
-});
+      showPreview({
+        _id: product._id,
+        name: product.name,
+        price: product.price,
+        mrp: product.mrp,
+        discount: product.discount,
+        image: product.coverImage?.url || product.images?.[0]?.url || "",
+      });
       toast.success("Added to cart");
     } catch (err) {
       console.error(err);
@@ -363,6 +365,21 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     rootMargin: "0px 0px 0px 0px",
   });
 
+  useEffect(() => {
+    const fetchCoupons = async () => {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
+        const data = await res.json();
+
+        setAvailableCoupons(data.coupons || []);
+      } catch (err) {
+        console.error("Failed to fetch coupons", err);
+      }
+    };
+
+    fetchCoupons();
+  }, []);
+
   return (
     <>
       {/* {variantLoading && (
@@ -413,18 +430,16 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             <p className="text-sm text-green-600 flex flex-wrap gap-2">
               Home ›{" "}
               <span className="text-black flex flex-wrap">
-               {product.categoryLevels?.map((cat: any, index: number) => (
-                <div key={cat._id} className="">
-                
-
-                  <Link
-                    href={`/products?category=${encodeURIComponent(cat.name)}`}
-                    className="t"
-                  >
-                    {cat.name} {">"}
-                  </Link>
-                </div>
-              ))}
+                {product.categoryLevels?.map((cat: any, index: number) => (
+                  <div key={cat._id} className="">
+                    <Link
+                      href={`/products?category=${encodeURIComponent(cat.name)}`}
+                      className="t"
+                    >
+                      {cat.name} {">"}
+                    </Link>
+                  </div>
+                ))}
               </span>{" "}
               <span className="text-black"> {product.name}</span>
             </p>
@@ -617,9 +632,23 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                 Available Offers
               </h2>
               <ul className="text-sm text-gray-700 space-y-1 mb-6 list-disc ml-5">
-                <li>Flat discount for new users - Use PPNNEW</li>
+                {availableCoupons
+                  .filter(
+                    (c: {
+                      code: string;
+                      usageLimit: number;
+                      status: boolean;
+                    }) => c.status !== false && c.usageLimit > 0,
+                  )
+                  .slice(0, 5)
+                  .map((c: { code: string; name: string }) => (
+                    <li key={c.code}>
+                      {c.name} - Use {c.code}
+                    </li>
+                  ))}
+                {/* <li>Flat discount for new users - Use PPNNEW</li>
                 <li>Flat 20% OFF on cart value - Use PPNCART20</li>
-                <li>Extra 10% OFF for existing users - Use PPNEXTRA10</li>
+                <li>Extra 10% OFF for existing users - Use PPNEXTRA10</li> */}
               </ul>
             </div>
 
@@ -627,7 +656,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-1 text-center mb-6">
               <Trust icon={"/icons/24x7support.svg"} label="24x7 Support" />
               <Trust icon={"/icons/easyreturn.svg"} label="Easy Return" />
-              <Trust icon={"/icons/originalproduct.svg"} label="100% Original" />
+              <Trust
+                icon={"/icons/originalproduct.svg"}
+                label="100% Original"
+              />
               <Trust icon={"/icons/makeinindia.svg"} label="Made in India" />
             </div>
 
@@ -773,10 +805,10 @@ export default ProductDetails;
 function Trust({ icon, label }: TrustProps) {
   return (
     <div className="flex flex-col items-center gap-2">
-       <div className=" relative size-[4rem]">
-                       <Image src={icon} alt="icons" fill className=""/>
-                       </div>
-     
+      <div className=" relative size-[4rem]">
+        <Image src={icon} alt="icons" fill className="" />
+      </div>
+
       <p className="text-lg font-medium text-gray-800">{label}</p>
     </div>
   );
