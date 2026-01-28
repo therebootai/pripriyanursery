@@ -204,6 +204,7 @@ export interface PaymentType {
 }
 
 export interface OrderType {
+  _id: string;
   orderId: string;
 
   payment: PaymentType; // 🔗 link to Payment
