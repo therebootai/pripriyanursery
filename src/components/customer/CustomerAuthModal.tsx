@@ -101,7 +101,7 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
 
       if (res.success) toast.success(res.message);
       localStorage.removeItem("otpCooldownUntil");
-      setCooldown(0)
+      setCooldown(0);
       setMobile("");
       setOtp("");
       setStep("MOBILE");
@@ -111,8 +111,8 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
 
       localStorage.removeItem("redirectAfterLogin");
       router.replace(redirect);
-    } catch {
-      toast.error("Invalid or expired OTP");
+    } catch (err: any) {
+      toast.error(err.message || "OTP verification failed");
     } finally {
       setLoading(false);
     }
