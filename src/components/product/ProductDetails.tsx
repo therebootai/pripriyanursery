@@ -19,6 +19,7 @@ import ReviewCard from "./ProductReview";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import ProductRatingSummary from "./ProductRatingSummary";
 import { useCartPreview } from "@/context/CartPreviewContext";
+import { FaRupeeSign } from "react-icons/fa";
 
 type TrustProps = {
   icon: string;
@@ -490,10 +491,12 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               </p>
               <div className="flex items-center gap-3">
                 <span className="text-3xl font-semibold text-defined-green">
-                  ₹{product.price.toFixed(0)}
+                  <FaRupeeSign className="inline" />
+                  {product.price.toFixed(0)}
                 </span>
                 <span className="line-through text-gray-400">
-                  ₹{product.mrp.toFixed(0)}
+                  <FaRupeeSign className="inline" />
+                  {product.mrp.toFixed(0)}
                 </span>
                 <span className="bg-defined-green text-white px-2 py-1 text-xs rounded font-medium">
                   {product.discount}% Off

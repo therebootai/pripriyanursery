@@ -4,21 +4,15 @@ import Facebook from "@/svg/Facebook";
 import Instagram from "@/svg/Instagram";
 import Linkedin from "@/svg/Linkedin";
 import Youtube from "@/svg/Youtube";
-import {
-  Phone,
-  Mail,
-  MapPin,
-  Check,
- 
-} from "lucide-react";
+import { Phone, Mail, MapPin, Check } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
 const socialLinks = [
-  { icon: Linkedin, href: 'https://www.linkedin.com/' },
-  { icon: Instagram, href: 'https://www.instagram.com/' },
-  { icon: Youtube, href: 'https://www.youtube.com/' },
+  { icon: Linkedin, href: "https://www.linkedin.com/" },
+  { icon: Instagram, href: "https://www.instagram.com/" },
+  { icon: Youtube, href: "https://www.youtube.com/" },
   { icon: Facebook, href: "https://www.facebook.com/pripriyanursery" },
 ];
 
@@ -50,7 +44,7 @@ export default function Footer() {
     message: "",
   });
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    const whatsappMessage = `Message: ${formData.message}`;
+    const whatsappMessage = `I need help on shopping`;
 
     const encodedMessage = encodeURIComponent(whatsappMessage);
 
@@ -176,7 +170,6 @@ export default function Footer() {
                     width={2048}
                     height={234}
                     className="w-full h-[2rem] "
-                    
                   />
                 </Link>
                 <p className="mt-4 text-sm leading-relaxed">
@@ -343,7 +336,7 @@ export default function Footer() {
                 rel="noopener noreferrer"
               >
                 <div className="  ">
-                  <Icon  />
+                  <Icon />
                 </div>
               </Link>
             ))}

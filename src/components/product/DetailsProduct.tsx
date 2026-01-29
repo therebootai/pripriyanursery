@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  Star,
-  ShieldCheck,
-  RotateCcw,
-  Headphones,
-  Leaf,
-} from "lucide-react";
+import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 
 /* ================= TYPES ================= */
 
@@ -22,9 +17,9 @@ type TrustProps = {
 export default function DetailsProduct() {
   const images = [
     "/assets/home/category/newestproduct.png",
-  "/assets/home/category/sygno1.jpg",
+    "/assets/home/category/sygno1.jpg",
     "/assets/home/category/sygno2.jpg",
-     "/assets/home/category/sygno3.jpg",
+    "/assets/home/category/sygno3.jpg",
   ];
 
   const [activeImage, setActiveImage] = useState(images[0]);
@@ -97,8 +92,14 @@ export default function DetailsProduct() {
           <div className="mb-4">
             <p className="text-sm text-green-600 font-medium">Special price</p>
             <div className="flex items-center gap-3">
-              <span className="text-3xl font-semibold">₹196</span>
-              <span className="line-through text-gray-400">₹350</span>
+              <span className="text-3xl font-semibold">
+                <FaRupeeSign className="inline" />
+                196
+              </span>
+              <span className="line-through text-gray-400">
+                <FaRupeeSign className="inline" />
+                350
+              </span>
               <span className="text-green-600 font-medium">43% off</span>
             </div>
           </div>
@@ -122,7 +123,11 @@ export default function DetailsProduct() {
           {/* Offers */}
           <ul className="text-sm text-gray-700 space-y-1 mb-6 list-disc ml-5">
             <li>Special Price: Get extra 37% off</li>
-            <li>Bank Offer: Flat ₹75 cashback on ₹399</li>
+            <li>
+              Bank Offer: Flat <FaRupeeSign className="inline" />
+              75 cashback on <FaRupeeSign className="inline" />
+              399
+            </li>
             <li>5% cashback on Axis Bank Debit Card</li>
           </ul>
 
@@ -174,108 +179,109 @@ function ProductDescription() {
     <div>
       {/* Short Details */}
       <h2 className="text-lg font-semibold mb-3">Product Short Details</h2>
-     <div className="grid grid-cols-2 gap-y-2 text-sm mb-8">
-  {[
-    {
-      title: "Easy-Care Indoor Plant",
-      desc: "Syngonium is a low-maintenance indoor plant, perfect for beginners and busy plant lovers.",
-    },
-    {
-      title: "Beautiful Arrow-Shaped Leaves",
-      desc: "Its unique arrow-shaped foliage adds a fresh and modern touch to interiors.",
-    },
-    {
-      title: "Grows in Indirect Light",
-      desc: "Thrives best in bright indirect sunlight but adapts well to low-light areas.",
-    },
-    {
-      title: "Low Water Requirement",
-      desc: "Needs moderate watering and grows well without frequent maintenance.",
-    },
-    {
-      title: "Perfect for Home & Office",
-      desc: "Ideal for living rooms, bedrooms, desks, and office spaces.",
-    },
-  ].map((item, i) => (
-    <div key={i} className="contents">
-      <p className="font-medium text-[16px]">{item.title}</p>
-      <p className="text-gray-600">{item.desc}</p>
-    </div>
-  ))}
-</div>
-
+      <div className="grid grid-cols-2 gap-y-2 text-sm mb-8">
+        {[
+          {
+            title: "Easy-Care Indoor Plant",
+            desc: "Syngonium is a low-maintenance indoor plant, perfect for beginners and busy plant lovers.",
+          },
+          {
+            title: "Beautiful Arrow-Shaped Leaves",
+            desc: "Its unique arrow-shaped foliage adds a fresh and modern touch to interiors.",
+          },
+          {
+            title: "Grows in Indirect Light",
+            desc: "Thrives best in bright indirect sunlight but adapts well to low-light areas.",
+          },
+          {
+            title: "Low Water Requirement",
+            desc: "Needs moderate watering and grows well without frequent maintenance.",
+          },
+          {
+            title: "Perfect for Home & Office",
+            desc: "Ideal for living rooms, bedrooms, desks, and office spaces.",
+          },
+        ].map((item, i) => (
+          <div key={i} className="contents">
+            <p className="font-medium text-[16px]">{item.title}</p>
+            <p className="text-gray-600">{item.desc}</p>
+          </div>
+        ))}
+      </div>
 
       {/* Specification */}
       <h2 className="text-lg font-semibold mb-3">Product Description</h2>
-     <div className="border rounded-md mb-4">
-  <div className="grid grid-cols-2 bg-gray-50 font-medium text-sm">
-    <div className="p-3 border-r">Specification</div>
-    <div className="p-3">Description</div>
-  </div>
+      <div className="border rounded-md mb-4">
+        <div className="grid grid-cols-2 bg-gray-50 font-medium text-sm">
+          <div className="p-3 border-r">Specification</div>
+          <div className="p-3">Description</div>
+        </div>
 
-  {[
-    {
-      spec: "Plant Type",
-      desc: "Indoor foliage plant suitable for homes and offices.",
-    },
-    {
-      spec: "Light Requirement",
-      desc: "Prefers bright indirect light but tolerates low light.",
-    },
-    {
-      spec: "Watering Needs",
-      desc: "Water when the top soil feels dry; avoid overwatering.",
-    },
-    {
-      spec: "Maintenance Level",
-      desc: "Low maintenance and easy to grow.",
-    },
-    {
-      spec: "Placement",
-      desc: "Ideal for indoor spaces like living rooms and work desks.",
-    },
-  ].map((item, i) => (
-    <div key={i} className="grid grid-cols-2 text-sm border-t">
-      <div className="p-3 border-r font-medium">{item.spec}</div>
-      <div className="p-3 text-gray-600">{item.desc}</div>
-    </div>
-  ))}
-</div>
-
+        {[
+          {
+            spec: "Plant Type",
+            desc: "Indoor foliage plant suitable for homes and offices.",
+          },
+          {
+            spec: "Light Requirement",
+            desc: "Prefers bright indirect light but tolerates low light.",
+          },
+          {
+            spec: "Watering Needs",
+            desc: "Water when the top soil feels dry; avoid overwatering.",
+          },
+          {
+            spec: "Maintenance Level",
+            desc: "Low maintenance and easy to grow.",
+          },
+          {
+            spec: "Placement",
+            desc: "Ideal for indoor spaces like living rooms and work desks.",
+          },
+        ].map((item, i) => (
+          <div key={i} className="grid grid-cols-2 text-sm border-t">
+            <div className="p-3 border-r font-medium">{item.spec}</div>
+            <div className="p-3 text-gray-600">{item.desc}</div>
+          </div>
+        ))}
+      </div>
 
       {/* Long Text */}
       <div
-  className={`overflow-hidden transition-all duration-300 text-sm text-gray-700 ${
-    open ? "max-h-[2000px]" : "max-h-32"
-  }`}
->
-  <p>
-    The Syngonium Plant, also known as the Arrowhead Plant, is a popular indoor
-    plant admired for its attractive leaf shape and easy-care nature. Its lush
-    green foliage adds a refreshing touch to indoor spaces and complements both
-    modern and traditional interiors.
-    <br /><br />
-    Syngonium grows well in bright indirect light but can also adapt to low-light
-    conditions, making it suitable for homes and offices. It requires moderate
-    watering and prefers well-drained soil to stay healthy.
-    <br /><br />
-    With minimal maintenance and fast growth, Syngonium is an excellent choice
-    for beginners as well as experienced plant lovers. Regular trimming helps
-    maintain its shape and encourages bushier growth.
-    <br></br>
-    Syngonium grows well in bright indirect light but can also adapt to low-light
-    conditions, making it suitable for homes and offices. It requires moderate
-    watering and prefers well-drained soil to stay healthy.
-  </p>
-</div>
+        className={`overflow-hidden transition-all duration-300 text-sm text-gray-700 ${
+          open ? "max-h-[2000px]" : "max-h-32"
+        }`}
+      >
+        <p>
+          The Syngonium Plant, also known as the Arrowhead Plant, is a popular
+          indoor plant admired for its attractive leaf shape and easy-care
+          nature. Its lush green foliage adds a refreshing touch to indoor
+          spaces and complements both modern and traditional interiors.
+          <br />
+          <br />
+          Syngonium grows well in bright indirect light but can also adapt to
+          low-light conditions, making it suitable for homes and offices. It
+          requires moderate watering and prefers well-drained soil to stay
+          healthy.
+          <br />
+          <br />
+          With minimal maintenance and fast growth, Syngonium is an excellent
+          choice for beginners as well as experienced plant lovers. Regular
+          trimming helps maintain its shape and encourages bushier growth.
+          <br></br>
+          Syngonium grows well in bright indirect light but can also adapt to
+          low-light conditions, making it suitable for homes and offices. It
+          requires moderate watering and prefers well-drained soil to stay
+          healthy.
+        </p>
+      </div>
 
-<button
-  onClick={() => setOpen(!open)}
-  className="mt-2 text-green-600 text-sm font-medium hover:underline"
->
-  {open ? "" : "Read More"}
-</button>
-
+      <button
+        onClick={() => setOpen(!open)}
+        className="mt-2 text-green-600 text-sm font-medium hover:underline"
+      >
+        {open ? "" : "Read More"}
+      </button>
 
       {/* Reviews */}
       <div className="mt-10">
@@ -300,9 +306,7 @@ function ProductDescription() {
           </span>
           Excellent
         </p>
-        <p className="text-sm text-gray-600">
-          Nice plant healthy and fresh
-        </p>
+        <p className="text-sm text-gray-600">Nice plant healthy and fresh</p>
       </div>
     </div>
   );

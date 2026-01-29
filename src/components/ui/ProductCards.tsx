@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ShoppingCart, Heart,  } from "lucide-react";
+import { ShoppingCart, Heart } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useCustomer } from "@/context/CustomerContext";
@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { useCartPreview } from "@/context/CartPreviewContext";
 import confetti from "canvas-confetti";
+import { FaRupeeSign } from "react-icons/fa";
 
 type Product = {
   _id: string;
@@ -23,9 +24,9 @@ type Product = {
   discount?: number;
   coverImage: {
     url: string;
-    public_id:string
+    public_id: string;
   };
-  height?:string;
+  height?: string;
 };
 
 export default function ProductCards({
@@ -36,160 +37,157 @@ export default function ProductCards({
   mrp,
   discount,
   slug,
-  height
+  height,
 }: Product) {
   const { customer, refreshCustomer } = useCustomer();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isInCart, setIsInCart] = useState(false);
-  const router = useRouter()
+  const router = useRouter();
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const { showPreview } = useCartPreview();
 
   const customerId = customer?._id;
 
-const handleWishlist = async () => {
-if (!customerId) {
+  const handleWishlist = async () => {
+    if (!customerId) {
       setIsSignupOpen(true); // Open the modal
       return;
     }
 
     if (loading) return;
 
-  setLoading(true);
-  setIsWishlisted((prev) => !prev);
-
-  try {
-      if (isWishlisted) {
-      // 🔴 Explicit remove
-      await removeWishlistApi(customerId, _id);
-      toast.success("Removed from wishlist");
-    } else {
-      // 🟢 Add
-      await toggleWishlistApi(customerId, _id);
-      toast.success("Added to wishlist");
-    }
-
-    await refreshCustomer();
-  } catch (err) {
-    console.error(err);
+    setLoading(true);
     setIsWishlisted((prev) => !prev);
-  } finally {
-    setLoading(false);
-  }
-};
 
-const handleCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
-  e.preventDefault();
-  if (!customerId) {
+    try {
+      if (isWishlisted) {
+        // 🔴 Explicit remove
+        await removeWishlistApi(customerId, _id);
+        toast.success("Removed from wishlist");
+      } else {
+        // 🟢 Add
+        await toggleWishlistApi(customerId, _id);
+        toast.success("Added to wishlist");
+      }
+
+      await refreshCustomer();
+    } catch (err) {
+      console.error(err);
+      setIsWishlisted((prev) => !prev);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCart = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    if (!customerId) {
       setIsSignupOpen(true); // Open the modal
       return;
     }
 
-    
-
     if (loading) return;
-setIsAnimating(true);
+    setIsAnimating(true);
 
-if (!isInCart) {
+    if (!isInCart) {
       const rect = e.currentTarget.getBoundingClientRect();
       const x = (rect.left + rect.width / 2) / window.innerWidth;
       const y = (rect.top + rect.height / 2) / window.innerHeight;
 
       confetti({
-        origin: { x, y }, 
-        particleCount: 25,   
-        spread: 360,  
-        startVelocity: 15, 
-        decay: 0.90,
-        gravity: 0,  
-        scalar: 0.8, 
-        colors: ['#22c55e', '#ffffff'], 
+        origin: { x, y },
+        particleCount: 25,
+        spread: 360,
+        startVelocity: 15,
+        decay: 0.9,
+        gravity: 0,
+        scalar: 0.8,
+        colors: ["#22c55e", "#ffffff"],
         disableForReducedMotion: true,
         zIndex: 9999,
       });
     }
-  setLoading(true);
+    setLoading(true);
 
-  try {
-    if (isInCart) {
-       router.push('/my-cart');
-       return
-    } else {
-      await addToCartApi(customerId, _id, undefined, 1, price);
+    try {
+      if (isInCart) {
+        router.push("/my-cart");
+        return;
+      } else {
+        await addToCartApi(customerId, _id, undefined, 1, price);
+      }
+      await refreshCustomer();
+
+      setIsInCart(!isInCart);
+      setTimeout(() => {
+        setIsAnimating(false);
+      }, 700);
+      // toast.success(isInCart ? "Removed from cart" : "Added to cart");
+
+      showPreview({
+        _id,
+        name,
+        price,
+        mrp,
+        discount,
+        image: coverImage.url,
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update cart");
+    } finally {
+      setLoading(false);
     }
- await refreshCustomer();
+  };
 
-    setIsInCart(!isInCart);
-    setTimeout(() => {
-      setIsAnimating(false);
-    }, 700);
-    // toast.success(isInCart ? "Removed from cart" : "Added to cart");
+  useEffect(() => {
+    if (!customer || !customer.wishlist) return;
 
-    showPreview({
-  _id,
-  name,
-  price,
-  mrp,
-  discount,
-  image: coverImage.url,
-});
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to update cart");
-  } finally {
-    setLoading(false);
-  }
-};
+    const exists = customer.wishlist.some(
+      (item: any) =>
+        String(item.product?._id || item.product) === String(_id) &&
+        item.status === true,
+    );
 
-useEffect(() => {
-  if (!customer || !customer.wishlist) return;
+    setIsWishlisted(exists);
+  }, [customer, _id]);
 
-  const exists = customer.wishlist.some(
-    (item: any) =>
-      String(item.product?._id || item.product) === String(_id) &&
-      item.status === true
-  );
+  useEffect(() => {
+    if (!customer || !customer.cart) return;
 
-  setIsWishlisted(exists);
-}, [customer, _id]);
+    const exists = customer.cart.some(
+      (item: any) =>
+        String(item.productId?._id || item.productId) === String(_id),
+    );
 
-
-useEffect(() => {
-  if (!customer || !customer.cart) return;
-
-  const exists = customer.cart.some(
-    (item: any) => String(item.productId?._id || item.productId) === String(_id)
-  );
-
-  setIsInCart(exists);
-}, [customer, _id]);
-
+    setIsInCart(exists);
+  }, [customer, _id]);
 
   return (
     <>
-    <div className="relative rounded bg-white p-1 md:p-2 shadow-sm hover:shadow-md w-full h-auto flex flex-col justify-between">
-      <Link
-        href={`/product/${slug}`}
-        className="absolute inset-0 z-10 "
-        aria-label={`View ${name}`}
-      ></Link>
-      {/* IMAGE SECTION */}
-      <div className="relative rounded bg-gray-100 overflow-hidden">
-        {/* {tag && (
+      <div className="relative rounded bg-white p-1 md:p-2 shadow-sm hover:shadow-md w-full h-auto flex flex-col justify-between">
+        <Link
+          href={`/product/${slug}`}
+          className="absolute inset-0 z-10 "
+          aria-label={`View ${name}`}
+        ></Link>
+        {/* IMAGE SECTION */}
+        <div className="relative rounded bg-gray-100 overflow-hidden">
+          {/* {tag && (
           <span className="absolute left-2 top-2 rounded-full bg-green-600 px-3 py-1 text-xs text-white">
             {tag}
           </span>
         )} */}
 
-        <button
-          onClick={handleWishlist}
-          className="absolute right-2 top-2 z-20 rounded-full bg-white/50 p-1 shadow"
-        >
-          <Heart
-            size={18}
-            className={`
+          <button
+            onClick={handleWishlist}
+            className="absolute right-2 top-2 z-20 rounded-full bg-white/50 p-1 shadow"
+          >
+            <Heart
+              size={18}
+              className={`
               transition-all duration-300
               ${
                 isWishlisted
@@ -197,65 +195,67 @@ useEffect(() => {
                   : "text-gray-800"
               }
             `}
-          />
-        </button>
+            />
+          </button>
 
-        <div className={`h-[10rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem] ${height}`}>
-          <Image
-            src={coverImage.url}
-            alt={coverImage.public_id}
-            height={500}
-            width={500}
-            className="object-cover h-full w-full"
-          />
+          <div
+            className={`h-[10rem] md:h-[10rem] lg:h-[12rem] xxl:h-[14rem] ${height}`}
+          >
+            <Image
+              src={coverImage.url}
+              alt={coverImage.public_id}
+              height={500}
+              width={500}
+              className="object-cover h-full w-full"
+            />
+          </div>
         </div>
-      </div>
 
-      {/* CONTENT */}
-      <div className=" pt-2 pb-2 flex flex-col">
-        {/* {category && (
+        {/* CONTENT */}
+        <div className=" pt-2 pb-2 flex flex-col">
+          {/* {category && (
           <span className="rounded-full bg-green-100 px-3 py-1 text-green-600 text-xs">
             {category}
           </span>
         )} */}
 
-        <div className="flex justify-between items-center">
-          <h3 className="text-xs md:text-sm  font-semibold text-defined-black line-clamp-1">
-            {name}
-          </h3>
+          <div className="flex justify-between items-center">
+            <h3 className="text-xs md:text-sm  font-semibold text-defined-black line-clamp-1">
+              {name}
+            </h3>
+          </div>
 
-    
-        </div>
+          <div>
+            <span className="text-xs md:text-lg font-bold text-defined-green">
+              <FaRupeeSign className="inline" />
+              {price.toFixed(0)}
+            </span>
+            {discount && discount > 0 && mrp && (
+              <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-gray-500 line-through">
+                <FaRupeeSign className="inline" />
+                {mrp.toFixed(0)}
+              </span>
+            )}
 
-        <div>
-          <span className="text-xs md:text-lg font-bold text-defined-green">
-            ₹{price.toFixed(0)}
-          </span>
-         {discount && discount > 0 && mrp && (
-  <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-gray-500 line-through">
-    ₹{mrp.toFixed(0)}
-  </span>
-)}
+            {discount && discount > 0 && (
+              <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-red-500">
+                {discount}% OFF
+              </span>
+            )}
+          </div>
 
-          {discount && discount > 0 && (
-  <span className="ml-1 md:ml-2 text-[10px] md:text-xs text-red-500">
-    {discount}% OFF
-  </span>
-)}
-        </div>
+          {/* BUTTONS */}
+          <div className="mt-2 flex justify-between items-center">
+            <Link
+              href={`/product/${slug}`}
+              className="text-xs  text-green-600 border rounded-full px-3 py-2 hover:bg-green-50 hidden md:flex "
+            >
+              More Info
+            </Link>
 
-        {/* BUTTONS */}
-        <div className="mt-2 flex justify-between items-center">
-          <Link
-            href={`/product/${slug}`}
-            className="text-xs  text-green-600 border rounded-full px-3 py-2 hover:bg-green-50 hidden md:flex "
-          >
-            More Info
-          </Link>
-
-         <button
-      onClick={handleCart}
-     className={`cursor-pointer max-md:w-full relative z-20 
+            <button
+              onClick={handleCart}
+              className={`cursor-pointer max-md:w-full relative z-20 
           group flex items-center justify-center gap-2
           text-xs font-semibold px-3 py-2 rounded-full
           transition-all duration-300 ease-in-out
@@ -263,39 +263,38 @@ useEffect(() => {
           /* This creates the button "press" effect */
           ${isAnimating ? "scale-90" : "scale-100"} 
 
-          ${!isInCart
+          ${
+            !isInCart
               ? "bg-green-100 text-green-700 hover:bg-green-200 shadow-inner"
               : "bg-gradient-to-r from-green-500 to-emerald-600 text-white shadow-md shadow-green-500/30 hover:shadow-lg hover:scale-[1.04] hover:from-emerald-600 hover:to-green-500 active:scale-95"
           }
         `}
-    >
-    
-
-      {isInCart ? (
-        <>
-          <ShoppingCart
-            size={12}
-            className="transition-transform duration-300 group-hover:translate-x-1"
-          />
-          <span>Go to Cart</span>
-        </>
-      ) : (
-        <>
-          <ShoppingCart
-            size={12}
-            className="transition-transform duration-300 group-hover:translate-x-1"
-          />
-          <span>Add to Cart</span>
-        </>
-      )}
-    </button>
+            >
+              {isInCart ? (
+                <>
+                  <ShoppingCart
+                    size={12}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                  <span>Go to Cart</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart
+                    size={12}
+                    className="transition-transform duration-300 group-hover:translate-x-1"
+                  />
+                  <span>Add to Cart</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-    <CustomerAuthModal
+      <CustomerAuthModal
         isOpen={isSignupOpen}
         onClose={() => setIsSignupOpen(false)}
       />
-      </>
+    </>
   );
 }
