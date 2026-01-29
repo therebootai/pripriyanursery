@@ -10,6 +10,7 @@ import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import { FaRupeeSign } from "react-icons/fa";
 export const STATUS_COLORS: Record<string, string> = {
   Processing: "bg-yellow-500",
   Confirmed: "bg-amber-600",
@@ -326,7 +327,10 @@ export default function MyOrders() {
 
               <div>
                 <p className="text-gray-500">Total Amount</p>
-                <p className="font-medium">₹{order.orderValue.toFixed(0)}</p>
+                <p className="font-medium">
+                  <FaRupeeSign className="inline" />
+                  {order.orderValue.toFixed(0)}
+                </p>
               </div>
 
               <div>

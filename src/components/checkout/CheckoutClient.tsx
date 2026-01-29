@@ -12,7 +12,7 @@ import { logout } from "@/library/api";
 import { CouponType } from "@/types/types";
 import { toggleWishlistApi } from "@/library/wishlist";
 import { IoMdSync } from "react-icons/io";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaRupeeSign } from "react-icons/fa";
 import AddAddressModal from "../account-content/AddAddressModal";
 
 interface RazorpayInstance {
@@ -285,7 +285,7 @@ export default function CheckoutClient() {
             const paymentId = verifyData.paymentGroupId;
             const orderIds = verifyData.orders.join(",");
             router.push(`/thank-you?payment=${paymentId}&orders=${orderIds}`);
-            await refreshCustomer({silent: true});
+            await refreshCustomer({ silent: true });
           } else {
             toast.error("Payment verification failed");
           }
@@ -310,45 +310,43 @@ export default function CheckoutClient() {
   };
 
   /* ------------------ QTY HANDLER (delta logic) ------------------ */
-const handleQtyById = (
-  productId: string,
-  variantId: string | undefined,
-  qty: number,
-) => {
-  if (qty < 1) return;
+  const handleQtyById = (
+    productId: string,
+    variantId: string | undefined,
+    qty: number,
+  ) => {
+    if (qty < 1) return;
 
-  setCheckoutItems((prev) =>
-    prev.map((item) => {
-      const match =
-        item.productId._id === productId &&
-        item.variantId?._id === variantId;
+    setCheckoutItems((prev) =>
+      prev.map((item) => {
+        const match =
+          item.productId._id === productId && item.variantId?._id === variantId;
 
-      if (!match) return item;
+        if (!match) return item;
 
-      // ✅ STOCK VALIDATION
-      const stock = (item.productId as ProductType).stock || 0;
-      if (qty > stock) {
-        toast.error(`Only ${stock} items available`);
-        return item;
+        // ✅ STOCK VALIDATION
+        const stock = (item.productId as ProductType).stock || 0;
+        if (qty > stock) {
+          toast.error(`Only ${stock} items available`);
+          return item;
+        }
+
+        return { ...item, quantity: qty };
+      }),
+    );
+
+    // ✅ BUY NOW: update sessionStorage
+    if (checkoutMode === "buy-now") {
+      const stored = sessionStorage.getItem("BUY_NOW_ITEM");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        sessionStorage.setItem(
+          "BUY_NOW_ITEM",
+          JSON.stringify({ ...parsed, quantity: qty }),
+        );
       }
-
-      return { ...item, quantity: qty };
-    }),
-  );
-
-  // ✅ BUY NOW: update sessionStorage
-  if (checkoutMode === "buy-now") {
-    const stored = sessionStorage.getItem("BUY_NOW_ITEM");
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      sessionStorage.setItem(
-        "BUY_NOW_ITEM",
-        JSON.stringify({ ...parsed, quantity: qty }),
-      );
     }
-  }
-};
-
+  };
 
   const handleMoveToWishlist = async (item: CartType) => {
     if (!customerId) return;
@@ -438,14 +436,14 @@ const handleQtyById = (
   );
 
   useEffect(() => {
-  const saved = sessionStorage.getItem("SELECTED_ADDRESS_ID");
+    const saved = sessionStorage.getItem("SELECTED_ADDRESS_ID");
 
-  if (saved && addresses.some((a) => a._id === saved)) {
-    setSelectedAddressId(saved);
-  } else if (defaultAddress?._id) {
-    setSelectedAddressId(defaultAddress._id);
-  }
-}, [addresses]);
+    if (saved && addresses.some((a) => a._id === saved)) {
+      setSelectedAddressId(saved);
+    } else if (defaultAddress?._id) {
+      setSelectedAddressId(defaultAddress._id);
+    }
+  }, [addresses]);
 
   const handleApplyCoupon = () => {
     const found = availableCoupons.find(
@@ -483,7 +481,7 @@ const handleQtyById = (
                 onClick={() => setChangeAccountMode(true)}
                 className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
               >
-              <IoMdSync />  Change Account
+                <IoMdSync /> Change Account
               </button>
             ) : null}
           </div>
@@ -517,28 +515,24 @@ const handleQtyById = (
         </div>
         <div className="flex flex-col text-defined-black bg-white rounded-md p-4 mt-2">
           <div className="flex justify-between items-center">
-            <p className="font-medium text-sm lg:text-base">
-              Delivery Address 
-            </p>
+            <p className="font-medium text-sm lg:text-base">Delivery Address</p>
 
             {!changeAddressMode ? (
               <button
                 onClick={() => setChangeAddressMode(true)}
                 className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
               >
-               <IoMdSync /> Change Address
+                <IoMdSync /> Change Address
               </button>
             ) : (
-               <button
+              <button
                 onClick={() => setShowAddAddress(true)}
                 className="text-defined-black flex flex-row gap-2 items-center text-xs lg:text-sm p-1 px-3 bg-defined-yellow  rounded"
               >
-               <FaPlus />
- Add New Address
+                <FaPlus />
+                Add New Address
               </button>
             )}
-
-
           </div>
 
           {/* DEFAULT VIEW */}
@@ -571,10 +565,13 @@ const handleQtyById = (
                     type="radio"
                     name="address"
                     checked={selectedAddressId === address._id}
-                   onChange={() => {
-  setSelectedAddressId(address._id);
-  sessionStorage.setItem("SELECTED_ADDRESS_ID", address._id);
-}}
+                    onChange={() => {
+                      setSelectedAddressId(address._id);
+                      sessionStorage.setItem(
+                        "SELECTED_ADDRESS_ID",
+                        address._id,
+                      );
+                    }}
                     className="mt-1"
                   />
 
@@ -593,12 +590,15 @@ const handleQtyById = (
 
               <div className="flex justify-end">
                 <button
-                    onClick={() => {
-    if (selectedAddressId) {
-      sessionStorage.setItem("SELECTED_ADDRESS_ID", selectedAddressId);
-    }
-    setChangeAddressMode(false);
-  }}
+                  onClick={() => {
+                    if (selectedAddressId) {
+                      sessionStorage.setItem(
+                        "SELECTED_ADDRESS_ID",
+                        selectedAddressId,
+                      );
+                    }
+                    setChangeAddressMode(false);
+                  }}
                   className="text-xs lg:text-base p-1 lg:p-2 bg-defined-green text-white rounded"
                 >
                   Deliver Here
@@ -616,9 +616,9 @@ const handleQtyById = (
             const stock = (item.productId as ProductType).stock || 0;
             const isOutOfStock = stockStatus === "out";
             const canIncrease = item.quantity < stock;
-                      const product = item.productId as ProductType;
-          const linePrice = product.price * item.quantity; // Price × Qty
-const lineMRP = product.mrp * item.quantity;
+            const product = item.productId as ProductType;
+            const linePrice = product.price * item.quantity; // Price × Qty
+            const lineMRP = product.mrp * item.quantity;
 
             return (
               <div
@@ -691,9 +691,11 @@ const lineMRP = product.mrp * item.quantity;
                     ></p>
 
                     <p className="mt-2 font-bold text-green-600 text-lg">
-                      ₹{linePrice.toFixed(0)}
+                      <FaRupeeSign className="inline" />
+                      {linePrice.toFixed(0)}
                       <span className="line-through text-gray-400 text-sm ml-3">
-                        ₹{lineMRP.toFixed(0)}
+                        <FaRupeeSign className="inline" />
+                        {lineMRP.toFixed(0)}
                       </span>
                       <span className="text-defined-green text-[13px] ml-2 font-normal">
                         {(item.productId as ProductType).discount}% OFF
@@ -712,25 +714,26 @@ const lineMRP = product.mrp * item.quantity;
 
                   <div className="md:flex hidden gap-4 justify-evenly md:justify-start pt-4 lg:pt-0 md:pb-2 lg:pb-0">
                     <button
-                    className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-lg lg:px-6 lg:py-2 "
-                    onClick={() => handleMoveToWishlist(item)}
-                  >
-                    MOVE TO WISHLIST
-                  </button>
-                  <button
-                    onClick={() => handleRemove(item)}
-                    className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-lg lg:px-6 lg:py-2"
-                  >
-                    REMOVE
-                  </button>
+                      className="font-bold hover:text-defined-green text-defined-black text-sm lg:text-lg lg:px-6 lg:py-2 "
+                      onClick={() => handleMoveToWishlist(item)}
+                    >
+                      MOVE TO WISHLIST
+                    </button>
+                    <button
+                      onClick={() => handleRemove(item)}
+                      className="font-semibold text-defined-black hover:text-red-500 text-sm lg:text-lg lg:px-6 lg:py-2"
+                    >
+                      REMOVE
+                    </button>
                   </div>
                 </div>
 
-                 <div className="flex md:hidden items-center gap-4 mt-3 w-full">
+                <div className="flex md:hidden items-center gap-4 mt-3 w-full">
                   {/* 1. QUANTITY BOX (Mobile Only as per your code) */}
                   <div className="flex lg:hidden items-center border border-gray-200 rounded-md overflow-hidden h-[40px]">
                     <button
-                      onClick={() => handleQtyById(
+                      onClick={() =>
+                        handleQtyById(
                           item.productId._id,
                           item.variantId?._id,
                           item.quantity - 1,
@@ -747,11 +750,13 @@ const lineMRP = product.mrp * item.quantity;
                     </span>
 
                     <button
-                      onClick={() => handleQtyById(
+                      onClick={() =>
+                        handleQtyById(
                           item.productId._id,
                           item.variantId?._id,
                           item.quantity + 1,
-                        )}
+                        )
+                      }
                       className={`px-2 h-full transition-colors ${
                         canIncrease && !isOutOfStock
                           ? "bg-gray-50 text-defined-black hover:bg-gray-200"
@@ -860,13 +865,17 @@ const lineMRP = product.mrp * item.quantity;
 
           <div className="flex justify-between">
             <span>Price ({totalItems} items)</span>
-            <span>₹{totalMRP.toLocaleString()}</span>
+            <span>
+              <FaRupeeSign className="inline" />
+              {totalMRP.toLocaleString()}
+            </span>
           </div>
 
           <div className="flex justify-between">
             <span>Discount</span>
             <span className="text-green-600">
-              -₹{totalDiscount.toLocaleString()}
+              -<FaRupeeSign className="inline" />
+              {totalDiscount.toLocaleString()}
             </span>
           </div>
 
@@ -874,14 +883,18 @@ const lineMRP = product.mrp * item.quantity;
             <div className="flex justify-between">
               <span>Coupon Discount</span>
               <span className="text-green-600">
-                -₹{couponDiscount.toLocaleString()}
+                -<FaRupeeSign className="inline" />
+                {couponDiscount.toLocaleString()}
               </span>
             </div>
           )}
 
           <div className="flex justify-between font-semibold text-lg border-t border-gray-400 text-gray-700 pt-3">
             <span>Total Amount</span>
-            <span>₹{payableAmount.toLocaleString()}</span>
+            <span>
+              <FaRupeeSign className="inline" />
+              {payableAmount.toLocaleString()}
+            </span>
           </div>
         </div>
 
@@ -915,23 +928,30 @@ const lineMRP = product.mrp * item.quantity;
           ) : !selectedAddress ? (
             "Select Address First"
           ) : (
-            `₹${Math.max(totalFinalPrice - couponDiscount, 0).toLocaleString()} Pay Now`
+            <>
+              <FaRupeeSign className="inline" />
+              {Math.max(
+                totalFinalPrice - couponDiscount,
+                0,
+              ).toLocaleString()}{" "}
+              Pay Now
+            </>
           )}
         </button>
       </div>
       {showAddAddress && (
-  <AddAddressModal
-    onClose={() => setShowAddAddress(false)}
-    onSuccess={ async (newAddressId: string) => {
-      // 🔥 THIS IS THE MAGIC
-        await refreshCustomer();
-      sessionStorage.setItem("SELECTED_ADDRESS_ID", newAddressId);
-      setSelectedAddressId(newAddressId);
-      setChangeAddressMode(false);
-      setShowAddAddress(false);
-    }}
-  />
-)}
+        <AddAddressModal
+          onClose={() => setShowAddAddress(false)}
+          onSuccess={async (newAddressId: string) => {
+            // 🔥 THIS IS THE MAGIC
+            await refreshCustomer();
+            sessionStorage.setItem("SELECTED_ADDRESS_ID", newAddressId);
+            setSelectedAddressId(newAddressId);
+            setChangeAddressMode(false);
+            setShowAddAddress(false);
+          }}
+        />
+      )}
     </div>
   );
 }

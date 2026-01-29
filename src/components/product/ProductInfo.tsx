@@ -1,28 +1,31 @@
-import { Star } from 'lucide-react'
+import { Star } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 
 export default function ProductInfo() {
   return (
     <div>
-      <h1 className="text-2xl font-bold">
-        Syngonium Plant (Pack of 1)
-      </h1>
+      <h1 className="text-2xl font-bold">Syngonium Plant (Pack of 1)</h1>
 
       {/* Rating */}
       <div className="mt-2 flex items-center gap-2 text-sm">
         <span className="flex items-center gap-1 rounded bg-green-600 px-2 py-1 text-white">
           <Star size={14} /> 4.9
         </span>
-        <span className="text-gray-500">
-          6,426 Ratings & 477 Reviews
-        </span>
+        <span className="text-gray-500">6,426 Ratings & 477 Reviews</span>
       </div>
 
       {/* Price */}
       <div className="mt-4">
         <p className="text-sm text-gray-500">Special price</p>
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold text-green-600">₹196</span>
-          <span className="text-sm line-through text-gray-400">₹502</span>
+          <span className="text-2xl font-bold text-green-600">
+            <FaRupeeSign className="inline" />
+            196
+          </span>
+          <span className="text-sm line-through text-gray-400">
+            <FaRupeeSign className="inline" />
+            502
+          </span>
           <span className="rounded bg-green-100 px-2 py-1 text-xs text-green-600">
             43% OFF
           </span>
@@ -50,5 +53,5 @@ export default function ProductInfo() {
         </button>
       </div>
     </div>
-  )
+  );
 }

@@ -7,14 +7,14 @@ import { useCustomer } from "@/context/CustomerContext";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import { logout } from "@/library/api";
-import ConfirmModal from "../ui/ConfirmModal";
+// import ConfirmModal from "../ui/ConfirmModal";
 
 type EditableFieldProps = {
   value: string;
   placeholder?: string;
   fieldKey: string;
-  minLength?:any;
-  maxLength?:any;
+  minLength?: any;
+  maxLength?: any;
   onSave: (key: string, value: string) => Promise<void>;
 };
 
@@ -24,7 +24,7 @@ function EditableField({
   fieldKey,
   onSave,
   maxLength,
-  minLength
+  minLength,
 }: EditableFieldProps) {
   const [editing, setEditing] = useState(false);
   const [text, setText] = useState(value);
@@ -89,9 +89,9 @@ function EditableField({
 
 export default function AccountInformation() {
   const router = useRouter();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deactivateOpen, setDeactivateOpen] = useState(false);
-  const { customer, loading, refreshCustomer } = useCustomer();  
+  // const [deleteOpen, setDeleteOpen] = useState(false);
+  // const [deactivateOpen, setDeactivateOpen] = useState(false);
+  const { customer, loading, logoutCustomer, clearCustomer } = useCustomer();
   const [gender, setGender] = useState(customer?.gender || "male");
 
   // Add loading state
@@ -113,7 +113,7 @@ export default function AccountInformation() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify({ [key]: value }),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -123,7 +123,6 @@ export default function AccountInformation() {
 
       const data = await res.json();
 
-    await refreshCustomer();
       toast.success("Update successful");
       return data.data;
     } catch (error: any) {
@@ -132,30 +131,33 @@ export default function AccountInformation() {
     }
   };
 
-  const deleteAccount = async () => {
-    if (!customer?._id) return;
+  // const deleteAccount = async () => {
+  //   if (!customer?._id) return;
 
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}`,
-      {
-        method: "DELETE",
-        credentials: "include",
-      }
-    );
+  //   const res = await fetch(
+  //     `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}`,
+  //     {
+  //       method: "DELETE",
+  //       credentials: "include",
+  //     },
+  //   );
 
-    if (!res.ok) {
-      toast.error("Failed to delete account");
-      return;
-    }
+  //   if (!res.ok) {
+  //     toast.error("Failed to delete account");
+  //     return;
+  //   }
 
-    toast.success("Account deleted");
-    await logout();
-    router.push("/");
-  };
+  //   toast.success("Account deleted");
+  //   await logout();
+  //   router.push("/");
+  // };
 
   const deactivateAccount = async () => {
     try {
       await updateField("status", "false");
+      await logoutCustomer();
+      clearCustomer();
+
       toast.success("Account deactivated");
       await logout();
       router.push("/");
@@ -199,7 +201,7 @@ export default function AccountInformation() {
       </h2>
 
       {/* Editable Fields */}
-      <div className="space-y-4 max-w-xl text-gray-700">
+      <div className="space-y-4 max-w-xl text-gray-700 relative">
         <EditableField
           value={customer?.name || ""}
           fieldKey="name"
@@ -225,7 +227,7 @@ export default function AccountInformation() {
       </div>
 
       {/* Gender */}
-      <div className="mt-6">
+      <div className="mt-6 relative">
         <p className="text-sm font-medium text-gray-700 mb-2">Your Gender</p>
 
         <div className="flex items-center gap-6 text-sm ">
@@ -247,8 +249,8 @@ export default function AccountInformation() {
         </div>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-4">
-        <button
+      <div className="mt-8 flex flex-wrap gap-4 relative z-10">
+        {/* <button
           className="px-4 py-2 z-[1000] rounded-md text-sm bg-red-100 text-red-600 hover:bg-red-200 cursor-pointer"
           onClick={() => 
           
@@ -257,17 +259,17 @@ export default function AccountInformation() {
           }
         >
           Delete Account
-        </button>
+        </button> */}
 
-        {/* <button
-          className="px-4 py-2 rounded-md text-sm bg-yellow-100 text-yellow-700 hover:bg-yellow-200"
-          onClick={() => setDeactivateOpen(true)}
+        <button
+          className="px-4 py-2 rounded-md text-sm bg-yellow-100 text-yellow-700 hover:bg-yellow-200 cursor-pointer"
+          onClick={() => deactivateAccount()}
         >
           De-active Account
-        </button> */}
+        </button>
       </div>
 
-      <div className="hidden md:block absolute right-6 bottom-0 opacity-70 ">
+      <div className="hidden md:block absolute right-6 bottom-0 opacity-70">
         <Image
           src="/assets/globals/login.png"
           alt="login"
@@ -275,7 +277,6 @@ export default function AccountInformation() {
           height={1000}
         />
       </div>
-     
     </div>
   );
 }

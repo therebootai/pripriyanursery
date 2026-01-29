@@ -9,23 +9,22 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { addToCartApi } from "@/library/cart";
 import { useRouter } from "next/navigation";
+import { FaRupeeSign } from "react-icons/fa";
 
-export default function WishlistItem({item} : {item: WishlistType}) {
-
-   const { customer, refreshCustomer} = useCustomer();
-   const customerId = customer?._id;
-    const [loading, setLoading] = useState(false);
-    const navigate = useRouter();
+export default function WishlistItem({ item }: { item: WishlistType }) {
+  const { customer, refreshCustomer } = useCustomer();
+  const customerId = customer?._id;
+  const [loading, setLoading] = useState(false);
+  const navigate = useRouter();
   const product = item.product;
   const handleWishlist = async () => {
     if (!customerId || loading) return;
-  
+
     setLoading(true);
 
-  
     try {
       await removeWishlistApi(customerId, product._id);
-     await refreshCustomer({silent:true});
+      await refreshCustomer({ silent: true });
       toast.success("Removed from wishlist");
     } catch (err) {
       console.log(err);
@@ -38,19 +37,13 @@ export default function WishlistItem({item} : {item: WishlistType}) {
   const handleMoveToCart = async () => {
     // Implement move to cart functionality here
     if (!customerId || loading) return;
-  
+
     setLoading(true);
-  
+
     try {
-      await addToCartApi(
-        customerId,
-        product._id,
-        undefined,
-        1,
-        product.price
-      );
+      await addToCartApi(customerId, product._id, undefined, 1, product.price);
       await removeWishlistApi(customerId, product._id);
-      await refreshCustomer({silent:true});
+      await refreshCustomer({ silent: true });
       toast.success("Moved to cart");
       navigate.push("/my-cart");
     } catch (err) {
@@ -59,8 +52,7 @@ export default function WishlistItem({item} : {item: WishlistType}) {
     } finally {
       setLoading(false);
     }
-  }
-
+  };
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 justify-between bg-white rounded-lg p-4 shadow-sm">
@@ -91,10 +83,12 @@ export default function WishlistItem({item} : {item: WishlistType}) {
             {product.price && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-                  ₹{product.price.toFixed(0)}
+                  <FaRupeeSign className="inline" />
+                  {product.price.toFixed(0)}
                 </span>
                 <span className="line-through text-gray-500 text-xs sm:text-sm">
-                  ₹{product.mrp.toFixed(0)}
+                  <FaRupeeSign className="inline" />
+                  {product.mrp.toFixed(0)}
                 </span>
                 <span className="text-xs text-green-600 font-medium">
                   {product.discount}% OFF
@@ -121,7 +115,6 @@ export default function WishlistItem({item} : {item: WishlistType}) {
             "
             onClick={handleMoveToCart}
           >
-            
             <ShoppingCart size={14} className="sm:size-[16px]" />
             <span className="whitespace-nowrap">Add to Cart</span>
           </button>
