@@ -165,7 +165,7 @@ export default function Footer() {
               <div className="lg:col-span-3">
                 <Link href="/" className=" ">
                   <Image
-                    src="/icons/logowhite.png"
+                    src="/icons/new_logo_2.svg"
                     alt="Pri Priya Nursery Logo"
                     width={2048}
                     height={234}
