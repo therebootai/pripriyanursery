@@ -7,6 +7,8 @@ import { sendOtp, verifyOtp } from "@/library/api";
 import { useRouter } from "next/navigation";
 import { useCustomer } from "@/context/CustomerContext";
 import toast from "react-hot-toast";
+import { createPortal } from "react-dom";
+
 
 type Step = "MOBILE" | "OTP";
 
@@ -27,6 +29,11 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -63,7 +70,7 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
     };
   }, [isOpen]);
 
-  if (!isOpen) return null;
+if (!mounted || !isOpen) return null;
 
   // ------------------ HANDLERS ------------------
 
@@ -126,7 +133,7 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
     localStorage.removeItem("otpCooldownUntil");
   };
 
-  return (
+  return createPortal (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div
         className="absolute inset-0 bg-black/50"
@@ -386,6 +393,7 @@ export default function CustomerAuthModal({ isOpen, onClose }: Props) {
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+      document.body
   );
 }
