@@ -7,6 +7,7 @@ import { ProductType } from "@/types/types";
 import { useCustomer } from "@/context/CustomerContext";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import axios from "axios";
 
 interface FileWithPreview extends File {
   preview?: string;
@@ -86,6 +87,13 @@ export default function ReviewPage({
   async function handleSubmit() {
     try {
       if (!productDetails) return alert("Product not found");
+      if (title.length <= 0 || title.length > 70) {
+        return toast.error("Title must be between 1 and 70 characters");
+      }
+
+      if (description.length <= 0 || description.length > 300) {
+        return toast.error("Description must be between 1 and 300 characters");
+      }
       const formData = new FormData();
       formData.append("title", title);
       formData.append("description", description);
@@ -97,15 +105,17 @@ export default function ReviewPage({
       formData.append("productId", productDetails?._id ?? "");
       formData.append("customerId", customer?._id ?? "");
 
-      const { status, ok } = await fetch(
+      const { status, data } = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/review`,
+        formData,
         {
-          method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         },
       );
 
-      if (status === 201 && ok) {
+      if (status === 201) {
         toast.success("Review submitted successfully");
         setSupportingFiles([]);
         setTitle("");
@@ -115,10 +125,14 @@ export default function ReviewPage({
         nav.push("/my-orders");
         return;
       }
-      throw new Error("Failed to submit review");
+      throw new Error(data.message);
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message ?? "Failed to submit review");
+      toast.error(
+        error.response?.data?.message ??
+          error.message ??
+          "Failed to submit review",
+      );
     }
   }
 

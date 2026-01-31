@@ -5,45 +5,36 @@ import { usePathname } from "next/navigation";
 import React, { useEffect } from "react";
 import Image from "next/image";
 import CardSkeleton from "../ui/CardSkeleton";
-import { useCategoryList } from "@/hooks/useCategoryList"; 
+import { useCategoryList } from "@/hooks/useCategoryList";
 import { useInView } from "react-intersection-observer";
 
 interface HomeCategoryProps {
-  title?: string;   
-  limit?: number; 
+  title?: string;
+  limit?: number;
   page?: number;
-  enableLazy?: boolean;  
+  enableLazy?: boolean;
 }
 
-export default function HomeCategory({ 
-  title = "Shop by Categories", 
-  limit = 8, 
-  enableLazy = false ,
+export default function HomeCategory({
+  title = "Shop by Categories",
+  limit = 8,
+  enableLazy = false,
   page = 1,
 }: HomeCategoryProps) {
-  
   const pathname = usePathname();
   const isCategoryPage = pathname === "/categories";
-  
-  
-  const { 
-    categories, 
-    loading, 
-    loadingMore, 
-    hasMore, 
-    loadMore 
-  } = useCategoryList({ 
-    initialLimit: limit, 
-    initialPage: page,
-    isInfinite: enableLazy || isCategoryPage 
-  });
 
+  const { categories, loading, loadingMore, hasMore, loadMore } =
+    useCategoryList({
+      initialLimit: limit,
+      initialPage: page,
+      isInfinite: enableLazy || isCategoryPage,
+    });
 
   const { ref, inView } = useInView({
     threshold: 0,
-    rootMargin: "100px", 
+    rootMargin: "100px",
   });
-
 
   useEffect(() => {
     if (inView && hasMore && !loading && !loadingMore) {
@@ -70,9 +61,7 @@ export default function HomeCategory({
       <div className="self-padding ">
         {!isCategoryPage && (
           <div className="mb-8 flex items-center justify-between">
-            <h2 className="text-sm md:text-2xl font-bold">
-              {title}
-            </h2>
+            <h2 className="text-sm md:text-2xl font-bold">{title}</h2>
 
             <Link
               href="/categories"
@@ -83,15 +72,14 @@ export default function HomeCategory({
           </div>
         )}
 
-      
-        <div className="grid gap-3 md:gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xxl:grid-cols-8">
+        <div className="grid gap-3 md:gap-4 grid-cols-3 sm:grid-cols-3 md:grid-cols-6 lg:grid-cols-7 xxl:grid-cols-8 place-items-stretch justify-items-stretch">
           {categories.map((cat, index) => (
             <React.Fragment key={`${cat.parent.id}-${index}`}>
               <Link
                 href={`/products?category=${encodeURIComponent(cat.parent.name)}`}
                 className="text-center group"
               >
-                <div className="relative mx-auto size-[7.5rem] md:size-[6rem] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
+                <div className="relative mx-auto size-[5rem] min-[410px]:size-[7.5rem] md:size-[6rem] lg:size-[8rem] overflow-hidden rounded-md bg-gray-300">
                   <Image
                     src={cat.parent.image}
                     alt={cat.parent.name}
@@ -105,14 +93,13 @@ export default function HomeCategory({
                 </p>
               </Link>
 
-              
               {cat.subCategories.map((subCat) => (
                 <Link
                   key={subCat.id ?? subCat.name}
                   href={`/products?category=${encodeURIComponent(subCat.name)}`}
                   className="text-center group"
                 >
-                  <div className="relative mx-auto size-[7.5rem] md:size-[6rem] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
+                  <div className="relative mx-auto size-[5rem] min-[410px]:size-[7.5rem] md:size-[6rem] lg:size-[8rem]  overflow-hidden rounded-md bg-gray-300">
                     <Image
                       src={subCat.image}
                       alt={subCat.name}
@@ -128,27 +115,28 @@ export default function HomeCategory({
               ))}
             </React.Fragment>
           ))}
-          
-          {(loadingMore) && (
-             <>
-               <CardSkeleton />
-               <CardSkeleton />
-               <CardSkeleton />
-             </>
+
+          {loadingMore && (
+            <>
+              <CardSkeleton />
+              <CardSkeleton />
+              <CardSkeleton />
+            </>
           )}
         </div>
 
- 
         {(enableLazy || isCategoryPage) && hasMore && (
-           <div ref={ref} className="w-full h-10 mt-4 flex justify-center items-center">
-            
-           </div>
+          <div
+            ref={ref}
+            className="w-full h-10 mt-4 flex justify-center items-center"
+          ></div>
         )}
-        
 
-        {(enableLazy || isCategoryPage) && !hasMore && categories.length > 0 && (
-           <p className="text-center text-gray-400 text-sm mt-8"></p>
-        )}
+        {(enableLazy || isCategoryPage) &&
+          !hasMore &&
+          categories.length > 0 && (
+            <p className="text-center text-gray-400 text-sm mt-8"></p>
+          )}
       </div>
     </section>
   );

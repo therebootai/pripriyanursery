@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCartPreview } from "@/context/CartPreviewContext";
 import { X } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 
 export default function FloatingCartPreview() {
   const { product, show, hidePreview } = useCartPreview();
@@ -55,18 +56,20 @@ export default function FloatingCartPreview() {
 
           <div className="mt-1 flex items-center gap-2">
             <span className="font-bold text-green-600">
-              ₹{product.price}
+              <FaRupeeSign className="inline" />
+              {product.price}
             </span>
 
             {product.mrp && (
               <span className="text-xs text-gray-400 line-through">
-                ₹{product.mrp}
+                <FaRupeeSign className="inline" />
+                {product.mrp}
               </span>
             )}
           </div>
-              <Link
-          href="/my-cart"
-          className="
+          <Link
+            href="/my-cart"
+            className="
             shrink-0 mt-2
             rounded-full
             bg-green-600 text-white
@@ -74,13 +77,12 @@ export default function FloatingCartPreview() {
             px-4 py-1
             hover:bg-green-700
           "
-        >
-          View Cart
-        </Link>
+          >
+            View Cart
+          </Link>
         </div>
 
         {/* CTA */}
-    
       </div>
     </div>
   );

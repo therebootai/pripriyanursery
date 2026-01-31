@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Trash2, ShoppingCart } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
 
 type WishlistItemProps = {
   id: number;
@@ -19,10 +20,8 @@ export default function CartItem({
 }: WishlistItemProps) {
   return (
     <div className="flex flex-col lg:flex-row gap-4 justify-between bg-white rounded-lg p-4 shadow-sm">
-      
       {/* LEFT: Image + Details */}
       <div className="flex flex-col sm:flex-row gap-4 flex-1">
-        
         {/* Image */}
         <div className="relative h-36 w-full sm:h-40 sm:w-40 flex-shrink-0 bg-gray-100 rounded-md overflow-hidden">
           <Image src={image} alt={name} fill className="object-cover" />
@@ -30,7 +29,6 @@ export default function CartItem({
 
         {/* Content */}
         <div className="flex flex-col justify-between sm:h-40 w-full">
-          
           {/* Top content */}
           <div>
             <h4 className="text-base sm:text-lg md:text-xl font-medium text-gray-800 leading-snug">
@@ -38,16 +36,18 @@ export default function CartItem({
             </h4>
 
             <p className="text-xs sm:text-sm text-gray-500 mt-1">
-              Color: Red, Size: XXL 
+              Color: Red, Size: XXL
             </p>
 
             {price && (
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-800">
-                  ₹{price}
+                  <FaRupeeSign className="inline" />
+                  {price}
                 </span>
                 <span className="line-through text-gray-300 text-xs sm:text-sm">
-                  ₹{Math.round(price * 1.3)}
+                  <FaRupeeSign className="inline" />
+                  {Math.round(price * 1.3)}
                 </span>
                 <span className="text-xs text-green-600 font-medium">
                   32% OFF
@@ -81,7 +81,6 @@ export default function CartItem({
 
       {/* RIGHT: Actions */}
       <div className="flex flex-row lg:flex-col items-center lg:items-end gap-2 justify-between lg:justify-center">
-        
         <Link
           href={`/product/${href}`}
           className="
@@ -104,8 +103,8 @@ export default function CartItem({
         </Link>
 
         <Link
-  href=''
-  className="
+          href=""
+          className="
     inline-flex items-center justify-center gap-1
     text-xs sm:text-sm
     font-medium
@@ -121,10 +120,9 @@ export default function CartItem({
     active:scale-95
     w-full lg:w-auto
   "
->
-  Delete
-</Link>
-
+        >
+          Delete
+        </Link>
       </div>
     </div>
   );

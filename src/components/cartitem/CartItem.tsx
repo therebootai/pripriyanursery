@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { FaRupeeSign } from "react-icons/fa";
 
 export default function CartItem({ item }: any) {
   return (
@@ -13,7 +14,10 @@ export default function CartItem({ item }: any) {
         <p className="text-sm text-gray-500">Tag: {item.tag}</p>
 
         <div className="mt-2 flex items-center gap-2">
-          <span className="text-lg font-semibold">₹{item.price}</span>
+          <span className="text-lg font-semibold">
+            <FaRupeeSign className="inline" />
+            {item.price}
+          </span>
         </div>
 
         <p className="mt-2 text-sm text-gray-600">Quantity: {item.qty}</p>

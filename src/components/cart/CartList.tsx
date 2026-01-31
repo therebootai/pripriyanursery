@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import LoadingAnimation from "../globals/LoadingAnimation";
+import { FaRupeeSign } from "react-icons/fa";
 
 export interface CartItemProps {
   productId: string | ProductType;
@@ -28,13 +29,13 @@ export default function CartList() {
   const hasInitialized = useRef(false);
   const [actionLoading, setActionLoading] = useState(false);
 
-  {(actionLoading || customerLoading) && (
-  <div className="fixed inset-0 bg-white/60 z-50 flex items-center justify-center">
-    <LoadingAnimation />
-  </div>
-)}
-
-
+  {
+    (actionLoading || customerLoading) && (
+      <div className="fixed inset-0 bg-white/60 z-50 flex items-center justify-center">
+        <LoadingAnimation />
+      </div>
+    );
+  }
 
   // Calculate stock status for each cart item
   const getStockStatus = (item: CartType): "available" | "low" | "out" => {
@@ -44,20 +45,18 @@ export default function CartList() {
     return "available";
   };
 
-useEffect(() => {
-  if (!customer?._id) return;
+  useEffect(() => {
+    if (!customer?._id) return;
 
-  setLocalCart(customer.cart as CartType[]);
-}, [customer?.cart]);
-
-
+    setLocalCart(customer.cart as CartType[]);
+  }, [customer?.cart]);
 
   const cart = localCart;
 
   useEffect(() => {
-  if (!hasInitialized.current) return;
-  localStorage.setItem("LOCAL_CART", JSON.stringify(localCart));
-}, [localCart]);
+    if (!hasInitialized.current) return;
+    localStorage.setItem("LOCAL_CART", JSON.stringify(localCart));
+  }, [localCart]);
 
   const handleQty = async (item: CartType, qty: number) => {
     if (!customerId || qty < 1) return;
@@ -87,8 +86,8 @@ useEffect(() => {
         qty - item.quantity, // delta logic
         item.priceAtTime,
       );
-      
-     await refreshCustomer({silent: true});
+
+      await refreshCustomer({ silent: true });
     } catch (err) {
       console.error(err);
     }
@@ -113,13 +112,13 @@ useEffect(() => {
 
     try {
       await removeFromCartApi(customerId, productId, variantId);
-      await refreshCustomer({silent: true});
+      await refreshCustomer({ silent: true });
     } catch (err) {
       toast.error("Failed to remove item");
 
       // rollback
       setLocalCart(customer?.cart as CartType[]);
-    }finally {
+    } finally {
       setActionLoading(false); // ✅ Stop Loading
     }
   };
@@ -196,7 +195,6 @@ useEffect(() => {
 
   const hasOutOfStockItems = cart.length > availableCartItems.length;
 
-
   // Handle checkout - only proceed with available items
   const handleCheckout = () => {
     if (availableCartItems.length === 0) {
@@ -207,7 +205,7 @@ useEffect(() => {
     const itemsToPass = availableCartItems.map((item) => ({
       productId: (item.productId as ProductType)._id,
       variantId: (item.variantId as ProductType)?._id,
-      quantity: item.quantity, 
+      quantity: item.quantity,
       priceAtTime: item.priceAtTime,
     }));
 
@@ -219,11 +217,7 @@ useEffect(() => {
   //   return [...cart].reverse();
   // }, [cart]);
 
-  
-
   const reversedCart = cart.slice().reverse();
-
-
 
   return (
     <div className=" grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -247,7 +241,7 @@ useEffect(() => {
           const canIncrease = item.quantity < stock;
           const product = item.productId as ProductType;
           const linePrice = product.price * item.quantity; // Price × Qty
-const lineMRP = product.mrp * item.quantity;
+          const lineMRP = product.mrp * item.quantity;
 
           return (
             <div
@@ -318,9 +312,11 @@ const lineMRP = product.mrp * item.quantity;
                   ></p>
 
                   <p className="mt-2 font-bold text-green-600 text-lg">
-                    ₹{linePrice.toFixed(0)}
+                    <FaRupeeSign className="inline" />
+                    {linePrice.toFixed(0)}
                     <span className="line-through text-gray-400 text-sm ml-3">
-                      ₹{lineMRP.toFixed(0)}
+                      <FaRupeeSign className="inline" />
+                      {lineMRP.toFixed(0)}
                     </span>
                     <span className="text-define-green text-[13px] ml-2 font-normal">
                       {(item.productId as ProductType).discount}% OFF
@@ -431,26 +427,33 @@ const lineMRP = product.mrp * item.quantity;
         <div className="text-sm space-y-3 mt-3 text-defined-black">
           <div className="flex justify-between">
             <span>Price ({totalItems} available items)</span>
-            <span>₹{totalMRP.toFixed(0)}</span>
+            <span>
+              <FaRupeeSign className="inline" />
+              {totalMRP.toFixed(0)}
+            </span>
           </div>
 
           <div className="flex justify-between border-b border-gray-200 pb-3">
             <span>Discount</span>
             <span className="text-green-600">
-              -₹{totalDiscount.toFixed(0)}
+              -<FaRupeeSign className="inline" />
+              {totalDiscount.toFixed(0)}
             </span>
           </div>
 
           <div className="flex justify-between font-semibold">
             <span>Total Amount</span>
-            <span>₹{totalFinalPrice.toFixed(0)}</span>
+            <span>
+              <FaRupeeSign className="inline" />
+              {totalFinalPrice.toFixed(0)}
+            </span>
           </div>
         </div>
 
         <button
           onClick={handleCheckout}
           disabled={availableCartItems.length === 0}
-          className={`mt-6 w-full rounded-full py-2 h-[3rem] text-sm font-semibold transition-all ${
+          className={`mt-6 w-full rounded-full py-2 h-12 text-sm font-semibold transition-all ${
             availableCartItems.length === 0
               ? "bg-gray-300 text-gray-500 cursor-not-allowed"
               : "bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] text-white"
