@@ -30,10 +30,10 @@ export async function generateMetadata({
     const product = await res.json();
 
     return {
-      title: `Pripriya Nursery – Buy Indoor & Outdoor Plants Online | ${product.name}`,
+      title: product.name,
       description: stripHtmlTags(product.shortDescription),
       openGraph: {
-        title: `Pripriya Nursery – Buy Indoor & Outdoor Plants Online | ${product.name}`,
+        title: product.name,
         description: stripHtmlTags(product.shortDescription),
         images: [
           {
@@ -46,7 +46,7 @@ export async function generateMetadata({
       },
       twitter: {
         card: "summary_large_image",
-        title: `Pripriya Nursery – Buy Indoor & Outdoor Plants Online | ${product.name}`,
+        title: product.name,
         description: stripHtmlTags(product.shortDescription),
         images: [product.coverImage.url],
       },

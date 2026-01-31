@@ -226,7 +226,7 @@ export default function Header() {
             {!mobileSearchOpen && (
               <Link href="/" className="">
                 <Image
-                  src="/icons/logo.png"
+                  src="/icons/new_logo.svg"
                   alt="Pri Priya Nursery Logo"
                   width={1280}
                   height={146}
