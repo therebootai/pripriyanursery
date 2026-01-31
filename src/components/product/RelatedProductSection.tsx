@@ -84,7 +84,7 @@ export default function RelatedProductSection({
         }}
       >
         {products.map((p, index) => (
-          <SwiperSlide key={p._id}>
+          <SwiperSlide key={p._id} className=" ">
             <ProductCards
               key={`${p._id}-${index}`}
               _id={p._id}
