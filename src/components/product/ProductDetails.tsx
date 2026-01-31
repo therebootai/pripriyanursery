@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronRight, ShoppingCart } from "lucide-react";
+import { ShoppingCart } from "lucide-react";
 import { ShoppingBag } from "lucide-react";
-import { Star, ShieldCheck, RotateCcw, Headphones, Leaf } from "lucide-react";
+import { Star } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { CartType, ProductType } from "@/types/types";
+import { ProductType } from "@/types/types";
 import { useInView } from "react-intersection-observer";
 import { useCustomer } from "@/context/CustomerContext";
 import { addToCartApi } from "@/library/cart";
@@ -43,7 +43,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   });
 
   const [variantLoading, setVariantLoading] = useState(false);
-  const [variantProducts, setVariantProducts] = useState<ProductType[]>([]);
 
   const images = product.images || [];
   const [activeImage, setActiveImage] = useState(images[0]);
@@ -55,10 +54,6 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     courier: string;
     deliveryDate: string;
   }>(null);
-
-  const { ref: imageRef, inView } = useInView({
-    threshold: 0.3,
-  });
 
   const [error, setError] = useState<string | null>(null);
   const [hasChecked, setHasChecked] = useState(false);
@@ -76,6 +71,23 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
   const [isSignupOpen, setIsSignupOpen] = useState(false);
 
   const [availableCoupons, setAvailableCoupons] = useState<any>([]);
+
+  const [isScrolledToBottom, setIsScrolledToBottom] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+
+      // Hide when within 100px of bottom
+      const atBottom = scrollTop + windowHeight >= documentHeight - 100;
+      setIsScrolledToBottom(atBottom);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Add this useEffect after the existing useEffect for variants
   useEffect(() => {
@@ -391,7 +403,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
 
       <section className="w-full max-md:mt-4">
         <div className=" flex flex-col lg:flex-row gap-4 md:gap-10">
-          <div className="lg:sticky lg:top-24 h-fit w-full lg:w-[50%] xl:w-[45%] xxl:w-[40%] z-[10]">
+          <div className="lg:sticky lg:top-24 h-fit w-full lg:w-[50%] xl:w-[45%] xxl:w-[40%] z-10">
             <div className="flex flex-col w-full gap-2">
               <SinglePageImagesComponent
                 images={productImages}
@@ -474,7 +486,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               href={`/product/${product.slug}#reviews`}
               className="flex items-center gap-2 w-full"
             >
-              <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-[2px] rounded text-sm">
+              <span className="flex items-center gap-1 bg-green-600 text-white px-2 py-0.5 rounded text-sm">
                 {product.averageRating.toFixed(1)}{" "}
                 <Star size={14} fill="white" />
               </span>
@@ -721,7 +733,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
                   <div className={`relative mt-2`}>
                     <button
                       onClick={() => setOpen(!open)}
-                      className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-[10]"
+                      className="pl-4 text-green-600 text-xs font-medium  hover:text-green-900 cursor-pointer z-10"
                     >
                       {open ? "Read Less" : "Read More"}
                     </button>
@@ -763,7 +775,7 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
         </div>
       </section>
       {/* ================= MOBILE STICKY BUY BAR ================= */}
-      {!buttonsInView && (
+      {!buttonsInView && !isScrolledToBottom && (
         <div className="fixed bottom-0 left-0 right-0 bg-white shadow-lg p-3 flex gap-3 md:hidden z-50">
           <button
             className="flex-1 bg-yellow-400 hover:bg-yellow-500 py-3 rounded font-medium flex items-center justify-center gap-2"
@@ -808,7 +820,7 @@ export default ProductDetails;
 function Trust({ icon, label }: TrustProps) {
   return (
     <div className="flex flex-col items-center gap-2">
-      <div className=" relative size-[4rem]">
+      <div className=" relative size-16">
         <Image src={icon} alt="icons" fill className="" />
       </div>
 
