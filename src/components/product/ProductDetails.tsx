@@ -432,10 +432,10 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
               Home ›{" "}
               <span className="text-black flex flex-wrap">
                 {product.categoryLevels?.map((cat: any, index: number) => (
-                  <div key={cat._id} className="">
+                  <div key={index} className="">
                     <Link
                       href={`/products?category=${encodeURIComponent(cat.name)}`}
-                      className="t"
+                      className=""
                     >
                       {cat.name} {">"}
                     </Link>
