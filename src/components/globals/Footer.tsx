@@ -18,7 +18,7 @@ const socialLinks = [
 
 const quickLinks = [
   { label: "Home", href: "/" },
-  { label: "Category", href: "/category" },
+  { label: "Category", href: "/categories" },
   { label: "All Category", href: "/categories" },
   { label: "My Account", href: "/my-account" },
   // { label: "Our Services", href: "" },
@@ -323,7 +323,7 @@ export default function Footer() {
 
           {/* CENTER */}
           <p className="text-white text-sm text-center md:pr-[100px]">
-            © Nursery Plants – 2026 | All Right Reserved
+            © Nursery Plants – {new Date().getFullYear()} | All Right Reserved
           </p>
 
           {/* RIGHT */}

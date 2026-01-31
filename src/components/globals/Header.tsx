@@ -106,6 +106,11 @@ export default function Header() {
 
   const handleSearchClick = (item: any) => {
     setShow(false);
+    if (!item) {
+      router.push(`/products?query=${query}`);
+      setQuery("");
+      return;
+    }
     setQuery("");
 
     setTimeout(() => {
@@ -142,7 +147,7 @@ export default function Header() {
       setActiveIndex((prev) => (prev - 1 + list.length) % list.length);
     }
 
-    if (e.key === "Enter" && activeIndex >= 0) {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSearchClick(list[activeIndex]);
     }

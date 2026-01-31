@@ -9,9 +9,10 @@ const page = async ({
     category?: string;
     brand?: string;
     attribute?: string;
+    query?: string;
   }>;
 }) => {
-  const { category, brand, attribute } = await searchParams;
+  const { category, brand, attribute, query } = await searchParams;
 
   return (
     <MainTemplates>
@@ -20,6 +21,7 @@ const page = async ({
         activeCategory={category || ""}
         activeBrand={brand || ""}
         activeAttribute={attribute || ""}
+        searchQuery={query || ""}
       />
     </MainTemplates>
   );
