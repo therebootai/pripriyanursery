@@ -11,7 +11,7 @@ export default function AccountMenu() {
 
   const items = [
     { href: "/my-account", label: "My Account" },
-    { href: "/manage-address", label: "Manage Address" },     
+    { href: "/manage-address", label: "Manage Address" },
     { href: "/my-orders", label: "My Orders" },
     { href: "/my-wishlist", label: "My Wishlist" },
     { href: "/my-cart", label: "My Cart" },
@@ -36,29 +36,39 @@ export default function AccountMenu() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-useEffect(() => {
-  if (isMobile) {
-    setActivePage(pathname);
-  }
-}, [pathname, isMobile]);
+  useEffect(() => {
+    if (isMobile) {
+      setActivePage(pathname);
+    }
+  }, [pathname, isMobile]);
 
+  const itemClass = (href: string) => {
+    const isActive = isMobile ? activePage === href : pathname.startsWith(href);
 
-const itemClass = (href: string) => {
-  const isActive = isMobile ? activePage === href : pathname.startsWith(href);
-
-  return `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
+    return `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
     ${
       isActive
         ? "bg-green-50 text-defined-green font-semibold"
         : "hover:bg-green-50 text-gray-700"
     }`;
-};
+  };
 
   useEffect(() => {
-    if (pathname.startsWith("/account")) {
-      setOpen((prev) => ({ ...prev, account: true }));
+    if (isMobile) {
+      const index = items.findIndex((item) => pathname.startsWith(item.href));
+      setOpen({
+        account: index >= 0 && index < 2,
+        orders: index >= 2 && index < 6,
+        payments: index >= 6,
+      });
+    } else {
+      setOpen({
+        account: true,
+        orders: true,
+        payments: true,
+      });
     }
-  }, [pathname]);
+  }, [pathname, isMobile]);
 
   return (
     <div className="mt-4 space-y-3">

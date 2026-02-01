@@ -1,14 +1,11 @@
-import MyOrders from '@/components/order/MyOrders'
-import React from 'react'
+import MyOrders from "@/components/order/MyOrders";
 
 const page = () => {
   return (
     <>
-    
-        <MyOrders/>
-    
+      <MyOrders />
     </>
-  )
-}
+  );
+};
 
-export default page
+export default page;

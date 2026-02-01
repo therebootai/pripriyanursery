@@ -61,7 +61,7 @@ export default function ManageAddress() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(form),
-        }
+        },
       );
 
       const data = await res.json();
@@ -87,14 +87,14 @@ export default function ManageAddress() {
           headers: { "Content-Type": "application/json" },
           credentials: "include",
           body: JSON.stringify(form),
-        }
+        },
       );
 
       const data = await res.json();
       if (!res.ok || !data.address) throw new Error();
 
       setAddresses((prev) =>
-        prev.map((a) => (a._id === form._id ? data.address : a))
+        prev.map((a) => (a._id === form._id ? data.address : a)),
       );
       toast.success("Address updated");
       setForm(null);
@@ -116,7 +116,7 @@ export default function ManageAddress() {
         {
           method: "DELETE",
           credentials: "include",
-        }
+        },
       );
       if (!res.ok) throw new Error();
       toast.success("Address removed");

@@ -382,7 +382,9 @@ export default function CheckoutClient() {
 
     const fetchCoupons = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/coupon`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/coupon?min=${totalFinalPrice}&expire=${new Date().toISOString()}`,
+        );
         const data = await res.json();
 
         setAvailableCoupons(data.coupons || []);
