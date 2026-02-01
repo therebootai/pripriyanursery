@@ -36,6 +36,9 @@ export default function MyOrders() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isFetching, setIsFetching] = useState(false);
+  const [trackerOpen, setTrackerOpen] = useState(false);
+  const [selectedOrderForTracking, setSelectedOrderForTracking] =
+    useState<OrderType | null>(null);
   const [cancelModal, setCancelModal] = useState<CancelModalState>({
     isOpen: false,
     orderId: "",
@@ -314,7 +317,7 @@ export default function MyOrders() {
         return (
           <div
             key={order.orderId}
-            className="border border-gray-200 rounded-md bg-white"
+            className="border border-gray-200 rounded-md bg-white my-2 md:my-4"
           >
             {/* HEADER */}
             <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 bg-gray-100 text-sm">
@@ -384,7 +387,7 @@ export default function MyOrders() {
                 <div className="flex flex-col lg:flex-row items-center justify-center gap-4 w-full ">
                   <div className="md:flex items-center justify-center border border-gray-200 rounded-md w-full md:w-fit  ">
                     {order.product?.coverImage?.url ? (
-                      <div className="  md:size-40 relative h-[18rem] w-full">
+                      <div className="  md:size-40 relative h-72 w-full">
                         <Image
                           src={order.product.coverImage.url}
                           alt={order.product?.name || ""}
@@ -406,6 +409,11 @@ export default function MyOrders() {
                     >
                       {order.product?.name || "Product Unabailable"}
                     </Link>
+                    <div className="flex gap-1 text-sm text-gray-600 mt-1 flex-wrap">
+                      <p>{order.address?.area}</p>, <p>{order.address?.city}</p>
+                      ,<p>{order.address?.state}</p>,
+                      <p>Pin: {order.address?.pin}</p>
+                    </div>
                     <div className=" flex flex-wrap gap-2">
                       {getVariantText(order) && (
                         <p className="text-sm text-gray-500 mt-1">
@@ -472,10 +480,10 @@ export default function MyOrders() {
                   {order.status}
                 </button>
                 <button
-                  // onClick={() => {
-                  //   setTrackStatus(order.status);
-                  //   setTrackerOpen(true);
-                  // }}
+                  onClick={() => {
+                    setSelectedOrderForTracking(order);
+                    setTrackerOpen(true);
+                  }}
                   className="w-full md:px-4 md:py-2 p-3 text-sm bg-green-600 text-white rounded hover:bg-green-700"
                 >
                   Track Your Order
@@ -517,7 +525,7 @@ export default function MyOrders() {
                 disabled={pageNum === "..."}
                 onClick={() => typeof pageNum === "number" && setPage(pageNum)}
                 className={`
-                  min-w-[36px] h-[36px] px-3 rounded-md text-sm font-medium transition-all
+                  min-w-9 h-9 px-3 rounded-md text-sm font-medium transition-all
                   ${
                     pageNum === page
                       ? "bg-green-600 text-white shadow-md"
@@ -544,11 +552,14 @@ export default function MyOrders() {
       )}
 
       {/* TRACKER MODAL */}
-      {/* <OrderTracker
+      <OrderTracker
         open={trackerOpen}
-        status={trackStatus}
-        onClose={() => setTrackerOpen(false)}
-      /> */}
+        order={selectedOrderForTracking}
+        onClose={() => {
+          setTrackerOpen(false);
+          setSelectedOrderForTracking(null);
+        }}
+      />
     </div>
   );
 }

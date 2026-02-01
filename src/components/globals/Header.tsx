@@ -236,7 +236,7 @@ export default function Header() {
                   width={1280}
                   height={146}
                   priority
-                  className="w-fit h-[1rem] md:h-[1.5rem] "
+                  className="w-fit h-[1.5rem] "
                 />
               </Link>
             )}

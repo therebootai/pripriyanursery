@@ -95,7 +95,7 @@ export type ProductType = {
   video?: ImageType;
 
   category: string;
-  categoryLevels?:string[];
+  categoryLevels?: string[];
   subCategory: string;
   brand: {
     brandId: string;
@@ -127,7 +127,7 @@ export type ProductType = {
 
   reviews: {
     _id: string;
-    user: { name: string, };
+    user: { name: string };
     rating: number;
     description: string;
     title: string;
@@ -247,6 +247,9 @@ export interface OrderType {
       date: string;
       status: string;
       location: string;
+      timestamp?: string;
+      action?: string;
+      description?: string;
     }[];
   };
 
