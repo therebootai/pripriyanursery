@@ -317,10 +317,10 @@ export default function MyOrders() {
         return (
           <div
             key={order.orderId}
-            className="border border-gray-200 rounded-md bg-white my-2 md:my-4"
+            className="border border-gray-200 rounded-md bg-white my-4"
           >
             {/* HEADER */}
-            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 p-4 bg-gray-100 text-sm">
+            <div className="grid grid-cols-2 lg:grid-cols-4 items-start lg:items-center justify-between gap-4 p-4 bg-gray-100 text-sm">
               <div>
                 <p className="text-gray-500">Order Placed</p>
                 <p className="font-medium">
@@ -328,7 +328,7 @@ export default function MyOrders() {
                 </p>
               </div>
 
-              <div>
+              <div className="text-right lg:text-left">
                 <p className="text-gray-500">Total Amount</p>
                 <p className="font-medium">
                   <FaRupeeSign className="inline" />
@@ -336,7 +336,7 @@ export default function MyOrders() {
                 </p>
               </div>
 
-              <div>
+              <div className="">
                 <p className="text-gray-500">Ship To</p>
                 <p className="font-medium">{customer?.name || ""}</p>
               </div>

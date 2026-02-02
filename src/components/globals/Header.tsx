@@ -20,6 +20,8 @@ import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { BsBoxSeam } from "react-icons/bs";
 import LoadingAnimation from "./LoadingAnimation";
 import { useGlobalUI } from "@/context/GlobalUIContext";
+import { FaRegAddressCard } from "react-icons/fa";
+import { MdOutlineRateReview } from "react-icons/md";
 
 type SearchItem = {
   type: "product" | "category" | "brand" | "attribute";
@@ -218,12 +220,12 @@ export default function Header() {
   return (
     <>
       {isLoggingOut && (
-        <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
+        <div className="fixed inset-0 z-100 bg-white flex items-center justify-center">
           <LoadingAnimation />
         </div>
       )}
 
-      <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
+      <header className="sticky top-0 z-100 w-full bg-white shadow-sm">
         <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-6">
           {/* TOP BAR */}
           <div className="flex h-16 md:h-20 items-center justify-between gap-3">
@@ -580,6 +582,13 @@ export default function Header() {
                         <UserIcon size={16} /> My Account
                       </Link>
                       <Link
+                        href="/manage-address"
+                        onClick={() => setAccountOpen(false)} // Close on click
+                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                      >
+                        <FaRegAddressCard size={16} /> Manage Addresses
+                      </Link>
+                      <Link
                         href="/my-orders"
                         onClick={() => setAccountOpen(false)}
                         className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
@@ -599,6 +608,13 @@ export default function Header() {
                         className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
                       >
                         <ShoppingCart size={16} /> My Cart
+                      </Link>
+                      <Link
+                        href="/my-reviews"
+                        onClick={() => setAccountOpen(false)}
+                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                      >
+                        <MdOutlineRateReview size={16} /> My Reviews
                       </Link>
 
                       <button

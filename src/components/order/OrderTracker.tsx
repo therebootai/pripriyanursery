@@ -27,142 +27,147 @@ export default function OrderTracker({ open, onClose, order }: Props) {
     const steps = [];
     const orderDate = new Date(createdAt);
 
-    // Order Placed/Confirmed
-    steps.push({
-      title: "Order Confirmed",
-      date: orderDate.toLocaleString("en-IN", {
+    // Standard flow of successful order
+    const STATUS_FLOW = [
+      {
+        key: "Processing",
+        title: "Order Processing",
+        desc: "We are processing your order",
+      },
+      {
+        key: "Confirmed",
+        title: "Order Confirmed",
+        desc: "Your order has been confirmed",
+      },
+      { key: "Shipped", title: "Shipped", desc: "Your item has been shipped" },
+      {
+        key: "InTransit",
+        title: "In Transit",
+        desc: "Your item is on the way",
+      },
+      {
+        key: "OutForDelivery",
+        title: "Out for Delivery",
+        desc: "Your item is out for delivery",
+      },
+      {
+        key: "Delivered",
+        title: "Delivered",
+        desc: "Item delivered successfully",
+      },
+    ];
+
+    // Helper to format date
+    const formatDate = (dateString?: string | Date) => {
+      if (!dateString) return null;
+      return new Date(dateString).toLocaleString("en-IN", {
         weekday: "short",
         day: "numeric",
         month: "short",
         year: "numeric",
         hour: "2-digit",
         minute: "2-digit",
-      }),
-      desc: "Your order has been placed successfully",
-      active: true,
-      completed: true,
-      status: "Confirmed",
-    });
-
-    // Check if we have tracking history entries
-    const shippedEntry = trackingHistory.find(
-      (entry: any) => entry.status === "Shipped" || entry.action === "Shipped",
-    );
-    const outForDeliveryEntry = trackingHistory.find(
-      (entry: any) =>
-        entry.status === "Out for Delivery" ||
-        entry.action === "Out for Delivery",
-    );
-    const deliveredEntry = trackingHistory.find(
-      (entry: any) =>
-        entry.status === "Delivered" || entry.action === "Delivered",
-    );
-
-    // Shipped status
-    if (shippedEntry) {
-      steps.push({
-        title: "Shipped",
-        date: shippedEntry.timestamp
-          ? new Date(shippedEntry.timestamp).toLocaleString("en-IN", {
-              weekday: "short",
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "Shipping date pending",
-        desc: shippedEntry.description || "Item has been shipped",
-        active: true,
-        completed: true,
-        status: "Shipped",
       });
-    } else {
-      steps.push({
-        title: "Shipped",
-        date: "Pending",
-        desc: "Item will be shipped soon",
-        active: orderStatus === "Shipped" || orderStatus === "Delivered",
-        completed: orderStatus === "Delivered",
-        status: "Shipped",
-      });
+    };
+
+    // Determine current step index in the standard flow
+    let currentStepIndex = STATUS_FLOW.findIndex((s) => s.key === orderStatus);
+
+    // If status is Cancelled or RTO, we need to find where it stopped
+    const isCancelled = orderStatus === "Cancelled";
+    const isRTO = orderStatus === "RTO";
+
+    // For Cancelled/RTO, we'll determine active steps based on history or assume Confirmed/Processing
+    if (isCancelled || isRTO) {
+      // If it's cancelled/RTO, we usually show up to what happened + the cancelled/RTO step
+      // For simplicity, if we have history, we use that.
+      // We'll treat the standard flow as "completed" up to the point before failure.
+      // But simplifying: just set currentStepIndex to -1 effectively, and rely on history matching or explicit logic?
+      // Better strategy: Iterating flow. If we find history, mark complete.
+    } else if (currentStepIndex === -1 && orderStatus === "Processing") {
+      currentStepIndex = 0;
     }
 
-    // Out for Delivery status
-    if (outForDeliveryEntry) {
-      steps.push({
-        title: "Out for Delivery",
-        date: outForDeliveryEntry.timestamp
-          ? new Date(outForDeliveryEntry.timestamp).toLocaleString("en-US", {
-              weekday: "short",
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "Date pending",
-        desc: outForDeliveryEntry.description || "Arriving soon",
-        active: true,
-        completed: true,
-        status: "Out for Delivery",
-      });
-    } else {
-      steps.push({
-        title: "Out for Delivery",
-        date: expectedDeliveryDate
-          ? `Expected by ${new Date(expectedDeliveryDate).toLocaleDateString(
-              "en-US",
-              {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              },
-            )}`
-          : "Date will be updated soon",
-        desc: "Will be out for delivery soon",
-        active: orderStatus === "Delivered",
-        completed: orderStatus === "Delivered",
-        status: "Out for Delivery",
-      });
+    let flowStopped = false;
+
+    // Iterate through standard flow
+    for (let i = 0; i < STATUS_FLOW.length; i++) {
+      const flowStep = STATUS_FLOW[i];
+
+      // Find matching history entry
+      // Match by status string or sometimes action
+      const historyEntry = trackingHistory.find(
+        (entry: any) =>
+          entry.status === flowStep.key ||
+          entry.status === flowStep.title ||
+          entry.action === flowStep.key ||
+          entry.action === flowStep.title,
+      );
+
+      // Special case for Processing/Confirmed which might not be in trackingHistory but are implied by order creation
+      let stepDate = historyEntry
+        ? formatDate(historyEntry.timestamp || historyEntry.date)
+        : null;
+
+      // If Processing/Confirmed and no history, use order creation date for the first steps
+      if (!stepDate) {
+        if (flowStep.key === "Processing") stepDate = formatDate(createdAt);
+        if (flowStep.key === "Confirmed" && i <= currentStepIndex)
+          stepDate = formatDate(createdAt); // Fallback
+      }
+
+      const isActive = currentStepIndex === i;
+      const isCompleted = currentStepIndex > i || !!historyEntry;
+
+      // If we hit Cancelled/RTO, we stop adding *future* standard steps?
+      // Actually, we usually want to show the standard steps generated so far, plus the Cancelled/RTO step at the end.
+
+      // Logic for successful flow (or steps leading up to failure)
+      // If this step is legally part of the history or implied by current status:
+      if (isCompleted || isActive || currentStepIndex >= i) {
+        steps.push({
+          title: flowStep.title,
+          date: stepDate || (isActive ? "In Progress" : "Completed"),
+          desc: historyEntry?.description || flowStep.desc,
+          active: isActive,
+          completed: isCompleted,
+          status: flowStep.key,
+        });
+      } else {
+        // For future steps in a non-cancelled order
+        if (!isCancelled && !isRTO) {
+          steps.push({
+            title: flowStep.title,
+            date: "Pending",
+            desc: "Pending",
+            active: false,
+            completed: false,
+            status: flowStep.key,
+          });
+        }
+      }
     }
 
-    // Delivered status
-    if (deliveredEntry) {
+    // Append Cancelled or RTO if applicable
+    if (isCancelled) {
       steps.push({
-        title: "Delivered",
-        date: deliveredEntry.timestamp
-          ? new Date(deliveredEntry.timestamp).toLocaleString("en-US", {
-              weekday: "short",
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : "Delivery completed",
-        desc: deliveredEntry.description || "Package delivered successfully",
+        title: "Cancelled",
+        date: formatDate(order.updatedAt), // OR find in history
+        desc: "Order has been cancelled",
         active: true,
         completed: true,
-        status: "Delivered",
+        status: "Cancelled",
+        isError: true, // Flag to style differently
       });
-    } else {
+    } else if (isRTO) {
       steps.push({
-        title: "Delivered",
-        date: expectedDeliveryDate
-          ? `Expected by ${new Date(expectedDeliveryDate).toLocaleDateString(
-              "en-IN",
-              {
-                weekday: "short",
-                day: "numeric",
-                month: "short",
-              },
-            )}`
-          : "Delivery date pending",
-        desc: "Will be delivered to your address",
-        active: orderStatus === "Delivered",
-        completed: orderStatus === "Delivered",
-        status: "Delivered",
+        title: "RTO (Return to Origin)",
+        date: formatDate(order.updatedAt),
+        desc: "Order is being returned to origin",
+        active: true,
+        completed: true,
+        status: "RTO",
+        isError: true,
       });
     }
 
@@ -172,7 +177,7 @@ export default function OrderTracker({ open, onClose, order }: Props) {
   const steps = getStatusSteps();
 
   return (
-    <div className="fixed inset-0 z-1200 bg-black/50 flex items-center justify-center px-4">
+    <div className="fixed inset-0 z-9999 bg-black/50 flex items-center justify-center px-4">
       <div
         className="bg-white w-full max-w-md rounded-md shadow-lg relative"
         ref={modalRef}
@@ -241,24 +246,33 @@ export default function OrderTracker({ open, onClose, order }: Props) {
                       className={`
                       w-5 h-5 rounded-full border-2 flex items-center justify-center
                       ${
-                        step.completed
-                          ? "bg-green-600 border-green-600"
-                          : step.active
-                            ? "border-green-600 bg-white"
-                            : "border-gray-300 bg-white"
+                        step.isError
+                          ? "bg-red-600 border-red-600"
+                          : step.completed
+                            ? "bg-green-600 border-green-600"
+                            : step.active
+                              ? "border-green-600 bg-white"
+                              : "border-gray-300 bg-white"
                       }
                     `}
                     >
-                      {step.completed && (
+                      {step.completed && !step.isError && (
                         <Check size={12} className="text-white" />
                       )}
+                      {step.isError && <X size={12} className="text-white" />}
                     </div>
                     {/* Connecting line between dots */}
                     {i < steps.length - 1 && (
                       <div
                         className={`
                         absolute left-1/2 top-5 w-0.5 h-8 -translate-x-1/2
-                        ${steps[i + 1]?.completed ? "bg-green-600" : "bg-gray-200"}
+                        ${
+                          steps[i + 1]?.isError
+                            ? "bg-red-600"
+                            : steps[i + 1]?.completed
+                              ? "bg-green-600"
+                              : "bg-gray-200"
+                        }
                       `}
                       />
                     )}
@@ -269,17 +283,21 @@ export default function OrderTracker({ open, onClose, order }: Props) {
                     <div className="flex items-center justify-between">
                       <p
                         className={`text-sm font-medium ${
-                          step.completed
-                            ? "text-gray-800"
-                            : step.active
-                              ? "text-gray-700"
-                              : "text-gray-400"
+                          step.isError
+                            ? "text-red-700"
+                            : step.completed
+                              ? "text-gray-800"
+                              : step.active
+                                ? "text-gray-700"
+                                : "text-gray-400"
                         }`}
                       >
                         {step.title}
                       </p>
                       {step.status === orderStatus && (
-                        <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                        <span
+                          className={`px-2 py-1 text-xs rounded-full ${step.isError ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"}`}
+                        >
                           Current
                         </span>
                       )}
