@@ -629,7 +629,7 @@ export default function CheckoutClient() {
               >
                 {/* IMAGE + QTY */}
                 <div className="flex flex-col items-center w-full md:w-40">
-                  <div className="relative w-full h-[18rem] md:h-40 bg-gray-100 rounded overflow-hidden">
+                  <div className="relative w-full h-72 md:h-40 bg-gray-100 rounded overflow-hidden">
                     <Image
                       src={item.productId.coverImage.url}
                       alt={item.productId.name}
@@ -732,7 +732,7 @@ export default function CheckoutClient() {
 
                 <div className="flex md:hidden items-center gap-4 mt-3 w-full">
                   {/* 1. QUANTITY BOX (Mobile Only as per your code) */}
-                  <div className="flex lg:hidden items-center border border-gray-200 rounded-md overflow-hidden h-[40px]">
+                  <div className="flex lg:hidden items-center border border-gray-200 rounded-md overflow-hidden h-10">
                     <button
                       onClick={() =>
                         handleQtyById(
@@ -747,7 +747,7 @@ export default function CheckoutClient() {
                       −
                     </button>
 
-                    <span className="px-3 h-full flex items-center justify-center text-sm font-semibold text-defined-black border-x border-gray-200 min-w-[40px]">
+                    <span className="px-3 h-full flex items-center justify-center text-sm font-semibold text-defined-black border-x border-gray-200 min-w-10">
                       {item.quantity}
                     </span>
 
