@@ -119,7 +119,7 @@ export default function ShowReview() {
               </h3>
 
               {/* REVIEW DESCRIPTION */}
-              <p className="mt-2 text-gray-600 text-sm leading-relaxed">
+              <p className="mt-2 text-gray-600 text-sm leading-relaxed wrap-break-word">
                 {review.description}
               </p>
 

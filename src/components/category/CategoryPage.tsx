@@ -70,7 +70,9 @@ export default function CategoryPage({
     }
 
     try {
-      const url = new URL(`${process.env.NEXT_PUBLIC_API_URL}/product`);
+      const url = new URL(
+        `${process.env.NEXT_PUBLIC_API_URL}/product?status=Active`,
+      );
       url.searchParams.set("page", String(pageNumber));
       url.searchParams.set("limit", String(LIMIT));
 

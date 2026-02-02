@@ -45,7 +45,7 @@ export default function AccountMenu() {
   const itemClass = (href: string) => {
     const isActive = isMobile ? activePage === href : pathname.startsWith(href);
 
-    return `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
+    return `px-4 py-2 text-sm rounded cursor-pointer transition hidden md:flex items-center
     ${
       isActive
         ? "bg-green-50 text-defined-green font-semibold"
@@ -71,13 +71,13 @@ export default function AccountMenu() {
   }, [pathname, isMobile]);
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="md:mt-4 md:space-y-3">
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, account: !prev.account }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
+          className="w-full hidden md:flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Account Settings
           <ChevronDown
@@ -113,7 +113,6 @@ export default function AccountMenu() {
                   <div
                     className="
       bg-gray-50
-      mt-2
       rounded-md
       p-3
       max-h-[70vh]
@@ -133,7 +132,7 @@ export default function AccountMenu() {
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() => setOpen((prev) => ({ ...prev, orders: !prev.orders }))}
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
+          className="w-full hidden md:flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Your Orders
           <ChevronDown
@@ -169,7 +168,6 @@ export default function AccountMenu() {
                   <div
                     className="
       bg-gray-50
-      mt-2
       rounded-md
       p-3
       max-h-[70vh]
@@ -186,7 +184,7 @@ export default function AccountMenu() {
         )}
       </div>
 
-      <div className="rounded-md overflow-hidden ">
+      {/* <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, payments: !prev.payments }))
@@ -206,7 +204,6 @@ export default function AccountMenu() {
           <ul className="bg-white text-gray-600">
             {items.slice(6, 8).map((item) => (
               <li key={item.href}>
-                {/* Menu Row */}
                 {!isMobile ? (
                   <Link href={item.href} className={itemClass(item.href)}>
                     {item.label}
@@ -222,7 +219,6 @@ export default function AccountMenu() {
                   </div>
                 )}
 
-                {/* Mobile Inline Page */}
                 {isMobile && activePage === item.href && (
                   <div
                     className="
@@ -242,7 +238,7 @@ export default function AccountMenu() {
             ))}
           </ul>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

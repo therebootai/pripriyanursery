@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation } from "swiper/modules";
-import Image from "next/image";
-import Link from "next/link";
+import { Autoplay } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/navigation";
@@ -14,18 +12,6 @@ import { ProductType } from "@/types/types";
 interface RelatedProductSectionProps {
   slug: string;
 }
-
-type Product = {
-  _id: string;
-  slug: string;
-  name: string;
-  price: number;
-  mrp?: number;
-  discount?: number;
-  coverImage?: {
-    url: string;
-  };
-};
 
 export default function RelatedProductSection({
   slug,
@@ -39,7 +25,7 @@ export default function RelatedProductSection({
     const fetchRelatedProducts = async () => {
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/product/${slug}/related`,
+          `${process.env.NEXT_PUBLIC_API_URL}/product/${slug}/related?status=Active`,
           { cache: "no-store" },
         );
 
@@ -74,13 +60,12 @@ export default function RelatedProductSection({
           delay: 2500,
           disableOnInteraction: false,
         }}
-        
         breakpoints={{
           0: { slidesPerView: 2 },
           640: { slidesPerView: 3 },
           1024: { slidesPerView: 4 },
           1250: { slidesPerView: 5 },
-          2400:{slidesPerView:6},
+          2400: { slidesPerView: 6 },
         }}
       >
         {products.map((p, index) => (

@@ -2,7 +2,6 @@
 
 import AccountProfile from "./AccountProfile";
 import AccountMenu from "./AccountMenu";
-import { Menu } from "lucide-react";
 import { useCustomer } from "@/context/CustomerContext";
 
 type Props = {
