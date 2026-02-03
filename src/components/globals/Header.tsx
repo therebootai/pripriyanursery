@@ -107,6 +107,7 @@ export default function Header() {
   };
 
   const handleSearchClick = (item: any) => {
+    console.log(item);
     setShow(false);
     if (!item) {
       router.push(`/products?query=${query}`);
@@ -137,7 +138,13 @@ export default function Header() {
     if (!show) return;
 
     const list = query ? results : suggestions;
-    if (!list.length) return;
+    if (!list.length) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSearchClick(null);
+      }
+      return;
+    }
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
