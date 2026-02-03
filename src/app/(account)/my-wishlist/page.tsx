@@ -1,12 +1,10 @@
-import WishlistList from '@/components/wishlist/WishlistList'
+import WishlistList from "@/components/wishlist/WishlistList";
 const page = () => {
   return (
     <>
-        
-        <WishlistList/> 
-    
+      <WishlistList />
     </>
-  )
-}
+  );
+};
 
-export default page
+export default page;
