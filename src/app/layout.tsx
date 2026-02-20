@@ -7,6 +7,10 @@ import { CategoryProvider } from "@/context/CategoryContext";
 import { GlobalUIProvider } from "@/context/GlobalUIContext";
 import { CartPreviewProvider } from "@/context/CartPreviewContext";
 import FloatingCartPreview from "@/components/ui/FloatingCartPreview";
+import {
+  GoogleTagManager,
+  GoogleTagManagerNoScript,
+} from "@/components/globals/GoogleTagManager";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -27,18 +31,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <GoogleTagManager />
+      </head>
       <body className={`${dmSans.variable} antialiased`}>
         <Toaster />
         <GlobalUIProvider>
           <CustomerProvider>
             <CategoryProvider>
               <CartPreviewProvider>
-  {children}
-   <FloatingCartPreview />
-</CartPreviewProvider>
+                {children}
+                <FloatingCartPreview />
+              </CartPreviewProvider>
             </CategoryProvider>
           </CustomerProvider>
         </GlobalUIProvider>
+        <GoogleTagManagerNoScript />
       </body>
     </html>
   );
