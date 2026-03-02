@@ -23,12 +23,32 @@ export async function fetchProducts(query: string = "") {
   }
 }
 
+export async function fetchCategoriesWithProducts() {
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/category/with-products`,
+      { cache: "no-store" },
+    );
+    if (!res.ok) throw new Error("Failed to fetch");
+    return res.json();
+  } catch (err) {
+    console.log(err);
+    return { data: [], pagination: { totalPages: 0 } };
+  }
+}
+
 export default async function Home() {
   const products = await fetchProducts();
   const newProducts = await fetchProducts("sort=-createdAt");
-  const fruitPlantsroducts = await fetchProducts("category=Fruit+Plants");
-  const flowerPlantsroducts = await fetchProducts("category=Flower+Plants");
-
+  const categoriesWithProducts = await fetchCategoriesWithProducts();
+  const fruitPlantsroducts = await fetchProducts(
+    `category=${categoriesWithProducts.categories[1].name}`,
+  );
+  const flowerPlantsroducts = await fetchProducts(
+    `category=${categoriesWithProducts.categories[0].name}`,
+  );
+  const mangoPlantsroducts = await fetchProducts(`category=mango`);
+  console.log(categoriesWithProducts);
   return (
     <>
       <MainTemplates>
@@ -36,11 +56,18 @@ export default async function Home() {
         <ImageSection1 />
         <HomeCategory
           title="Shop by Categories"
-          limit={8}
+          limit={16}
           page={1}
           enableLazy={false}
         />
-
+        <ProductSection
+          title="Our Best Selling Mango Plants"
+          products={mangoPlantsroducts.data}
+          pagination={mangoPlantsroducts.pagination}
+          limit={PRODUCT_LIMIT}
+          apiQuery={`category=Mango`}
+          enableLazy={false}
+        />
         <ProductSection
           title="Newest Product in this Month"
           products={newProducts.data}
@@ -50,21 +77,21 @@ export default async function Home() {
           enableLazy={false}
         />
         <ProductSection
-          title="Fruit Plants"
+          title={categoriesWithProducts.categories[1].name}
           products={fruitPlantsroducts.data}
           pagination={fruitPlantsroducts.pagination}
           limit={PRODUCT_LIMIT}
-          apiQuery="category=Fruit+Plants"
+          apiQuery={`category=${categoriesWithProducts.categories[1].name}`}
           enableLazy={false}
         />
 
         <Homebanner2 />
         <ProductSection
-          title="Flower Plants"
+          title={categoriesWithProducts.categories[0].name}
           products={flowerPlantsroducts.data}
           pagination={flowerPlantsroducts.pagination}
           limit={PRODUCT_LIMIT}
-          apiQuery="category=Flower+Plants"
+          apiQuery={`category=${categoriesWithProducts.categories[0].name}`}
           enableLazy={false}
         />
         <HomeCategory
