@@ -105,13 +105,19 @@ const ProductDetails = ({ product }: { product: ProductType }) => {
     product: ProductType,
     attrName: string,
   ): string | null => {
-    const attr = product.variables?.find((v) => v.name === attrName);
+    const normalizedSearch = attrName.toLowerCase();
+    const attr = product.variables?.find((v) => {
+      const name = v.name.toLowerCase();
+      if (normalizedSearch === "color")
+        return name === "color" || name === "colour";
+      return name === normalizedSearch;
+    });
 
     if (attr?.values?.length) return attr.values[0];
 
     if (!product.isVariant) {
-      if (attrName === "Color") return `${" "}`;
-      if (attrName === "Size") return "";
+      if (normalizedSearch === "color") return " ";
+      if (normalizedSearch === "size") return "";
     }
 
     return null;

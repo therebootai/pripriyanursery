@@ -14,11 +14,17 @@ export type CategoryUI = {
 };
 
 // Accept page and limit as arguments
-export async function fetchCategories(page: number = 1, limit: number = 10): Promise<CategoryUI[]> {
+export async function fetchCategories(
+  page: number = 1,
+  limit: number = 16,
+): Promise<CategoryUI[]> {
   // Pass params to your API
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/category?limit=${limit}&page=${page}`, {
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/category?page=${page}&sort=name&sortorder=asc&limit=${limit}`,
+    {
+      cache: "no-store",
+    },
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch categories");
@@ -36,7 +42,7 @@ export async function fetchCategories(page: number = 1, limit: number = 10): Pro
         (child) =>
           child.type?.toLowerCase() === "sub" &&
           child.name &&
-          child.status !== false
+          child.status !== false,
       )
       .map((child) => ({
         id: child.id,

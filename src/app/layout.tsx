@@ -11,6 +11,7 @@ import {
   GoogleTagManager,
   GoogleTagManagerNoScript,
 } from "@/components/globals/GoogleTagManager";
+import GoogleTranslateScript from "@/components/globals/GoogleTranslateScript";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -33,6 +34,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <GoogleTagManager />
+        <GoogleTranslateScript />
       </head>
       <body className={`${dmSans.variable} antialiased`}>
         <Toaster />
