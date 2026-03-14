@@ -7,7 +7,7 @@ import { CartType, ProductType } from "@/types/types";
 import { useRouter } from "next/navigation";
 import { toggleWishlistApi } from "@/library/wishlist";
 import toast from "react-hot-toast";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import LoadingAnimation from "../globals/LoadingAnimation";
 import { FaRupeeSign } from "react-icons/fa";
@@ -419,57 +419,59 @@ export default function CartList() {
       </div>
 
       {/* RIGHT - Updated for available items only */}
-      <div className="bg-white border border-gray-200 rounded-md p-4 h-fit sticky top-24">
-        <h3 className="font-semibold border-b text-defined-black border-gray-200 pb-2">
-          PRICE DETAILS
-        </h3>
+      {reversedCart.length > 0 && (
+        <div className="bg-white border border-gray-200 rounded-md p-4 h-fit sticky top-24">
+          <h3 className="font-semibold border-b text-defined-black border-gray-200 pb-2">
+            PRICE DETAILS
+          </h3>
 
-        <div className="text-sm space-y-3 mt-3 text-defined-black">
-          <div className="flex justify-between">
-            <span>Price ({totalItems} available items)</span>
-            <span>
-              <FaRupeeSign className="inline" />
-              {totalMRP.toFixed(0)}
-            </span>
+          <div className="text-sm space-y-3 mt-3 text-defined-black">
+            <div className="flex justify-between">
+              <span>Price ({totalItems} available items)</span>
+              <span>
+                <FaRupeeSign className="inline" />
+                {totalMRP.toFixed(0)}
+              </span>
+            </div>
+
+            <div className="flex justify-between border-b border-gray-200 pb-3">
+              <span>Discount</span>
+              <span className="text-green-600">
+                -<FaRupeeSign className="inline" />
+                {totalDiscount.toFixed(0)}
+              </span>
+            </div>
+
+            <div className="flex justify-between font-semibold">
+              <span>Total Amount</span>
+              <span>
+                <FaRupeeSign className="inline" />
+                {totalFinalPrice.toFixed(0)}
+              </span>
+            </div>
           </div>
 
-          <div className="flex justify-between border-b border-gray-200 pb-3">
-            <span>Discount</span>
-            <span className="text-green-600">
-              -<FaRupeeSign className="inline" />
-              {totalDiscount.toFixed(0)}
-            </span>
-          </div>
+          <button
+            onClick={handleCheckout}
+            disabled={availableCartItems.length === 0}
+            className={`mt-6 w-full rounded-full py-2 h-12 text-sm font-semibold transition-all ${
+              availableCartItems.length === 0
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] text-white"
+            }`}
+          >
+            {availableCartItems.length === 0
+              ? "No Available Items"
+              : `Proceed To Checkout (${totalItems} items)`}
+          </button>
 
-          <div className="flex justify-between font-semibold">
-            <span>Total Amount</span>
-            <span>
-              <FaRupeeSign className="inline" />
-              {totalFinalPrice.toFixed(0)}
-            </span>
-          </div>
+          {hasOutOfStockItems && (
+            <p className="text-xs text-red-600 mt-2 text-center">
+              Out of stock items excluded from checkout
+            </p>
+          )}
         </div>
-
-        <button
-          onClick={handleCheckout}
-          disabled={availableCartItems.length === 0}
-          className={`mt-6 w-full rounded-full py-2 h-12 text-sm font-semibold transition-all ${
-            availableCartItems.length === 0
-              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-              : "bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] text-white"
-          }`}
-        >
-          {availableCartItems.length === 0
-            ? "No Available Items"
-            : `Proceed To Checkout (${totalItems} items)`}
-        </button>
-
-        {hasOutOfStockItems && (
-          <p className="text-xs text-red-600 mt-2 text-center">
-            Out of stock items excluded from checkout
-          </p>
-        )}
-      </div>
+      )}
     </div>
   );
 }

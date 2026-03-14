@@ -17,7 +17,7 @@ interface HomeCategoryProps {
 
 export default function HomeCategory({
   title = "Shop by Categories",
-  limit = 8,
+  limit = 16,
   enableLazy = false,
   page = 1,
 }: HomeCategoryProps) {

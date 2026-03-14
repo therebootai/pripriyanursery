@@ -100,10 +100,9 @@ export default function AccountInformation() {
   const updateField = async (key: string, value: string) => {
     if (!customer?._id || !value.trim()) return;
 
-    // if (key === "mobile" && !value.startsWith("91")) {
-    //   toast.error("Mobile number should start with 91");
-    //   throw new Error("Invalid phone");
-    // }
+    if (key === "mobile" && !value.startsWith("91")) {
+      value = "91" + value;
+    }
 
     try {
       const res = await fetch(

@@ -11,7 +11,7 @@ export default function AccountMenu() {
 
   const items = [
     { href: "/my-account", label: "My Account" },
-    { href: "/manage-address", label: "Manage Address" },     
+    { href: "/manage-address", label: "Manage Address" },
     { href: "/my-orders", label: "My Orders" },
     { href: "/my-wishlist", label: "My Wishlist" },
     { href: "/my-cart", label: "My Cart" },
@@ -36,38 +36,48 @@ export default function AccountMenu() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-useEffect(() => {
-  if (isMobile) {
-    setActivePage(pathname);
-  }
-}, [pathname, isMobile]);
+  useEffect(() => {
+    if (isMobile) {
+      setActivePage(pathname);
+    }
+  }, [pathname, isMobile]);
 
+  const itemClass = (href: string) => {
+    const isActive = isMobile ? activePage === href : pathname.startsWith(href);
 
-const itemClass = (href: string) => {
-  const isActive = isMobile ? activePage === href : pathname.startsWith(href);
-
-  return `px-4 py-2 text-sm rounded cursor-pointer transition flex items-center
+    return `px-4 py-2 text-sm rounded cursor-pointer transition hidden md:flex items-center
     ${
       isActive
         ? "bg-green-50 text-defined-green font-semibold"
         : "hover:bg-green-50 text-gray-700"
     }`;
-};
+  };
 
   useEffect(() => {
-    if (pathname.startsWith("/account")) {
-      setOpen((prev) => ({ ...prev, account: true }));
+    if (isMobile) {
+      const index = items.findIndex((item) => pathname.startsWith(item.href));
+      setOpen({
+        account: index >= 0 && index < 2,
+        orders: index >= 2 && index < 6,
+        payments: index >= 6,
+      });
+    } else {
+      setOpen({
+        account: true,
+        orders: true,
+        payments: true,
+      });
     }
-  }, [pathname]);
+  }, [pathname, isMobile]);
 
   return (
-    <div className="mt-4 space-y-3">
+    <div className="md:mt-4 md:space-y-3">
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, account: !prev.account }))
           }
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
+          className="w-full hidden md:flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Account Settings
           <ChevronDown
@@ -103,7 +113,6 @@ const itemClass = (href: string) => {
                   <div
                     className="
       bg-gray-50
-      mt-2
       rounded-md
       p-3
       max-h-[70vh]
@@ -123,7 +132,7 @@ const itemClass = (href: string) => {
       <div className="rounded-md overflow-hidden ">
         <button
           onClick={() => setOpen((prev) => ({ ...prev, orders: !prev.orders }))}
-          className="w-full flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
+          className="w-full hidden md:flex justify-between items-center px-4 py-3 bg-[#DAFFE4] text-defined-green font-semibold"
         >
           Your Orders
           <ChevronDown
@@ -159,7 +168,6 @@ const itemClass = (href: string) => {
                   <div
                     className="
       bg-gray-50
-      mt-2
       rounded-md
       p-3
       max-h-[70vh]
@@ -176,7 +184,7 @@ const itemClass = (href: string) => {
         )}
       </div>
 
-      <div className="rounded-md overflow-hidden ">
+      {/* <div className="rounded-md overflow-hidden ">
         <button
           onClick={() =>
             setOpen((prev) => ({ ...prev, payments: !prev.payments }))
@@ -196,7 +204,6 @@ const itemClass = (href: string) => {
           <ul className="bg-white text-gray-600">
             {items.slice(6, 8).map((item) => (
               <li key={item.href}>
-                {/* Menu Row */}
                 {!isMobile ? (
                   <Link href={item.href} className={itemClass(item.href)}>
                     {item.label}
@@ -212,7 +219,6 @@ const itemClass = (href: string) => {
                   </div>
                 )}
 
-                {/* Mobile Inline Page */}
                 {isMobile && activePage === item.href && (
                   <div
                     className="
@@ -232,7 +238,7 @@ const itemClass = (href: string) => {
             ))}
           </ul>
         )}
-      </div>
+      </div> */}
     </div>
   );
 }

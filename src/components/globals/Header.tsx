@@ -20,6 +20,9 @@ import CustomerAuthModal from "../customer/CustomerAuthModal";
 import { BsBoxSeam } from "react-icons/bs";
 import LoadingAnimation from "./LoadingAnimation";
 import { useGlobalUI } from "@/context/GlobalUIContext";
+import { FaRegAddressCard } from "react-icons/fa";
+import { MdOutlineRateReview } from "react-icons/md";
+import useLanguageSwitcher from "@/hooks/useLanguageSwitcher";
 
 type SearchItem = {
   type: "product" | "category" | "brand" | "attribute";
@@ -52,11 +55,9 @@ export default function Header() {
 
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const languages = [
-    { label: "English", code: "ENG" },
-    { label: "Bengali", code: "BEN" },
-    { label: "Hindi", code: "HIN" },
-  ];
+
+  const { currentLanguage, switchLanguage, languageConfig } =
+    useLanguageSwitcher();
 
   const openLogin = () => {
     const fullPath =
@@ -105,7 +106,13 @@ export default function Header() {
   };
 
   const handleSearchClick = (item: any) => {
+    console.log(item);
     setShow(false);
+    if (!item) {
+      router.push(`/products?query=${query}`);
+      setQuery("");
+      return;
+    }
     setQuery("");
 
     setTimeout(() => {
@@ -130,7 +137,13 @@ export default function Header() {
     if (!show) return;
 
     const list = query ? results : suggestions;
-    if (!list.length) return;
+    if (!list.length) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleSearchClick(null);
+      }
+      return;
+    }
 
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -142,7 +155,7 @@ export default function Header() {
       setActiveIndex((prev) => (prev - 1 + list.length) % list.length);
     }
 
-    if (e.key === "Enter" && activeIndex >= 0) {
+    if (e.key === "Enter") {
       e.preventDefault();
       handleSearchClick(list[activeIndex]);
     }
@@ -213,12 +226,12 @@ export default function Header() {
   return (
     <>
       {isLoggingOut && (
-        <div className="fixed inset-0 z-[9999] bg-white flex items-center justify-center">
+        <div className="fixed inset-0 z-100 bg-white flex items-center justify-center">
           <LoadingAnimation />
         </div>
       )}
 
-      <header className="sticky top-0 z-50 w-full bg-white shadow-sm">
+      <header className="sticky top-0 z-100 w-full bg-white shadow-sm">
         <div className="mx-auto max-w-[1200px] xl:max-w-[1300px] xxl:max-w-[1600px] xxxl:max-w-[1800px] lg:px-8 px-6">
           {/* TOP BAR */}
           <div className="flex h-16 md:h-20 items-center justify-between gap-3">
@@ -231,7 +244,7 @@ export default function Header() {
                   width={1280}
                   height={146}
                   priority
-                  className="w-fit h-[1rem] md:h-[1.5rem] "
+                  className="w-fit h-[1.5rem] "
                 />
               </Link>
             )}
@@ -358,22 +371,22 @@ export default function Header() {
                     width={20}
                     height={14}
                   />
-                  {language}
+                  {languageConfig?.languages
+                    .find((l) => l.name === currentLanguage)
+                    ?.title?.substring(0, 3)
+                    .toUpperCase() || "ENG"}
                   <ChevronDown size={16} />
                 </button>
 
                 {langOpen && (
                   <ul className="absolute mt-2 w-40 rounded-md text-defined-green  bg-white shadow-lg">
-                    {languages.map((lang) => (
-                      <li key={lang.code}>
+                    {languageConfig?.languages.map((lang) => (
+                      <li key={lang.name}>
                         <button
-                          onClick={() => {
-                            setLanguage(lang.code);
-                            setLangOpen(false);
-                          }}
+                          onClick={switchLanguage(lang.name)}
                           className="w-full px-4 py-2 text-left text-defined-green  hover:bg-gray-100"
                         >
-                          {lang.label}
+                          {lang.title}
                         </button>
                       </li>
                     ))}
@@ -542,15 +555,8 @@ export default function Header() {
               {/* Replace this specific button inside your MOBILE SEARCH + MENU section */}
 
               <div className="relative">
-                {" "}
-                {/* Added relative wrapper for positioning */}
                 <button
                   onClick={() => {
-                    if (!customer) {
-                      setIsSignupOpen(true);
-                      return;
-                    }
-                    // Toggle the dropdown logic here
                     setAccountOpen(!accountOpen);
                   }}
                   className="text-defined-green flex items-center"
@@ -563,45 +569,119 @@ export default function Header() {
                     <UserIcon size={20} />
                   )}
                 </button>
-                {/* DROPDOWN LOGIC (Copied from Desktop and adjusted for Mobile) */}
-                {accountOpen && customer && (
+                {/* DROPDOWN LOGIC */}
+                {accountOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 z-50">
                     <div className="rounded-md bg-white shadow-lg border border-gray-200 overflow-hidden">
-                      <Link
-                        href="/my-account"
-                        onClick={() => setAccountOpen(false)} // Close on click
-                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
-                      >
-                        <UserIcon size={16} /> My Account
-                      </Link>
-                      <Link
-                        href="/my-orders"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
-                      >
-                        <BsBoxSeam size={16} /> My Orders
-                      </Link>
-                      <Link
-                        href="/my-wishlist"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
-                      >
-                        <Heart size={16} /> My Wishlist
-                      </Link>
-                      <Link
-                        href="/my-cart"
-                        onClick={() => setAccountOpen(false)}
-                        className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
-                      >
-                        <ShoppingCart size={16} /> My Cart
-                      </Link>
+                      {customer ? (
+                        <>
+                          <Link
+                            href="/my-account"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <UserIcon size={16} /> My Account
+                          </Link>
+                          <Link
+                            href="/manage-address"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <FaRegAddressCard size={16} /> Manage Addresses
+                          </Link>
+                          <Link
+                            href="/my-orders"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <BsBoxSeam size={16} /> My Orders
+                          </Link>
+                          <Link
+                            href="/my-wishlist"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <Heart size={16} /> My Wishlist
+                          </Link>
+                          <Link
+                            href="/my-cart"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <ShoppingCart size={16} /> My Cart
+                          </Link>
+                          <Link
+                            href="/my-reviews"
+                            onClick={() => setAccountOpen(false)}
+                            className="flex items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm"
+                          >
+                            <MdOutlineRateReview size={16} /> My Reviews
+                          </Link>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setAccountOpen(false);
+                            setIsSignupOpen(true);
+                            openLogin();
+                          }}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-defined-green hover:bg-gray-100 text-sm cursor-pointer"
+                        >
+                          <User size={16} /> Login
+                        </button>
+                      )}
 
-                      <button
-                        onClick={handleLogoutClick}
-                        className="flex w-full items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-100 text-sm cursor-pointer"
-                      >
-                        <LogOut size={16} /> Logout
-                      </button>
+                      <div className="border-t border-gray-100">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setLangOpen(!langOpen);
+                          }}
+                          className="flex w-full items-center justify-between px-4 py-3 text-defined-green hover:bg-gray-100 text-sm cursor-pointer"
+                        >
+                          <div className="flex items-center gap-2">
+                            <Image
+                              src="/assets/globals/indianflag.png"
+                              alt="Language"
+                              width={16}
+                              height={12}
+                            />
+                            <span>
+                              {languageConfig?.languages
+                                .find((l) => l.name === currentLanguage)
+                                ?.title?.substring(0, 3)
+                                .toUpperCase() || "ENG"}
+                            </span>
+                          </div>
+                          <ChevronDown size={14} />
+                        </button>
+                        {langOpen && (
+                          <div className="bg-gray-50 flex flex-col w-full">
+                            {languageConfig?.languages.map((lang) => (
+                              <button
+                                key={lang.name}
+                                onClick={() => {
+                                  switchLanguage(lang.name)();
+                                  setLangOpen(false);
+                                  setAccountOpen(false);
+                                }}
+                                className="w-full px-8 py-2 text-left text-sm text-defined-green hover:bg-gray-200"
+                              >
+                                {lang.title}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {customer && (
+                        <button
+                          onClick={handleLogoutClick}
+                          className="flex w-full items-center gap-2 px-4 py-3 text-red-600 hover:bg-gray-100 text-sm cursor-pointer border-t border-gray-100"
+                        >
+                          <LogOut size={16} /> Logout
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}

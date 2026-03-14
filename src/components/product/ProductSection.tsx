@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from 'react';
-import { useInView } from 'react-intersection-observer';
-import ProductCards from '@/components/ui/ProductCards';
-import CardSkeleton from '../ui/CardSkeleton';
+import { useEffect, useState } from "react";
+import { useInView } from "react-intersection-observer";
+import ProductCards from "@/components/ui/ProductCards";
+import CardSkeleton from "../ui/CardSkeleton";
 import { ProductType } from "@/types/types";
 
 export default function ProductSection({
@@ -12,23 +12,23 @@ export default function ProductSection({
   pagination,
   limit = 10,
   apiQuery = "",
-  enableLazy = false // 👈 NEW: Default is false (only shows 10 items)
+  enableLazy = false, // 👈 NEW: Default is false (only shows 10 items)
 }: {
-  title: string
-  products: ProductType[],
-  limit?: number,
-  apiQuery?: string,
-  enableLazy?: boolean, // Define the prop type
+  title: string;
+  products: ProductType[];
+  limit?: number;
+  apiQuery?: string;
+  enableLazy?: boolean; // Define the prop type
   pagination: {
     totalCount: number;
     currentPage: number;
     totalPages: number;
-  }
+  };
 }) {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const { ref, inView } = useInView({ threshold: 0.1 });
-  
+
   const [allProducts, setAllProducts] = useState<ProductType[]>(products);
 
   useEffect(() => {
@@ -43,8 +43,8 @@ export default function ProductSection({
     setLoading(true);
     try {
       const nextPage = page + 1;
-      const url = `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${limit}&page=${nextPage}&${apiQuery}`;
-      
+      const url = `${process.env.NEXT_PUBLIC_API_URL}/product?limit=${limit}&page=${nextPage}&status=Active&${apiQuery}`;
+
       const res = await fetch(url);
       const newProducts = await res.json();
 
@@ -68,19 +68,19 @@ export default function ProductSection({
     <section className="pt-2 pb-6">
       <div className="self-padding flex flex-col gap-6">
         <h2 className="md:text-2xl font-bold text-defined-black">{title}</h2>
-        
+
         <div className="grid gap-1 md:gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 xxxl:grid-cols-6">
           {allProducts.map((p, index) => (
             <ProductCards
-               key={`${p._id}-${index}`}
-               _id={p._id}
-               name={p.name}
-               price={p.price}
-               coverImage={p.coverImage}
-               mrp={p.mrp}
-               discount={p.discount}
-               slug={p.slug}
-               height='h-[12rem] md:h-[12rem] lg:h-[14rem] xxl:h-[16rem]'
+              key={`${p._id}-${index}`}
+              _id={p._id}
+              name={p.name}
+              price={p.price}
+              coverImage={p.coverImage}
+              mrp={p.mrp}
+              discount={p.discount}
+              slug={p.slug}
+              height="h-[12rem] md:h-[12rem] lg:h-[14rem] xxl:h-[16rem]"
             />
           ))}
         </div>
@@ -98,7 +98,9 @@ export default function ProductSection({
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
-            <div className="hidden lg:block"><CardSkeleton /></div>
+            <div className="hidden lg:block">
+              <CardSkeleton />
+            </div>
           </div>
         )}
       </div>

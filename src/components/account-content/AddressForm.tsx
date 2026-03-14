@@ -26,14 +26,48 @@ function AddressForm({
 
   // Helper to handle numeric inputs (Mobile & Pin)
   // This ensures ONLY numbers are typed and enforces Max Length
-  const handleNumericChange = (key: keyof Address, value: string, maxLength: number) => {
+  const handleNumericChange = (
+    key: keyof Address,
+    value: string,
+    maxLength: number,
+  ) => {
     // Regex: Only allow digits (0-9)
     const isNumeric = /^\d*$/.test(value);
-    
+
     if (isNumeric && value.length <= maxLength) {
       update(key, value);
     }
   };
+
+  async function fetchFromPin(e: React.ChangeEvent<HTMLInputElement>) {
+    const pin = e.target.value;
+
+    // Update the pin first
+    update("pin", pin);
+
+    try {
+      if (pin.length !== 6) {
+        return;
+      }
+
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/pickup/location/${pin}`,
+      );
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.PostOffice && data.PostOffice.length > 0) {
+          // Update both city and state from the API response
+          update("city", data.PostOffice[0]?.District);
+          update("state", data.PostOffice[0]?.State);
+        }
+      } else {
+        console.error("Failed to fetch location data");
+      }
+    } catch (err) {
+      console.error("Error fetching pin code details:", err);
+    }
+  }
 
   return (
     <>
@@ -43,7 +77,7 @@ function AddressForm({
           value={form.name}
           onChange={(v) => update("name", v)}
         />
-        
+
         {/* Mobile Number - Max 10, Numbers Only */}
         <div>
           <Input
@@ -67,9 +101,10 @@ function AddressForm({
             maxLength={6}
             inputMode="numeric"
             onChange={(v) => handleNumericChange("pin", v, 6)}
+            onBlur={fetchFromPin}
           />
-           {/* Validation Error */}
-           {form.pin && form.pin.length < 6 && (
+          {/* Validation Error */}
+          {form.pin && form.pin.length < 6 && (
             <p className="text-xs text-red-500 mt-1">Must be 6 digits</p>
           )}
         </div>
@@ -105,9 +140,11 @@ function AddressForm({
             onChange={(v) => handleNumericChange("alternateMobile", v, 10)}
           />
           {/* Validation Error (Only show if user has started typing) */}
-          {form.alternateMobile && form.alternateMobile.length > 0 && form.alternateMobile.length < 10 && (
-            <p className="text-xs text-red-500 mt-1">Must be 10 digits</p>
-          )}
+          {form.alternateMobile &&
+            form.alternateMobile.length > 0 &&
+            form.alternateMobile.length < 10 && (
+              <p className="text-xs text-red-500 mt-1">Must be 10 digits</p>
+            )}
         </div>
       </div>
 
@@ -135,18 +172,21 @@ function Input({
   value,
   onChange,
   maxLength,
-  inputMode
+  inputMode,
+  onBlur,
 }: {
   placeholder: string;
   value?: string;
   onChange: (v: string) => void;
   maxLength?: number;
   inputMode?: "text" | "numeric" | "tel" | "search" | "email" | "url";
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
 }) {
   return (
     <input
       value={value}
       onChange={(e) => onChange(e.target.value)}
+      onBlur={onBlur}
       placeholder={placeholder}
       maxLength={maxLength} // Prevents typing past limit
       inputMode={inputMode} // Shows number pad on mobile devices

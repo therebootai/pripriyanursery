@@ -80,6 +80,7 @@ export default async function ProductDetailsPage({
     if (!res.ok) throw new Error("Product not found");
 
     const data = await res.json();
+    console.log(data);
     product = data;
   } catch (error) {
     console.error("Product fetch failed:", error);
