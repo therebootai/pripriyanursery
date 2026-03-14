@@ -100,3 +100,16 @@ body {
 .animate-slide-in {
   animation: slide-in 0.3s ease-out;
 }
+
+@keyframes shine {
+  0% {
+    transform: translateX(-120%) rotate(12deg);
+  }
+  100% {
+    transform: translateX(250%) rotate(12deg);
+  }
+}
+
+.shine-effect {
+  animation: shine 3s infinite;
+}

@@ -162,25 +162,52 @@ export default function Footer() {
           <div className="text-gray-300">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10">
               {/* BRAND – BIG */}
-              <div className="lg:col-span-3">
-                <Link href="/" className=" ">
-                  <Image
-                    src="/icons/new_logo_2.svg"
-                    alt="Pri Priya Nursery Logo"
-                    width={2048}
-                    height={234}
-                    className="w-full h-[2rem] "
-                  />
-                </Link>
-                <p className="mt-4 text-sm leading-relaxed">
-                  Pri Priya Nursery is a trusted wholesaler, manufacturer, and
-                  supplier of quality live plants across India, with special
-                  focus on North East regions. We provide healthy, carefully
-                  nurtured plants, reliable delivery, and dedicated customer
-                  support for gardeners, landscapers, and plant lovers.
-                </p>
-              </div>
+            <div className="lg:col-span-3">
+  <Link href="/" className="block w-fit">
+    <Image
+      src="/icons/new_logo_2.svg"
+      alt="Pri Priya Nursery Logo"
+      width={2048}
+      height={234}
+      className="w-full h-[2rem] object-contain"
+    />
+  </Link>
 
+  <p className="mt-4 text-sm text-gray-300 leading-relaxed max-w-md">
+    Pri Priya Nursery delivers healthy, carefully nurtured plants across India,
+    especially in the North East—trusted by gardeners, landscapers, and plant lovers.
+  </p>
+
+<Link
+  href="https://play.google.com/store/apps/details?id=com.rebootai.pripriyanursery"
+  target="_blank"
+  className="relative overflow-hidden group inline-flex items-center gap-4 mt-6 px-6 py-3 rounded-xl
+  bg-gradient-to-r from-defined-yellow via-emerald-500 to-defined-green
+  text-white shadow-lg transition-all duration-500 hover:scale-[1.04]"
+>
+  {/* Shine Effect */}
+  <span className="absolute inset-0 overflow-hidden rounded-xl">
+    <span className="absolute  h-full w-16 bg-white/60 blur-md rotate-12 shine-effect"></span>
+  </span>
+
+  {/* Icon */}
+  <Image
+    src="https://upload.wikimedia.org/wikipedia/commons/d/d0/Google_Play_Arrow_logo.svg"
+    alt="Play Store"
+    width={28}
+    height={28}
+    className="w-7 h-7 relative z-10"
+  />
+
+  {/* Text */}
+  <div className="flex flex-col leading-tight relative z-10">
+    <span className="text-xs text-white/80">Download on</span>
+    <span className="text-sm font-semibold tracking-wide">
+      Google Play
+    </span>
+  </div>
+</Link>
+</div>
               {/* QUICK LINK 1 – SMALL */}
               <div className="lg:col-span-2 md:pl-[60px]">
                 <h4 className="mb-4 font-semibold text-white text-[22px]">
