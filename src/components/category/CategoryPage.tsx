@@ -33,7 +33,6 @@ export default function CategoryPage({
   const [hasMore, setHasMore] = useState(true);
   const [fetchingMore, setFetchingMore] = useState(false);
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [isSearching, setIsSearching] = useState(false);
 
   const sortArr = [
     {
@@ -57,7 +56,7 @@ export default function CategoryPage({
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(searchQuery);
-    }, 500); // 500ms debounce delay
+    }, 500); 
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
@@ -92,6 +91,8 @@ export default function CategoryPage({
         url.searchParams.append("q", debouncedSearch.trim());
       }
 
+      url.searchParams.append("sort", sortBy);
+
       const res = await fetch(url.toString(), { cache: "no-store" });
       const data = await res.json();
       const newProducts = data?.data || [];
@@ -124,7 +125,11 @@ export default function CategoryPage({
     setHasMore(true);
     setProducts([]);
     fetchProducts(1);
-  }, [activeCategory, activeBrand, activeAttribute, debouncedSearch]);
+  }, [activeCategory, activeBrand, activeAttribute, debouncedSearch,sortBy]);
+
+  useEffect(() => {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}, [sortBy]);
 
   useEffect(() => {
     // Only fetch if looking at bottom, not currently loading, and has more data
@@ -135,29 +140,7 @@ export default function CategoryPage({
     }
   }, [inView, loading, fetchingMore, hasMore]);
 
-  const sortedProducts = useMemo(() => {
-    const items = [...products];
 
-    switch (sortBy) {
-      case "low-high":
-        return items.sort((a, b) => a.price - b.price);
-
-      case "high-low":
-        return items.sort((a, b) => b.price - a.price);
-
-      case "newest":
-        return items.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        );
-
-      default:
-        return items.sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        );
-    }
-  }, [products, sortBy]);
 
   const sortBtnClass = (type: string) =>
     `rounded-full px-4 py-1 text-xs transition ${
@@ -234,8 +217,8 @@ export default function CategoryPage({
                 <CardSkeleton />
                 <CardSkeleton />
               </>
-            ) : sortedProducts.length > 0 ? (
-              sortedProducts.map((item) => (
+            ) : products.length > 0 ? (
+              products.map((item) => (
                 <ProductCard key={item._id} {...item} _id={item._id} />
               ))
             ) : (

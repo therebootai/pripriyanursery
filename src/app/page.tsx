@@ -47,8 +47,8 @@ export default async function Home() {
   const flowerPlantsroducts = await fetchProducts(
     `category=${categoriesWithProducts.categories[0].name}`,
   );
-  const mangoPlantsroducts = await fetchProducts(`category=mango`);
-  console.log(categoriesWithProducts);
+  const mangoPlantsroducts = await fetchProducts(`category=Mango Plant`);
+
   return (
     <>
       <MainTemplates>
@@ -65,7 +65,7 @@ export default async function Home() {
           products={mangoPlantsroducts.data}
           pagination={mangoPlantsroducts.pagination}
           limit={PRODUCT_LIMIT}
-          apiQuery={`category=Mango`}
+          apiQuery={`category=Mango Plant`}
           enableLazy={false}
         />
         <ProductSection
