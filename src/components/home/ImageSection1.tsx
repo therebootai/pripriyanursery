@@ -1,32 +1,65 @@
-import Image from 'next/image'
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ImageSection1() {
   const images = [
-    '/assets/home/rodeimage.png',
-    '/assets/home/grayimage.png',
-    '/assets/home/yellowImage.png',
-    '/assets/home/rodeimage.png',
-  ]
+    {
+      imgsrc: "/assets/home/FruitPlant.jpg",
+      href: "/products?category=Fruit Plant",
+      title: "Fruit Plants",
+    },
+    {
+      imgsrc: "/assets/home/Hibiscus.jpg",
+      href: "/products?category=Hibiscus",
+      title: "Hibiscus",
+    },
+    {
+      imgsrc: "/assets/home/indoorplants.jpg",
+      href: "/products?category=Indoor Plant",
+      title: "Indoor Plants",
+    },
+    {
+      imgsrc: "/assets/home/PlamTree.jpg",
+      href: "/products?category=Palm Tree",
+      title: "Palm Trees",
+    },
+  ];
 
   return (
-    <section className="w-full py-6">
-      <div className=" self-padding">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {images.map((src, index) => (
-            <div
+    <section className="w-full py-10">
+      <div className="self-padding">
+        <div className="grid grid-cols-2 gap-5 lg:grid-cols-4">
+          {images.map((item, index) => (
+            <Link
               key={index}
-              className="relative h-[7rem] md:h-[12rem] w-full rounded-lg"
+              href={item.href}
+              className="group relative overflow-hidden rounded-2xl shadow-md"
             >
-              <Image
-                src={src}
-                alt={`Image ${index + 1}`}
-                fill
-                className="object-cover rounded-lg"
-              />
-            </div>
+              <div className="relative h-[8rem] md:h-[13rem] w-full">
+                <Image
+                  src={item.imgsrc}
+                  alt={item.title}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                />
+
+                {/* gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+                {/* text */}
+                <div className="absolute bottom-3 left-4 text-white">
+                  <h3 className="text-sm md:text-lg font-semibold tracking-wide">
+                    {item.title}
+                  </h3>
+                  <span className="text-xs opacity-80 group-hover:underline">
+                    Shop Now →
+                  </span>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }
