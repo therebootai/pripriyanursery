@@ -101,7 +101,7 @@ export default async function Home() {
           enableLazy={false}
         />
 
-        <PlantsGallery />
+        {/* <PlantsGallery /> */}
         <FeaturesSection />
       </MainTemplates>
     </>
