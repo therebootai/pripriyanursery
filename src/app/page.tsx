@@ -6,6 +6,7 @@ import Homebanner2 from "@/components/home/HomeBanner2";
 import PlantsGallery from "@/components/home/PlantGallery";
 import FeaturesSection from "@/components/home/FeaturesSection";
 import MainTemplates from "@/templates/MainTemplates";
+import VideoGallery from "@/components/home/VideoGallery";
 export const dynamic = "force-dynamic";
 const PRODUCT_LIMIT = 10;
 
@@ -94,6 +95,7 @@ export default async function Home() {
           apiQuery={`category=${categoriesWithProducts.categories[0].name}`}
           enableLazy={false}
         />
+        <VideoGallery/>
         <HomeCategory
           title="Trending Plants"
           limit={6}
@@ -101,7 +103,7 @@ export default async function Home() {
           enableLazy={false}
         />
 
-        {/* <PlantsGallery /> */}
+        <PlantsGallery />
         <FeaturesSection />
       </MainTemplates>
     </>
