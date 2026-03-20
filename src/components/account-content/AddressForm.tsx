@@ -1,19 +1,7 @@
 import React from "react";
+import { Address } from "./ManageAddress";
 
 type AddressType = "Home" | "Office" | "Others";
-
-export type Address = {
-  _id?: string;
-  name: string;
-  mobile: string;
-  alternateMobile?: string;
-  pin: string;
-  area: string;
-  city: string;
-  state: string;
-  landmark?: string;
-  type: AddressType;
-};
 
 function AddressForm({
   form,
@@ -73,7 +61,7 @@ function AddressForm({
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-700">
         <Input
-          placeholder="Name"
+          placeholder="Name *"
           value={form.name}
           onChange={(v) => update("name", v)}
         />
@@ -81,7 +69,7 @@ function AddressForm({
         {/* Mobile Number - Max 10, Numbers Only */}
         <div>
           <Input
-            placeholder="Mobile Number"
+            placeholder="Mobile Number *"
             value={form.mobile}
             maxLength={10}
             inputMode="numeric"
@@ -96,7 +84,7 @@ function AddressForm({
         {/* Pin Code - Max 6, Numbers Only */}
         <div>
           <Input
-            placeholder="Pin Code"
+            placeholder="Pin Code *"
             value={form.pin}
             maxLength={6}
             inputMode="numeric"
@@ -110,22 +98,22 @@ function AddressForm({
         </div>
 
         <Input
-          placeholder="Area"
+          placeholder="Area *"
           value={form.area}
           onChange={(v) => update("area", v)}
         />
         <Input
-          placeholder="City"
+          placeholder="City *"
           value={form.city}
           onChange={(v) => update("city", v)}
         />
         <Input
-          placeholder="State"
+          placeholder="State *"
           value={form.state}
           onChange={(v) => update("state", v)}
         />
         <Input
-          placeholder="LandMark"
+          placeholder="LandMark *"
           value={form.landmark}
           onChange={(v) => update("landmark", v)}
         />
