@@ -34,8 +34,9 @@ export async function fetchCategories(
   const categories: CategoryType[] = json.categories || [];
 
   const grouped: CategoryUI[] = [];
+  const activeCategories = categories.filter((cat) => cat.status !== false);
 
-  for (const parent of categories) {
+  for (const parent of activeCategories) {
     // ... (Keep your existing mapping logic here) ...
     const subCategories = (parent.children || [])
       .filter(
