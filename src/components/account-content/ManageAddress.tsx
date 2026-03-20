@@ -17,7 +17,7 @@ export type Address = {
   area: string;
   city: string;
   state: string;
-  landmark?: string;
+  landmark: string;
   type: AddressType;
 };
 
@@ -53,6 +53,19 @@ export default function ManageAddress() {
   const createAddress = async () => {
     if (!customer?._id || !form) return;
 
+    // Validation
+    if (!form.name?.trim()) return toast.error("Name is required");
+    if (!form.mobile || form.mobile.length !== 10)
+      return toast.error("Valid 10-digit mobile number is required");
+    if (!form.pin || form.pin.length !== 6)
+      return toast.error("Valid 6-digit pin code is required");
+    if (!form.area?.trim()) return toast.error("Area is required");
+    if (!form.city?.trim()) return toast.error("City is required");
+    if (!form.state?.trim()) return toast.error("State is required");
+    if (!form.landmark?.trim()) return toast.error("Landmark is required");
+    if (form.alternateMobile && form.alternateMobile.length !== 10)
+      return toast.error("Alternate mobile must be 10 digits");
+
     try {
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/customer/${customer._id}/address`,
@@ -78,6 +91,19 @@ export default function ManageAddress() {
   /* ================= UPDATE ================= */
   const updateAddress = async () => {
     if (!customer?._id || !form?._id) return;
+
+    // Validation
+    if (!form.name?.trim()) return toast.error("Name is required");
+    if (!form.mobile || form.mobile.length !== 10)
+      return toast.error("Valid 10-digit mobile number is required");
+    if (!form.pin || form.pin.length !== 6)
+      return toast.error("Valid 6-digit pin code is required");
+    if (!form.area?.trim()) return toast.error("Area is required");
+    if (!form.city?.trim()) return toast.error("City is required");
+    if (!form.state?.trim()) return toast.error("State is required");
+    if (!form.landmark?.trim()) return toast.error("Landmark is required");
+    if (form.alternateMobile && form.alternateMobile.length !== 10)
+      return toast.error("Alternate mobile must be 10 digits");
 
     try {
       const res = await fetch(
@@ -138,7 +164,7 @@ export default function ManageAddress() {
       {/* FORM */}
       {form && (
         <div className="border border-gray-200 rounded-md p-4 space-y-4">
-          <AddressForm form={form} onChange={setForm} />
+          <AddressForm form={form} onChange={(v) => setForm(v)} />
 
           <div className="flex gap-3">
             <button
