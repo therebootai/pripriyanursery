@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import AddressForm, { Address } from "./AddressForm";
+import AddressForm from "./AddressForm";
+import { Address } from "./ManageAddress";
 import { useCustomer } from "@/context/CustomerContext";
 
 interface Props {
